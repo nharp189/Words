@@ -1,11 +1,11 @@
 ### set wd ###
-setwd("~/Box Sync/Lab/Words/data_exp_8700-v20-9")
+setwd("~/Documents/Nick-Grad/Neta_Lab/Words/data_exp_8700-v20-9")
 
-### load v important packages ###
-library(plyr)
-library(readxl)
-library(tidyverse)
-library(ggplot2)
+### load v important packages, but quietly ###
+suppressPackageStartupMessages(library(plyr)) 
+suppressPackageStartupMessages(library(readxl))
+suppressPackageStartupMessages(library(tidyverse))
+suppressPackageStartupMessages(library(ggplot2))
 
 ### import task data ###
 ## Main task, A = positive, L = negative
@@ -65,13 +65,19 @@ data$rating <- ifelse(data$Response == "negative", 1,
                       ifelse(data$Response == "positive", 0, NA))
 
 ### grab mean and standard deviation of postiive/negative judgments ###
-words.summary <- (ddply(data2, "wordlist", summarise, 
+words.summary <- (ddply(data, "wordlist", summarise, 
                         neg.avg = mean(rating, na.rm = FALSE),
                         neg.sd = sd(rating, na.rm = FALSE),
                         RT = mean(`Reaction Time`, na.rm = FALSE),
                         RT.sd = sd(`Reaction Time`, na.rm = FALSE),
                         avg.cor = mean(Correct, na.rm = FALSE),
                         avg.inc = mean(Incorrect, na.rm = FALSE)))
+
+### plot all RTs per subj ###
+data$`Participant Public ID` <- as.factor(data$`Participant Public ID`)
+ggplot(data = data, aes(x = `Participant Public ID`, y = `Reaction Time`)) +
+  geom_point() +
+  ylim(0, 25000)
 
 data2 <- subset(data, (`Reaction Time` >= 250 & `Reaction Time` <= 3000))
 
