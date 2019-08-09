@@ -1,0 +1,335 @@
+\documentclass[man]{apa6}
+\usepackage{lmodern}
+\usepackage{amssymb,amsmath}
+\usepackage{ifxetex,ifluatex}
+\usepackage{fixltx2e} % provides \textsubscript
+\ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+\else % if luatex or xelatex
+  \ifxetex
+    \usepackage{mathspec}
+  \else
+    \usepackage{fontspec}
+  \fi
+  \defaultfontfeatures{Ligatures=TeX,Scale=MatchLowercase}
+\fi
+% use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+% use microtype if available
+\IfFileExists{microtype.sty}{%
+\usepackage{microtype}
+\UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\usepackage{hyperref}
+\hypersetup{unicode=true,
+            pdftitle={Ambiguous Words},
+            pdfauthor={Nicholas R. Harp, Catherine C. Brown, \& Maital Neta},
+            pdfkeywords={ambiguity},
+            pdfborder={0 0 0},
+            breaklinks=true}
+\urlstyle{same}  % don't use monospace font for urls
+\usepackage{graphicx,grffile}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+\IfFileExists{parskip.sty}{%
+\usepackage{parskip}
+}{% else
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt plus 2pt minus 1pt}
+}
+\setlength{\emergencystretch}{3em}  % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{0}
+% Redefines (sub)paragraphs to behave more like sections
+\ifx\paragraph\undefined\else
+\let\oldparagraph\paragraph
+\renewcommand{\paragraph}[1]{\oldparagraph{#1}\mbox{}}
+\fi
+\ifx\subparagraph\undefined\else
+\let\oldsubparagraph\subparagraph
+\renewcommand{\subparagraph}[1]{\oldsubparagraph{#1}\mbox{}}
+\fi
+
+%%% Use protect on footnotes to avoid problems with footnotes in titles
+\let\rmarkdownfootnote\footnote%
+\def\footnote{\protect\rmarkdownfootnote}
+
+
+  \title{Ambiguous Words}
+    \author{Nicholas R. Harp\textsuperscript{1}, Catherine C. Brown\textsuperscript{1}, \& Maital Neta\textsuperscript{1}}
+    \date{}
+  
+\shorttitle{AMBIGUOUS WORDS}
+\affiliation{
+\vspace{0.5cm}
+\textsuperscript{1} University of Nebraska-Lincoln}
+\keywords{ambiguity\newline\indent Word count: X}
+\usepackage{csquotes}
+\usepackage{upgreek}
+\captionsetup{font=singlespacing,justification=justified}
+
+\usepackage{longtable}
+\usepackage{lscape}
+\usepackage{multirow}
+\usepackage{tabularx}
+\usepackage[flushleft]{threeparttable}
+\usepackage{threeparttablex}
+
+\newenvironment{lltable}{\begin{landscape}\begin{center}\begin{ThreePartTable}}{\end{ThreePartTable}\end{center}\end{landscape}}
+
+\makeatletter
+\newcommand\LastLTentrywidth{1em}
+\newlength\longtablewidth
+\setlength{\longtablewidth}{1in}
+\newcommand{\getlongtablewidth}{\begingroup \ifcsname LT@\roman{LT@tables}\endcsname \global\longtablewidth=0pt \renewcommand{\LT@entry}[2]{\global\advance\longtablewidth by ##2\relax\gdef\LastLTentrywidth{##2}}\@nameuse{LT@\roman{LT@tables}} \fi \endgroup}
+
+
+\DeclareDelayedFloatFlavor{ThreePartTable}{table}
+\DeclareDelayedFloatFlavor{lltable}{table}
+\DeclareDelayedFloatFlavor*{longtable}{table}
+\makeatletter
+\renewcommand{\efloat@iwrite}[1]{\immediate\expandafter\protected@write\csname efloat@post#1\endcsname{}}
+\makeatother
+\usepackage{lineno}
+
+\linenumbers
+
+\authornote{Nicholas R. Harp, Department of Psychology, Center for Brain, Biology, and Behavior, University of Nebraska-Lincoln
+Catherine C. Brown, Department of Psychology, Center for Brain, Biology, and Behavior, University of Nebraska-Lincoln
+Maital Neta, Department of Psychology, Center for Brain, Biology, and Behavior, University of Nebraska-Lincoln
+
+Correspondence concerning this article should be addressed to Nicholas R. Harp, Postal address. E-mail: \href{mailto:nharp@huskers.unl.edu}{\nolinkurl{nharp@huskers.unl.edu}}}
+
+\abstract{
+We found some ambiugous words.
+
+Two or three sentences explaining what the \textbf{main result} reveals in direct comparison to what was thought to be the case previously, or how the main result adds to previous knowledge.
+
+One or two sentences to put the results into a more \textbf{general context}.
+
+Two or three sentences to provide a \textbf{broader perspective}, readily comprehensible to a scientist in any discipline.
+
+
+}
+
+\begin{document}
+\maketitle
+
+\hypertarget{introduction}{%
+\section{Introduction}\label{introduction}}
+
+We wanted to identify ambiguous words.
+
+\hypertarget{study-1-pilot}{%
+\section{Study 1: Pilot}\label{study-1-pilot}}
+
+\hypertarget{methods}{%
+\subsection{Methods}\label{methods}}
+
+\hypertarget{participants}{%
+\subsubsection{Participants}\label{participants}}
+
+Workers on Amazon's Mchanical Turk (MTurk) were invted to participate in an eligibility screener worth \$0.20 with the option to earn a bonus of \$2.05 if they met the requirements and completed the entire study. See \textbf{Supplementary Information} for specific MTurk batch settings. The Workers clicked a hyperlink that directed them to the study. The screener task included demographic questions and one block of word ratings that included 5 instances of the word \enquote{negative} and 5 instances of the word \enquote{positive} (see Procedure below for full details). Workers were invited to complete the entire study if they indicated that they were over 18 years old, had English as their native language, had no history of psychological or neurological disorder, and correctly rated the words \enquote{positive} and \enquote{negative} as positive or negative with at least 80\% accuracy. Of the 145 Workers who completed the screener, 119 met the eligibility requirements, and 103 chose to complete the entire study.
+Demographics
+
+\hypertarget{material}{%
+\subsubsection{Material}\label{material}}
+
+\hypertarget{stimuli}{%
+\paragraph{Stimuli}\label{stimuli}}
+
+There were a total of 629 words.
+
+\hypertarget{software}{%
+\paragraph{Software}\label{software}}
+
+All tasks were created and presented using Gorilla Experiment Builder ({\textbf{???}}).
+
+\hypertarget{procedure}{%
+\subsubsection{Procedure}\label{procedure}}
+
+\hypertarget{screener-task}{%
+\paragraph{Screener task}\label{screener-task}}
+
+\hypertarget{word-rating-rask}{%
+\paragraph{Word rating rask}\label{word-rating-rask}}
+
+\hypertarget{data-analysis}{%
+\subsubsection{Data analysis}\label{data-analysis}}
+
+\hypertarget{results}{%
+\subsection{Results}\label{results}}
+
+\hypertarget{subjective-ratings}{%
+\subsubsection{Subjective ratings}\label{subjective-ratings}}
+
+\hypertarget{reaction-times}{%
+\subsubsection{Reaction times}\label{reaction-times}}
+
+\hypertarget{study-2-comparison-of-words-with-valence-bias-and-ipanat}{%
+\section{Study 2: Comparison of words with valence bias and IPANAT}\label{study-2-comparison-of-words-with-valence-bias-and-ipanat}}
+
+\hypertarget{methods-1}{%
+\subsection{Methods}\label{methods-1}}
+
+\hypertarget{participants-1}{%
+\subsubsection{Participants}\label{participants-1}}
+
+\hypertarget{material-1}{%
+\subsubsection{Material}\label{material-1}}
+
+\hypertarget{stimuli-1}{%
+\paragraph{Stimuli}\label{stimuli-1}}
+
+\hypertarget{valence-bias-with-words}{%
+\subparagraph{Valence Bias with Words}\label{valence-bias-with-words}}
+
+\hypertarget{valence-bias-with-faces}{%
+\subparagraph{Valence Bias with Faces}\label{valence-bias-with-faces}}
+
+\hypertarget{valence-bias-with-iaps}{%
+\subparagraph{Valence Bias with IAPS}\label{valence-bias-with-iaps}}
+
+\hypertarget{ipanat}{%
+\subparagraph{IPANAT}\label{ipanat}}
+
+\hypertarget{software-1}{%
+\paragraph{Software}\label{software-1}}
+
+\hypertarget{procedure-1}{%
+\subsubsection{Procedure}\label{procedure-1}}
+
+\hypertarget{valence-bias-tasks}{%
+\paragraph{Valence Bias Tasks}\label{valence-bias-tasks}}
+
+\hypertarget{ipanat-1}{%
+\paragraph{IPANAT}\label{ipanat-1}}
+
+\hypertarget{data-analysis-1}{%
+\subsubsection{Data analysis}\label{data-analysis-1}}
+
+\hypertarget{valence-bias-tasks-1}{%
+\paragraph{Valence Bias Tasks}\label{valence-bias-tasks-1}}
+
+\hypertarget{ipanat-2}{%
+\paragraph{IPANAT}\label{ipanat-2}}
+
+\hypertarget{results-1}{%
+\subsection{Results}\label{results-1}}
+
+\hypertarget{subjective-ratings-1}{%
+\subsubsection{Subjective ratings}\label{subjective-ratings-1}}
+
+\hypertarget{valence-bias-with-words-1}{%
+\subparagraph{Valence Bias with Words}\label{valence-bias-with-words-1}}
+
+\hypertarget{valence-bias-with-faces-1}{%
+\subparagraph{Valence Bias with Faces}\label{valence-bias-with-faces-1}}
+
+\hypertarget{valence-bias-with-iaps-1}{%
+\subparagraph{Valence Bias with IAPS}\label{valence-bias-with-iaps-1}}
+
+\hypertarget{ipanat-3}{%
+\subparagraph{IPANAT}\label{ipanat-3}}
+
+\hypertarget{reaction-times-1}{%
+\subsubsection{Reaction times}\label{reaction-times-1}}
+
+\hypertarget{valence-bias-with-words-2}{%
+\subparagraph{Valence Bias with Words}\label{valence-bias-with-words-2}}
+
+\hypertarget{valence-bias-with-faces-2}{%
+\subparagraph{Valence Bias with Faces}\label{valence-bias-with-faces-2}}
+
+\hypertarget{valence-bias-with-iaps-2}{%
+\subparagraph{Valence Bias with IAPS}\label{valence-bias-with-iaps-2}}
+
+\hypertarget{ipanat-4}{%
+\subparagraph{IPANAT}\label{ipanat-4}}
+
+\hypertarget{relationships-between-the-measures}{%
+\subsubsection{Relationships between the measures}\label{relationships-between-the-measures}}
+
+\hypertarget{discussion}{%
+\section{Discussion}\label{discussion}}
+
+We did this study.
+
+\newpage
+
+\hypertarget{references}{%
+\section{References}\label{references}}
+
+\begin{verbatim}
+## Warning in utils::citation(x[pkg], auto = if (no_citations[pkg]) TRUE else
+## NULL): no date field in DESCRIPTION file of package 'tidyr'
+\end{verbatim}
+
+\begingroup
+\setlength{\parindent}{-0.5in}
+\setlength{\leftskip}{0.5in}
+
+\hypertarget{refs}{}
+
+\endgroup
+
+\newpage
+
+\hypertarget{supplementary-information}{%
+\section{Supplementary Information}\label{supplementary-information}}
+
+\hypertarget{mturk-project-settings}{%
+\subsection{MTurk Project Settings}\label{mturk-project-settings}}
+
+The following are the settings used for the first batch on MTurk. This batch only contributed 6 respondents because the batch was published before the Gorilla task was fully functioning, and the batch expired before all HITs could be filled.
+
+\begin{itemize}
+\tightlist
+\item
+  Title: Screener: Rate words as positive or negative (WARNING: This HIT may contain adult content. Worker discretion is advised.)\\
+\item
+  Description: Bonus available (\$2.05) to those who meet eligibility. Complete short demographic questions. Use your keyboard to indicate if you think individual words are positive or negative.
+\item
+  Keywords: survey, demographics, rating, rate, words
+\item
+  Reward per response: \$0.2
+\item
+  Number of respondents: 9
+\item
+  Time allotted per worker: 1 Hour
+\item
+  Survey expires in: 7 Days
+\item
+  Auto-approve and pay Workers in: 3 Days
+\item
+  Require that Workers be Masters to do your tasks: Yes
+\item
+  Specify any additional qualifications Workers must meet to work on your tasks:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    Location is UNITED STATES (US)
+  \item
+    HIT Approval Rate (\%) for all Requesters' HITs greater than 95
+  \item
+    Number of HITs Approved greater than 5000
+  \end{itemize}
+\item
+  Project contains adult content: selected
+\item
+  Task Visibility: Hidden - Only Workers that meet my Qualification requirements can see and preview my tasks
+\end{itemize}
+
+The same settings were used for the rest of the batches except that they did not require that Workers be Masters and the Number of HITs Approved was set to greater than 500, not 5000.
+
+
+\end{document}
