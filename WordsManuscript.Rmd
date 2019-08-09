@@ -66,6 +66,8 @@ library(tidyverse)
 library(openxlsx)
 library(Rmisc)
 library(broom)
+
+source("data_cleaning_nh.R")
 ```
 # Introduction
 We wanted to identify ambiguous words. 

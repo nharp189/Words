@@ -1,5 +1,7 @@
 ### set wd ###
-setwd("~/Documents/Nick-Grad/Neta_Lab/Words/data_exp_8700-v20-9")
+cbpath <- "~/Documents/GitHub/Words/data_exp_8700-v20-9/"
+path <- cbpath
+setwd(path)
 
 ### load v important packages, but quietly ###
 suppressPackageStartupMessages(library(plyr)) 
@@ -67,14 +69,16 @@ data$rating <- ifelse(data$Response == "negative", 1,
                       ifelse(data$Response == "positive", 0, NA))
 
 ### grab mean and standard deviation of postiive/negative judgments ###
-words.summary <- (ddply(data, "wordlist", summarise, 
+words.summary <- (ddply(data, "wordlist", plyr::summarise, 
                         neg.avg = mean(rating, na.rm = FALSE),
                         neg.sd = sd(rating, na.rm = FALSE),
                         RT = mean(`Reaction Time`, na.rm = FALSE),
                         RT.sd = sd(`Reaction Time`, na.rm = FALSE),
                         avg.cor = mean(Correct, na.rm = FALSE),
                         avg.inc = mean(Incorrect, na.rm = FALSE)))
-write.csv(words.summary, "~/Documents/Nick-Grad/Neta_Lab/Words/words.summary.csv")
+# write.csv(words.summary, "~/Documents/Nick-Grad/Neta_Lab/Words/words.summary.csv")
+write.csv(words.summary,paste(path,"words.summary",'.csv',sep = ''))
+
 ### plot all RTs per subj ###
 data$`Participant Public ID` <- as.character(data$`Participant Public ID`)
 ggplot(data = data, aes(x = `Participant Public ID`, y = `Reaction Time`)) +
@@ -86,7 +90,7 @@ orig <- data %>% count(`Participant Public ID`)
 sub <- subset(data, (`Reaction Time` >= 250 & `Reaction Time` <= 4000)) %>% count(`Participant Public ID`)
 comb <- merge(orig, sub, by = "Participant Public ID")
 comb$PercentRemaining <- (comb$n.y / comb$n.x)
-write.csv(comb, "~/Desktop/250to4000ms.csv")
+# write.csv(comb, "~/Desktop/250to4000ms.csv")
 
 
 data2 <- subset(data, (`Reaction Time` >= 250 & `Reaction Time` <= 3000))
@@ -100,8 +104,8 @@ count(list$freq < (627/2))
 
 
 # Write that dataset out to a csv, if ye want. Filename includes date and time.
-write.csv(words.summary,paste("~/Documents/Nick-Grad/Neta_Lab/Words/","words.summary",
-                          format(Sys.time(),'_%Y-%m-%d_%H-%M-%S'),
-                          '.csv',sep = ''))
+# write.csv(words.summary,paste(path,"words.summary",
+#                           format(Sys.time(),'_%Y-%m-%d_%H-%M-%S'),
+#                           '.csv',sep = ''))
 
 
