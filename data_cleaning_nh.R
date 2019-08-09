@@ -1,7 +1,7 @@
 ### set wd ###
 cbpath <- "~/Documents/GitHub/Words/data_exp_8700-v20-9/"
 nhpath <- "~/Documents/Nick-Grad/Neta_Lab/Words/data_exp_8700-v20-9/"
-path <- nhpath
+path <- cbpath
 setwd(path)
 
 ### load v important packages, but quietly ###
@@ -19,8 +19,6 @@ data2 <- read_csv("data_exp_8700-v20_task-bx4b.csv")
 data3 <- read_csv("data_exp_8700-v20_task-jdgj.csv")
 ## Screener task, A = negative, L = positive
 data4 <- read_csv("data_exp_8700-v20_task-3raa.csv")
-## Demographic Questionnaire and Screener Questions
-demog <- read_csv("data_exp_8700-v20_questionnaire-rok5.csv")
 
 ### pick the cool colomns ###
 data1 <- data1[, c("Participant Public ID", "Trial Number", "Reaction Time", "Response", "Correct", "Incorrect", "randomise_trials", "display", 
@@ -51,12 +49,12 @@ data<-data[!is.na(data$wordlist),]
 
 ### check list of participants ###
 participants <- unique(data$`Participant Public ID`)
-print(participants)
+# print(participants)
 
 ### count # of trials per participant ###
 pay <- plyr::count(data$`Participant Public ID`)
 
-plyr::count(pay$freq>629) 
+# plyr::count(pay$freq>629) 
 
 pay$x <- as.character(pay$x)
 final.participant <- ifelse((pay$freq>629), pay$x, NA)
@@ -101,9 +99,8 @@ words.summary <- words.summary[order(words.summary$neg.avg),]
 
 row.names(words.summary) <- NULL
 
-list <- count(data2$`Participant Public ID`)
-count(list$freq < (627/2))
-
+# list <- count(data2$`Participant Public ID`)
+# count(list$freq < (627/2))
 
 # Write that dataset out to a csv, if ye want. Filename includes date and time.
 # write.csv(words.summary,paste(path,"words.summary",
@@ -111,3 +108,55 @@ count(list$freq < (627/2))
 #                           '.csv',sep = ''))
 
 
+
+############################ Demographics ###########################
+## Demographic Questionnaire and Screener Questions
+demog <- read_csv("data_exp_8700-v20_questionnaire-rok5.csv")
+
+### pick the cool colomns ###
+demog <- demog[, c("Participant Public ID", "Question Key","Response")]
+
+### separate into 2 data frames
+demog_age<-demog[(demog$`Question Key` == "age"),]
+demog_race<-demog[(demog$`Question Key`== "race"),]
+demog_sex<-demog[(demog$`Question Key`== "sex"),]
+
+### remove Question Type columns
+demog_age <- demog_age[, c("Participant Public ID", "Response")]
+demog_race <- demog_race[, c("Participant Public ID", "Response")]
+demog_sex <- demog_sex[, c("Participant Public ID", "Response")]
+
+### combine dfs back together
+demog <- merge(demog_age,demog_race,by="Participant Public ID")
+demog <- merge(demog,demog_sex,by="Participant Public ID")
+
+### rename race and age, make age numeric
+names(demog) <- c("Participant Public ID", "age", "race","sex")
+demog$age <- as.numeric(demog$age)
+
+### clean workspace ###
+rm(demog_age,demog_race,demog_sex)
+demog<-demog[!is.na(demog$`Participant Public ID`),]
+
+### subset demog for only the participants who completed the whole thing
+demog <- demog[demog$`Participant Public ID` %in% final.participant, ]
+
+# ### calculations for mean age, race, and sex distributions
+# mean(demog$age)
+#
+# sum(str_count(demog$race, "White - not of Hispanic Origin"))/length(final.participant) *100
+# sum(str_count(demog$race, "American Indian or Alaskan Native"))/length(final.participant) *100
+# sum(str_count(demog$race, "Asian"))/length(final.participant) *100
+# sum(str_count(demog$race, "Black - not of Hispanic Origin"))/length(final.participant) *100
+# sum(str_count(demog$race, "Hispanic or Latino"))/length(final.participant) *100
+# sum(str_count(demog$race, "Native Hawaiian or Other Pacific Islander"))/length(final.participant) *100
+# sum(str_count(demog$race, "Other"))/length(final.participant) *100
+#
+# sum(str_count(demog$sex, "Female"))/length(final.participant) *100
+# sum(str_count(demog$sex, "Male"))/length(final.participant) *100
+# sum(str_count(demog$sex, "Other"))/length(final.participant) *100
+#
+# ### displays race in a table
+# prop.table(table(demog$race))
+# tbl <- table(demog$race)
+# cbind(tbl,prop.table(tbl))
