@@ -66,11 +66,6 @@ library(tidyverse)
 library(openxlsx)
 library(Rmisc)
 library(broom)
-
-### source relevant code ###
-#source("/pick_words_final.R")
-#source("/data_cleaning_nh.R")
-
 ```
 # Introduction
 We wanted to identify ambiguous words. 
@@ -89,11 +84,6 @@ Demographics
 ### Material
 
 #### Stimuli
-```{r read in data}
-words.data <- read.csv("~/Documents/Nick-Grad/Neta_Lab/Words/words.summary.csv")
-```
-There were a total of `r printnum(nrow(words.data))` words. 
-
 
 #### Software
 All tasks were created and presented using Gorilla Experiment Builder [@anwyl-irvine_gorilla_2019].
