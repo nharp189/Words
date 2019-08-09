@@ -1,5 +1,7 @@
 ### set wd ###
-setwd("~/Documents/Nick-Grad/Neta_Lab/Words/")
+nhpath <- "~/Documents/Nick-Grad/Neta_Lab/Words/"
+path = nhpath
+setwd(path)
 
 library(utils)
 library(dplyr)
@@ -43,28 +45,51 @@ task2 <- final[!(final$Word %in% firstblock$Word),]
 ### make words uppercase, but can get rid of these lines later ###
 ## messes up other stuff... ###
 task2 <- mutate_all(task2, .funs=toupper)
-write.csv(task2, "task2.csv")
+# write.csv(task2, "task2.csv")
 firstblockpos <- mutate_all(firstblockpos, .funs=toupper)
-write.csv(firstblockpos, "firstblockpos.csv")
+# write.csv(firstblockpos, "firstblockpos.csv")
 firstblockneg <- mutate_all(firstblockneg, .funs=toupper)
-write.csv(firstblockneg, "firstblockneg.csv")
+# write.csv(firstblockneg, "firstblockneg.csv")
 #save dataframes as csv with date and time in file name 
-write.csv(final,paste("words.csv",
-                       format(Sys.time(),'_%Y-%m-%d_%H-%M-%S'),
-                       '.csv',sep = ''))
+# write.csv(final,paste("words.csv",
+  #                     format(Sys.time(),'_%Y-%m-%d_%H-%M-%S'),
+  #                     '.csv',sep = ''))
 
-write.csv(firstblockneg,paste("firstblockneg.csv",
-                      format(Sys.time(),'_%Y-%m-%d_%H-%M-%S'),
-                      '.csv',sep = ''))
+# write.csv(firstblockneg,paste("firstblockneg.csv",
+  #                    format(Sys.time(),'_%Y-%m-%d_%H-%M-%S'),
+  #                    '.csv',sep = ''))
 
-write.csv(firstblockpos,paste("firstblockpos.csv",
-                              format(Sys.time(),'_%Y-%m-%d_%H-%M-%S'),
-                              '.csv',sep = ''))
+#write.csv(firstblockpos,paste("firstblockpos.csv",
+  #                            format(Sys.time(),'_%Y-%m-%d_%H-%M-%S'),
+  #                            '.csv',sep = ''))
 #write.csv(final, "~/Desktop/posnegwords.csv")
 #bad <- read.csv("~/Desktop/swearWords.csv")
 #bad <- as.list(bad)
 #baddata$words <- bad
 #bad.long <- gather(bad)
+
+
+### checking for duplicate word -- insane is both AMB and NEG ###
+list <- c(as.character(firstblock$Word), as.character(task2$Word))
+list <- mutate_all(as.data.frame(list), .funs=toupper)
+list <- list[order(list$list),]
+setdiff(list, list.2)
+list <- as.data.frame(list)
+list.2 <- as.data.frame(list.2)
+lista <- c("a", "b", "c")
+listb <- c("a")
+
+
+
+
+
+
+
+
+
+
+
+
 
 pirateplot(A.Mean.Sum ~ VAL, data = select)
 

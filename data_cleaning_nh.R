@@ -1,6 +1,7 @@
 ### set wd ###
 cbpath <- "~/Documents/GitHub/Words/data_exp_8700-v20-9/"
-path <- cbpath
+nhpath <- "~/Documents/Nick-Grad/Neta_Lab/Words/data_exp_8700-v20-9/"
+path <- nhpath
 setwd(path)
 
 ### load v important packages, but quietly ###
@@ -76,6 +77,7 @@ words.summary <- (ddply(data, "wordlist", plyr::summarise,
                         RT.sd = sd(`Reaction Time`, na.rm = FALSE),
                         avg.cor = mean(Correct, na.rm = FALSE),
                         avg.inc = mean(Incorrect, na.rm = FALSE)))
+
 # write.csv(words.summary, "~/Documents/Nick-Grad/Neta_Lab/Words/words.summary.csv")
 write.csv(words.summary,paste(path,"words.summary",'.csv',sep = ''))
 
