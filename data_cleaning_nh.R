@@ -29,16 +29,18 @@ data3 <- data3[, c("Participant Public ID", "Trial Number", "Reaction Time", "Re
 data4 <- data4[, c("Participant Public ID", "Trial Number", "Reaction Time", "Response", "Correct", "Incorrect", "randomise_trials", "display", 
                    "ANSWER", "# exwords", "# wordlist", "Metadata")]
 
+### remove the words "positive" and "negative" from the screener blocks
+data3<-data3[(data3$`# wordlist` != "POSITIVE"),]
+data3<-data3[(data3$`# wordlist` != "NEGATIVE"),]
+data4<-data4[(data4$`# wordlist` != "POSITIVE"),]
+data4<-data4[(data4$`# wordlist` != "NEGATIVE"),]
+
 ### merge counter-balanced responses ###
 data <- rbind(data1, data2, data3, data4)
 
 ### rename (need to get rid of `#`'s)
 names(data) <- c("Participant Public ID", "Trial Number", "Reaction Time", "Response", "Correct", "Incorrect", "randomise_trials", "display", 
                  "ANSWER", "exwords", "wordlist", "Metadata")
-
-### remove the words "positive" and "negative" from the screener blocks
-data<-data[(data$wordlist != "POSITIVE"),]
-data<-data[(data$wordlist != "NEGATIVE"),]
 
 ### clean workspace ###
 rm(data1, data2, data3, data4)
@@ -49,12 +51,12 @@ participants <- unique(data$`Participant Public ID`)
 print(participants)
 
 ### count # of trials per participant ###
-pay <- count(data$`Participant Public ID`)
+pay <- plyr::count(data$`Participant Public ID`)
 
-count(pay$freq>627) 
+plyr::count(pay$freq>629) 
 
 pay$x <- as.character(pay$x)
-final.participant <- ifelse((pay$freq>627), pay$x, NA)
+final.participant <- ifelse((pay$freq>629), pay$x, NA)
 
 final.participant <- na.omit(final.participant)
 
@@ -72,12 +74,20 @@ words.summary <- (ddply(data, "wordlist", summarise,
                         RT.sd = sd(`Reaction Time`, na.rm = FALSE),
                         avg.cor = mean(Correct, na.rm = FALSE),
                         avg.inc = mean(Incorrect, na.rm = FALSE)))
-
+write.csv(words.summary, "~/Documents/Nick-Grad/Neta_Lab/Words/words.summary.csv")
 ### plot all RTs per subj ###
-data$`Participant Public ID` <- as.factor(data$`Participant Public ID`)
+data$`Participant Public ID` <- as.character(data$`Participant Public ID`)
 ggplot(data = data, aes(x = `Participant Public ID`, y = `Reaction Time`)) +
   geom_point() +
   ylim(0, 25000)
+
+### calculate percent trials retained after RT cutoff ###
+orig <- data %>% count(`Participant Public ID`)
+sub <- subset(data, (`Reaction Time` >= 250 & `Reaction Time` <= 4000)) %>% count(`Participant Public ID`)
+comb <- merge(orig, sub, by = "Participant Public ID")
+comb$PercentRemaining <- (comb$n.y / comb$n.x)
+write.csv(comb, "~/Desktop/250to4000ms.csv")
+
 
 data2 <- subset(data, (`Reaction Time` >= 250 & `Reaction Time` <= 3000))
 
@@ -90,7 +100,7 @@ count(list$freq < (627/2))
 
 
 # Write that dataset out to a csv, if ye want. Filename includes date and time.
-write.csv(words.summary,paste("~/Box Sync/Lab/Words/","words.summary",
+write.csv(words.summary,paste("~/Documents/Nick-Grad/Neta_Lab/Words/","words.summary",
                           format(Sys.time(),'_%Y-%m-%d_%H-%M-%S'),
                           '.csv',sep = ''))
 
