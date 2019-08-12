@@ -1,7 +1,7 @@
 ### set wd ###
-cbpath <- "~/Documents/GitHub/Words/data_exp_8700-v20-9/"
-nhpath <- "~/Documents/Nick-Grad/Neta_Lab/Words/data_exp_8700-v20-9/"
-path <- cbpath
+cbpath <- '~/Documents/GitHub/Words/'
+nhpath <- '~/Documents/Nick-Grad/Neta_Lab/Words/'
+path <- nhpath
 setwd(path)
 
 ### load v important packages, but quietly ###
@@ -12,13 +12,13 @@ suppressPackageStartupMessages(library(ggplot2))
 
 ### import task data ###
 ## Main task, A = positive, L = negative
-data1 <- read_csv("data_exp_8700-v20_task-l2xg.csv")
+data1 <- read_csv('data_exp_8700-v20-9/data_exp_8700-v20_task-l2xg.csv')
 ## Main task, A = negative, L = positive
-data2 <- read_csv("data_exp_8700-v20_task-bx4b.csv")
+data2 <- read_csv('data_exp_8700-v20-9/data_exp_8700-v20_task-bx4b.csv')
 ## Screener task, A = positive, L = negative
-data3 <- read_csv("data_exp_8700-v20_task-jdgj.csv")
+data3 <- read_csv('data_exp_8700-v20-9/data_exp_8700-v20_task-jdgj.csv')
 ## Screener task, A = negative, L = positive
-data4 <- read_csv("data_exp_8700-v20_task-3raa.csv")
+data4 <- read_csv('data_exp_8700-v20-9/data_exp_8700-v20_task-3raa.csv')
 
 ### pick the cool colomns ###
 data1 <- data1[, c("Participant Public ID", "Trial Number", "Reaction Time", "Response", "Correct", "Incorrect", "randomise_trials", "display", 
@@ -111,7 +111,7 @@ row.names(words.summary) <- NULL
 
 ############################ Demographics ###########################
 ## Demographic Questionnaire and Screener Questions
-demog <- read_csv("data_exp_8700-v20_questionnaire-rok5.csv")
+demog <- read_csv('data_exp_8700-v20-9/data_exp_8700-v20_questionnaire-rok5.csv')
 
 ### pick the cool colomns ###
 demog <- demog[, c("Participant Public ID", "Question Key","Response")]
