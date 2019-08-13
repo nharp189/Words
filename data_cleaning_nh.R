@@ -67,6 +67,11 @@ data <- data[ data$`Participant Public ID` %in% final.participant, ]
 data$rating <- ifelse(data$Response == "negative", 1, 
                       ifelse(data$Response == "positive", 0, NA))
 
+
+### use to swtich b/w different RT cutoffs ###
+###                                        ###
+#### data <- subset(data, (`Reaction Time` >= 250 & `Reaction Time` <= 2932))
+
 ### grab mean and standard deviation of postiive/negative judgments ###
 words.summary <- (ddply(data, "wordlist", plyr::summarise, 
                         neg.avg = mean(rating, na.rm = FALSE),
@@ -76,6 +81,7 @@ words.summary <- (ddply(data, "wordlist", plyr::summarise,
                         avg.cor = mean(Correct, na.rm = FALSE),
                         avg.inc = mean(Incorrect, na.rm = FALSE)))
 
+
 # write.csv(words.summary, "~/Documents/Nick-Grad/Neta_Lab/Words/words.summary.csv")
 write.csv(words.summary,paste(path,"words.summary",'.csv',sep = ''))
 
@@ -83,14 +89,15 @@ write.csv(words.summary,paste(path,"words.summary",'.csv',sep = ''))
 data$`Participant Public ID` <- as.character(data$`Participant Public ID`)
 ggplot(data = data, aes(x = `Participant Public ID`, y = `Reaction Time`)) +
   geom_point() +
-  ylim(0, 25000)
+  ylim(0, 10000) +
+  geom_hline(mapping = NULL, yintercept = 2932.776)
 
 ### calculate percent trials retained after RT cutoff ###
 orig <- data %>% count(`Participant Public ID`)
-sub <- subset(data, (`Reaction Time` >= 250 & `Reaction Time` <= 4000)) %>% count(`Participant Public ID`)
+sub <- subset(data, (`Reaction Time` >= 250 & `Reaction Time` <= 2214.349)) %>% count(`Participant Public ID`)
 comb <- merge(orig, sub, by = "Participant Public ID")
 comb$PercentRemaining <- (comb$n.y / comb$n.x)
-# write.csv(comb, "~/Desktop/250to4000ms.csv")
+ write.csv(comb, "~/Desktop/250to2214ms.csv")
 
 
 data2 <- subset(data, (`Reaction Time` >= 250 & `Reaction Time` <= 3000))
