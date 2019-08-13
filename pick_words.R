@@ -1,12 +1,15 @@
 ### set wd ###
-setwd("~/Documents/Nick-Grad/Neta_Lab/Words/")
+cbpath <- '~/Documents/GitHub/Words/'
+nhpath <- '~/Documents/Nick-Grad/Neta_Lab/Words/'
+path <- cbpath
+setwd(path)
 
 library(utils)
 library(dplyr)
 # install.packages("pandas")
 
 ### import elexicon generate list (this list used min / max for lexical characteristics
-### from ~30 proposed ambiguous words) ###
+### from ~59 proposed ambiguous words) ###
 lex <- read.csv("I166930.csv")
 
 ### import valence and arousal data from BRM paper ###

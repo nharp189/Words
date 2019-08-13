@@ -1,7 +1,7 @@
 ### set wd ###
 cbpath <- '~/Documents/GitHub/Words/'
 nhpath <- '~/Documents/Nick-Grad/Neta_Lab/Words/'
-path <- nhpath
+path <- cbpath
 setwd(path)
 
 ### load v important packages, but quietly ###
@@ -141,22 +141,22 @@ demog<-demog[!is.na(demog$`Participant Public ID`),]
 ### subset demog for only the participants who completed the whole thing
 demog <- demog[demog$`Participant Public ID` %in% final.participant, ]
 
-# ### calculations for mean age, race, and sex distributions
-# mean(demog$age)
-#
-# sum(str_count(demog$race, "White - not of Hispanic Origin"))/length(final.participant) *100
-# sum(str_count(demog$race, "American Indian or Alaskan Native"))/length(final.participant) *100
-# sum(str_count(demog$race, "Asian"))/length(final.participant) *100
-# sum(str_count(demog$race, "Black - not of Hispanic Origin"))/length(final.participant) *100
-# sum(str_count(demog$race, "Hispanic or Latino"))/length(final.participant) *100
-# sum(str_count(demog$race, "Native Hawaiian or Other Pacific Islander"))/length(final.participant) *100
-# sum(str_count(demog$race, "Other"))/length(final.participant) *100
-#
-# sum(str_count(demog$sex, "Female"))/length(final.participant) *100
-# sum(str_count(demog$sex, "Male"))/length(final.participant) *100
-# sum(str_count(demog$sex, "Other"))/length(final.participant) *100
-#
-# ### displays race in a table
-# prop.table(table(demog$race))
-# tbl <- table(demog$race)
-# cbind(tbl,prop.table(tbl))
+### calculations for mean age, race, and sex distributions
+mean(demog$age)
+
+sum(str_count(demog$race, "White - not of Hispanic Origin"))/length(final.participant) *100
+sum(str_count(demog$race, "American Indian or Alaskan Native"))/length(final.participant) *100
+sum(str_count(demog$race, "Asian"))/length(final.participant) *100
+sum(str_count(demog$race, "Black - not of Hispanic Origin"))/length(final.participant) *100
+sum(str_count(demog$race, "Hispanic or Latino"))/length(final.participant) *100
+sum(str_count(demog$race, "Native Hawaiian or Other Pacific Islander"))/length(final.participant) *100
+sum(str_count(demog$race, "Other"))/length(final.participant) *100
+
+sum(str_count(demog$sex, "Female"))/length(final.participant) *100
+sum(str_count(demog$sex, "Male"))/length(final.participant) *100
+sum(str_count(demog$sex, "Other"))/length(final.participant) *100
+
+### displays race in a table
+prop.table(table(demog$race))
+tbl <- table(demog$race)
+cbind(tbl,prop.table(tbl))
