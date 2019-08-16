@@ -40,7 +40,7 @@ data4<-data4[(data4$`# wordlist` != "NEGATIVE"),]
 data <- rbind(data1, data2, data3, data4)
 
 ### rename (need to get rid of `#`'s)
-names(data) <- c("Participant Public ID", "Trial Number", "Reaction Time", "Response", "Correct", "Incorrect", "randomise_trials", "display", 
+names(data) <- c("subjID", "Trial Number", "Reaction Time", "Response", "Correct", "Incorrect", "randomise_trials", "display", 
                  "ANSWER", "exwords", "wordlist", "Metadata")
 
 ### clean workspace ###
@@ -48,11 +48,11 @@ rm(data1, data2, data3, data4)
 data<-data[!is.na(data$wordlist),]
 
 ### check list of participants ###
-participants <- unique(data$`Participant Public ID`)
+participants <- unique(data$subjID)
 # print(participants)
 
 ### count # of trials per participant ###
-pay <- plyr::count(data$`Participant Public ID`)
+pay <- plyr::count(data$subjID)
 
 # plyr::count(pay$freq>629) 
 
@@ -61,7 +61,7 @@ final.participant <- ifelse((pay$freq>629), pay$x, NA)
 
 final.participant <- na.omit(final.participant)
 
-data <- data[ data$`Participant Public ID` %in% final.participant, ]
+data <- data[ data$subjID %in% final.participant, ]
 
 ### create 1 = neg and 0 = pos score for each trial ###
 data$rating <- ifelse(data$Response == "negative", 1, 
@@ -71,6 +71,16 @@ data$rating <- ifelse(data$Response == "negative", 1,
 ### use to swtich b/w different RT cutoffs ###
 ###                                        ###
 #### data <- subset(data, (`Reaction Time` >= 250 & `Reaction Time` <= 2932))
+
+### insane was doubled... oops, select only first instance ###
+### first split data into dataframe for each subject ###
+split.data <- split(data, data$subjID)
+### then write over each subjects data frame with only first instance of each word ###
+split.data <- lapply(split.data, function(data) {
+  data <- data[match(unique(data$wordlist), data$wordlist),]  
+})
+### marry the data again ###
+data <- bind_rows(split.data, .id = "column_label")
 
 ### grab mean and standard deviation of postiive/negative judgments ###
 words.summary <- (ddply(data, "wordlist", plyr::summarise, 
