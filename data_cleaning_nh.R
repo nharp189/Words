@@ -30,18 +30,39 @@ data3 <- data3[, c("Participant Public ID", "Trial Number", "Reaction Time", "Re
 data4 <- data4[, c("Participant Public ID", "Trial Number", "Reaction Time", "Response", "Correct", "Incorrect", "randomise_trials", "display", 
                    "ANSWER", "# exwords", "# wordlist", "Metadata")]
 
-### remove the words "positive" and "negative" from the screener blocks
-data3<-data3[(data3$`# wordlist` != "POSITIVE"),]
-data3<-data3[(data3$`# wordlist` != "NEGATIVE"),]
-data4<-data4[(data4$`# wordlist` != "POSITIVE"),]
-data4<-data4[(data4$`# wordlist` != "NEGATIVE"),]
+### remove the words "positive" and "negative" from the main blocks ###
+data2<-data2[(data2$`# wordlist` != "POSITIVE"),]
+data2<-data2[(data2$`# wordlist` != "NEGATIVE"),]
+data1<-data1[(data1$`# wordlist` != "POSITIVE"),]
+data1<-data1[(data1$`# wordlist` != "NEGATIVE"),]
 
-### merge counter-balanced responses ###
-data <- rbind(data1, data2, data3, data4)
+### merge counter-balanced screening blocks ###
+data <- rbind(data3, data4)
 
 ### rename (need to get rid of `#`'s)
 names(data) <- c("subjID", "Trial Number", "Reaction Time", "Response", "Correct", "Incorrect", "randomise_trials", "display", 
                  "ANSWER", "exwords", "wordlist", "Metadata")
+
+### positive/negative were screeners and actual words of interest ###
+### select only first instance of each ###
+### first split data into dataframe for each subject ###
+split.data <- split(data, data$subjID)
+### then write over each subjects data frame with only first instance of each word ###
+split.data <- lapply(split.data, function(data) {
+  data <- data[match(unique(data$wordlist), data$wordlist),]  
+})
+data <- bind_rows(split.data, .id = "column_label")
+data <- select(data,-c("column_label"))
+
+### merge counter-balanced testing blocks ###
+### this renaming could be made more elegant... ###
+### rename (need to get rid of `#`'s)
+names(data1) <- c("subjID", "Trial Number", "Reaction Time", "Response", "Correct", "Incorrect", "randomise_trials", "display", 
+                 "ANSWER", "exwords", "wordlist", "Metadata")
+### rename (need to get rid of `#`'s)
+names(data2) <- c("subjID", "Trial Number", "Reaction Time", "Response", "Correct", "Incorrect", "randomise_trials", "display", 
+                 "ANSWER", "exwords", "wordlist", "Metadata")
+data <- rbind(data, data1, data2)
 
 ### clean workspace ###
 rm(data1, data2, data3, data4)
