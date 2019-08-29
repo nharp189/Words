@@ -26,18 +26,31 @@ ggplot(aes(x = wordlist, y = neg.avg), data = words.summary) +
 pos.words <- subset(words.summary, words.summary$neg.avg <= .25)
 neg.words <- subset(words.summary, words.summary$neg.avg >= .75)
 
-## this is relatively uninformative ##
-mean(words.summary$neg.sd)
-sd(words.summary$neg.sd)
-## most words have high SD ##
+### plot the words between .25 and .75 neg.avg ###
+ggplot(aes(x = wordlist, y = RT, color = Val), data = subset(words.summary, (words.summary$neg.avg <= .75 & words.summary$neg.avg >= .25))) +
+  geom_point(stat = "identity")
 
-words <- words.summary[order(-words.summary$neg.sd),]
-row.names(words) = NULL
+### plot the words between .25 and .75 neg.avg ###
+ggplot(aes(x = wordlist, y = RT, color = Val), data = subset(words.summary, (words.summary$neg.avg <= .25))) +
+  geom_point(stat = "identity")
 
-top100sd <- words[1:100, ]
+### plot the words between .25 and .75 neg.avg ###
+ggplot(aes(x = wordlist, y = RT, color = Val), data = subset(words.summary, (words.summary$neg.avg >= .75))) +
+  geom_point(stat = "identity")
 
-top100sd.ambonly <- subset(top100sd, top100sd$Val == "AMB")
-mean(top100sd.ambonly$neg.avg)
-sd(top100sd.ambonly$neg.avg)
-mean(top100sd.ambonly$neg.sd)
-sd(top100sd.ambonly$neg.sd)
+### pull words and list for pos, neg, and amb ###
+### want quick pos and neg words ###
+### want slow amb words ###
+pos.words <- subset(pos.words, RT <= 800)
+neg.words <- subset(neg.words, RT <= 800)
+amb.words <- subset(words.summary, (words.summary$neg.avg <= .75 & words.summary$neg.avg >= .25))
+amb.words <- subset(amb.words, RT >= 875)
+
+### now clean up data frames to include a few columns and output ###
+pos.words <- pos.words[, c("wordlist", "neg.avg", "RT")]
+neg.words <- neg.words[, c("wordlist", "neg.avg", "RT")]
+amb.words <- amb.words[, c("wordlist", "neg.avg", "RT", "Val")]
+
+write.csv(pos.words, "pos.words.csv")
+write.csv(neg.words, "neg.words.csv")
+write.csv(amb.words, "amb.words.csv")
