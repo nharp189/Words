@@ -88,11 +88,6 @@ data <- data[ data$subjID %in% final.participant, ]
 data$rating <- ifelse(data$Response == "negative", 1, 
                       ifelse(data$Response == "positive", 0, NA))
 
-
-### use to swtich b/w different RT cutoffs ###
-###                                        ###
-#### data <- subset(data, (`Reaction Time` >= 250 & `Reaction Time` <= 2932))
-
 ### insane was doubled... oops, select only first instance ###
 ### first split data into dataframe for each subject ###
 split.data <- split(data, data$subjID)
@@ -103,6 +98,13 @@ split.data <- lapply(split.data, function(data) {
 ### marry the data again ###
 data <- bind_rows(split.data, .id = "column_label")
 
+### use to swtich b/w different RT cutoffs ###
+###                                        ###
+data <- subset(data, (`Reaction Time` >= 250 & `Reaction Time` <= 2932))
+
+### remove bad subjects (i.e., A1DCKRRPA4AWVD) ###
+data <- subset(data, !subjID == "A1DCKRRPA4AWVD")
+
 ### grab mean and standard deviation of postiive/negative judgments ###
 words.summary <- (ddply(data, "wordlist", plyr::summarise, 
                         neg.avg = mean(rating, na.rm = FALSE),
@@ -112,7 +114,32 @@ words.summary <- (ddply(data, "wordlist", plyr::summarise,
                         avg.cor = mean(Correct, na.rm = FALSE),
                         avg.inc = mean(Incorrect, na.rm = FALSE)))
 
-
+### pair labels with words ###
+{### import elexicon generate list (this list used min / max for lexical characteristics
+### from ~30 proposed ambiguous words) ###
+lex <- read.csv("I166930.csv")
+### import valence and arousal data from BRM paper ###
+rate <- read.csv("BRM-emot-submit.csv")
+amb <- read.csv("59amb.csv")
+### merge by word... ###
+full.data <- merge(lex, rate, by = "Word")
+amb.data <- merge(amb, rate, by ="Word")
+amb.data$Val <- "AMB"
+### do scrum 4/4 suggestions ###
+new.data <- subset(full.data, (A.Mean.Sum > (mean(amb.data$A.Mean.Sum)-sd(amb.data$A.Mean.Sum))) 
+                   & (A.Mean.Sum < (mean(amb.data$A.Mean.Sum)+sd(amb.data$A.Mean.Sum))))
+### if valence is b/w 3 and 7 AND sd is < sd of new.data arousal, remove ###
+neg <- subset(new.data, V.Mean.Sum < 3)
+neg$Val <- "NEG"
+pos <- subset(new.data, V.Mean.Sum > 7)
+pos$Val <- "POS"
+final <- rbind(neg, pos, amb.data)
+final <- final[match(unique(final$Word), final$Word),]
+colnames(final)[colnames(final)=="Word"] <- "wordlist"
+rm(lex, rate, amb, full.data, amb.data, new.data, neg, pos)
+final <- mutate_all(final, .funs=toupper)
+words.summary <- merge(words.summary, final, by = "wordlist")
+}
 # write.csv(words.summary, "~/Documents/Nick-Grad/Neta_Lab/Words/words.summary.csv")
 write.csv(words.summary,paste(path,"words.summary",'.csv',sep = ''))
 

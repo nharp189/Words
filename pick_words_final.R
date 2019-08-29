@@ -70,14 +70,14 @@ firstblockneg <- mutate_all(firstblockneg, .funs=toupper)
 
 
 ### checking for duplicate word -- insane is both AMB and NEG ###
-list <- c(as.character(firstblock$Word), as.character(task2$Word))
-list <- mutate_all(as.data.frame(list), .funs=toupper)
-list <- list[order(list$list),]
-setdiff(list, list.2)
-list <- as.data.frame(list)
-list.2 <- as.data.frame(list.2)
-lista <- c("a", "b", "c")
-listb <- c("a")
+# list <- c(as.character(firstblock$Word), as.character(task2$Word))
+# list <- mutate_all(as.data.frame(list), .funs=toupper)
+# list <- list[order(list$list),]
+# setdiff(list, list.2)
+# list <- as.data.frame(list)
+# list.2 <- as.data.frame(list.2)
+# lista <- c("a", "b", "c")
+# listb <- c("a")
 
 
 
@@ -91,133 +91,133 @@ listb <- c("a")
 
 
 
-pirateplot(A.Mean.Sum ~ VAL, data = select)
-
-ambwords <- subset(full.data, A.Mean.Sum > 5)
-write.csv(ambwords, "~/Desktop/ambwords.csv")
-
-
-
-
-### top / bottom quartiles for valence and middle quartiles for arousal ###
-quantile(full.data$V.Mean.Sum)
-
-
-pop_sd <- sd(full.data$V.Mean.Sum)*sqrt((length(full.data$V.Mean.Sum)-1)/length(full.data$V.Mean.Sum))
-pop_mean <- mean(full.data$V.Mean.Sum)
-
-full.data$Val.z <- ((full.data$V.Mean.Sum - pop_mean)/pop_sd)
-sum(full.data$Val.z >= 2)
-
-
-full.data <- full.data[full.data$Length <= 9,]
-View(full.data)
-
-### val 4.5 and below (neg) and 6.7 and up (pos) ###
-#full.data$vquartile <- with(full.data, cut(V.Mean.Sum, 
- #                               breaks=quantile(V.Mean.Sum, probs=seq(0,1, by=0.25), na.rm=TRUE), 
-  #                              include.lowest=TRUE))
-#full.data$vquartile <- as.numeric(full.data$vquartile)
-#full.data$aquantile <-  with(full.data, cut(A.Mean.Sum, 
-#                                breaks=quantile(A.Mean.Sum, probs=seq(0,1, by=0.25), na.rm=TRUE), 
-#                                include.lowest=TRUE))
-#full.data$aquantile <- as.numeric(full.data$aquantile)
-
-# full.data$mid <- ifelse(full.data$aquantile == 2, 1,
-#                         ifelse(full.data$aquantile == 3, 1, 0))
-# std(comb$Length)
-# mean(comb$Length)
+# pirateplot(A.Mean.Sum ~ VAL, data = select)
+# 
+# ambwords <- subset(full.data, A.Mean.Sum > 5)
+# write.csv(ambwords, "~/Desktop/ambwords.csv")
 # 
 # 
 # 
+# 
+# ### top / bottom quartiles for valence and middle quartiles for arousal ###
+# quantile(full.data$V.Mean.Sum)
+# 
+# 
+# pop_sd <- sd(full.data$V.Mean.Sum)*sqrt((length(full.data$V.Mean.Sum)-1)/length(full.data$V.Mean.Sum))
+# pop_mean <- mean(full.data$V.Mean.Sum)
+# 
+# full.data$Val.z <- ((full.data$V.Mean.Sum - pop_mean)/pop_sd)
+# sum(full.data$Val.z >= 2)
+# 
+# 
+# full.data <- full.data[full.data$Length <= 9,]
 # View(full.data)
-# neg <- subset(full.data, vquartile == 1)
-# neg <- subset(neg, aquantile == c(2, 3))
-# pos <- subset(full.data, vquartile == 4)
-# pos <- subset(pos, aquantile == c(2, 3))
-# View(pos)
-# comb <- rbind(neg, pos)
 # 
-# shapiro.test(comb.new$Length)
-# comb.new <- subset(comb.new, Length >= 5)
-# hist(comb.new$Length)
+# ### val 4.5 and below (neg) and 6.7 and up (pos) ###
+# #full.data$vquartile <- with(full.data, cut(V.Mean.Sum, 
+#  #                               breaks=quantile(V.Mean.Sum, probs=seq(0,1, by=0.25), na.rm=TRUE), 
+#   #                              include.lowest=TRUE))
+# #full.data$vquartile <- as.numeric(full.data$vquartile)
+# #full.data$aquantile <-  with(full.data, cut(A.Mean.Sum, 
+# #                                breaks=quantile(A.Mean.Sum, probs=seq(0,1, by=0.25), na.rm=TRUE), 
+# #                                include.lowest=TRUE))
+# #full.data$aquantile <- as.numeric(full.data$aquantile)
 # 
-# write_csv(pos, "~/Desktop/pos.csv")
-# View(full.data)
-# squantile(full.data$A.Mean.Sum)
-
-
-### order by val mean ###
-sort.data <- full.data[order(full.data$V.Mean.Sum),]
-
-### add new id column ###
-sort.data$id <- seq.int(nrow(sort.data))
-rownames(sort.data) <- sort.data$id
-
-### grab min val through 3.5 for neg, and 6.5 through max val for pos###
-neg.words <- sort.data[1:490,]
-pos.words <- sort.data[3419:4145,]
-
-### pick appropriately arousing words... looking for ~ 4.5 ###
-### sort each list by arousal ###
-aro.neg <-neg.words[order(neg.words$A.Mean.Sum),] 
-aro.pos <-pos.words[order(pos.words$A.Mean.Sum),] 
-
-### re-number ###
-aro.neg$id <- seq.int(nrow(aro.neg))
-aro.pos$id <- seq.int(nrow(aro.pos))
-row.names(aro.neg) <- aro.neg$id
-row.names(aro.pos) <- aro.pos$id
-
-### get rid of anything arousal < 3.5 ... , 
-### like AMB ratings on Words Summary excel sheet ###
-aro.neg <- aro.neg[-c(1:18),]
-aro.pos <- aro.pos[-c(1:116),]
-
-aro.neg$id <- seq.int(nrow(aro.neg))
-aro.pos$id <- seq.int(nrow(aro.pos))
-row.names(aro.neg) <- aro.neg$id
-row.names(aro.pos) <- aro.pos$id
-
-### ... or arousal > 5.5
-aro.neg <- aro.neg[-c(330:472),]
-aro.pos <- aro.pos[-c(502:611),]
-
-### add val labels ###
-aro.neg$val <- "neg"
-aro.pos$val <- "pos"
-
-### merge ###
-words <- rbind(aro.neg, aro.pos)
-
-### remove all words with length 8 or higher ###
-words <- words[order(words$Length),]
-words$id <- seq.int(nrow(words))
-row.names(words) <- words$id
-words <- words[!(words$Length >= 8),]
-
-words$id <- seq.int(nrow(words))
-row.names(words) <- words$id
-
-### down to 233 neg, 360 pos ###
-### get rid of low Log_Freq below 8 ###
-words <-words[order(words$Log_Freq_HAL),]
-words$id <- seq.int(nrow(words))
-row.names(words) <- words$id
-words <- words[words$Log_Freq_HAL >= 8,]
-
-pos.words <- subset(words, val == "pos")
-colMeans(pos.words[,2:21])
-
-
-View(words)
-words <-words[order(words$val),]
-colMeans(words[,2:21])
-
-
-
- ### could order 13,000 words by val sd and pick new ambiguous ###
-
-
-### check for high SD words to add to AMB word list ###
-rate <- rate[order(rate$V.SD.Sum),]
+# # full.data$mid <- ifelse(full.data$aquantile == 2, 1,
+# #                         ifelse(full.data$aquantile == 3, 1, 0))
+# # std(comb$Length)
+# # mean(comb$Length)
+# # 
+# # 
+# # 
+# # View(full.data)
+# # neg <- subset(full.data, vquartile == 1)
+# # neg <- subset(neg, aquantile == c(2, 3))
+# # pos <- subset(full.data, vquartile == 4)
+# # pos <- subset(pos, aquantile == c(2, 3))
+# # View(pos)
+# # comb <- rbind(neg, pos)
+# # 
+# # shapiro.test(comb.new$Length)
+# # comb.new <- subset(comb.new, Length >= 5)
+# # hist(comb.new$Length)
+# # 
+# # write_csv(pos, "~/Desktop/pos.csv")
+# # View(full.data)
+# # squantile(full.data$A.Mean.Sum)
+# 
+# 
+# ### order by val mean ###
+# sort.data <- full.data[order(full.data$V.Mean.Sum),]
+# 
+# ### add new id column ###
+# sort.data$id <- seq.int(nrow(sort.data))
+# rownames(sort.data) <- sort.data$id
+# 
+# ### grab min val through 3.5 for neg, and 6.5 through max val for pos###
+# neg.words <- sort.data[1:490,]
+# pos.words <- sort.data[3419:4145,]
+# 
+# ### pick appropriately arousing words... looking for ~ 4.5 ###
+# ### sort each list by arousal ###
+# aro.neg <-neg.words[order(neg.words$A.Mean.Sum),] 
+# aro.pos <-pos.words[order(pos.words$A.Mean.Sum),] 
+# 
+# ### re-number ###
+# aro.neg$id <- seq.int(nrow(aro.neg))
+# aro.pos$id <- seq.int(nrow(aro.pos))
+# row.names(aro.neg) <- aro.neg$id
+# row.names(aro.pos) <- aro.pos$id
+# 
+# ### get rid of anything arousal < 3.5 ... , 
+# ### like AMB ratings on Words Summary excel sheet ###
+# aro.neg <- aro.neg[-c(1:18),]
+# aro.pos <- aro.pos[-c(1:116),]
+# 
+# aro.neg$id <- seq.int(nrow(aro.neg))
+# aro.pos$id <- seq.int(nrow(aro.pos))
+# row.names(aro.neg) <- aro.neg$id
+# row.names(aro.pos) <- aro.pos$id
+# 
+# ### ... or arousal > 5.5
+# aro.neg <- aro.neg[-c(330:472),]
+# aro.pos <- aro.pos[-c(502:611),]
+# 
+# ### add val labels ###
+# aro.neg$val <- "neg"
+# aro.pos$val <- "pos"
+# 
+# ### merge ###
+# words <- rbind(aro.neg, aro.pos)
+# 
+# ### remove all words with length 8 or higher ###
+# words <- words[order(words$Length),]
+# words$id <- seq.int(nrow(words))
+# row.names(words) <- words$id
+# words <- words[!(words$Length >= 8),]
+# 
+# words$id <- seq.int(nrow(words))
+# row.names(words) <- words$id
+# 
+# ### down to 233 neg, 360 pos ###
+# ### get rid of low Log_Freq below 8 ###
+# words <-words[order(words$Log_Freq_HAL),]
+# words$id <- seq.int(nrow(words))
+# row.names(words) <- words$id
+# words <- words[words$Log_Freq_HAL >= 8,]
+# 
+# pos.words <- subset(words, val == "pos")
+# colMeans(pos.words[,2:21])
+# 
+# 
+# View(words)
+# words <-words[order(words$val),]
+# colMeans(words[,2:21])
+# 
+# 
+# 
+#  ### could order 13,000 words by val sd and pick new ambiguous ###
+# 
+# 
+# ### check for high SD words to add to AMB word list ###
+# rate <- rate[order(rate$V.SD.Sum),]
