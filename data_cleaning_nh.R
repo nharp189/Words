@@ -94,6 +94,7 @@ ggplot(data = data, aes(x = `Participant Public ID`, y = `Reaction Time`)) +
 
 ### calculate percent trials retained after RT cutoff ###
 orig <- data %>% count(`Participant Public ID`)
+orig <- count(data$`Participant Public ID`)
 sub <- subset(data, (`Reaction Time` >= 250 & `Reaction Time` <= 2214.349)) %>% count(`Participant Public ID`)
 comb <- merge(orig, sub, by = "Participant Public ID")
 comb$PercentRemaining <- (comb$n.y / comb$n.x)
