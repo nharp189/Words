@@ -105,7 +105,7 @@ Using a random seed, we selected 20 positive and 20 negative words from the fina
 The remaining 590 words from the final pilot list were randomly presented across 10 blocks of 59 words using the same button-press procedure as the screener block. 
 
 ### Data preprocessing
-Trials with a response time slower than 250ms (were removed from the data prior to analyses, as well as trials greater than 3 SDs above the mean reaction time averaged across all trials. 
+Trials with a response time slower than 250ms (n = were removed from the data prior to analyses, as well as trials greater than 3 SDs above the mean reaction time averaged across all trials. 
 
 ## Results
 
