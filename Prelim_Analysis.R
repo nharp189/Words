@@ -41,15 +41,15 @@ ggplot(aes(x = wordlist, y = RT, color = Val), data = subset(words.summary, (wor
 ### pull words and list for pos, neg, and amb ###
 ### want quick pos and neg words ###
 ### want slow amb words ###
-pos.words <- subset(pos.words, RT <= 800)
-neg.words <- subset(neg.words, RT <= 800)
+pos.words <- subset(pos.words, RT <= 882)
+neg.words <- subset(neg.words, RT <= 882)
 amb.words <- subset(words.summary, (words.summary$neg.avg <= .75 & words.summary$neg.avg >= .25))
 amb.words <- subset(amb.words, RT >= 875)
 
 ### now clean up data frames to include a few columns and output ###
-pos.words <- pos.words[, c("wordlist", "neg.avg", "RT")]
-neg.words <- neg.words[, c("wordlist", "neg.avg", "RT")]
-amb.words <- amb.words[, c("wordlist", "neg.avg", "RT", "Val")]
+pos.words <- pos.words[, c("wordlist", "neg.avg", "RT", "Length", "Freq_HAL")]
+neg.words <- neg.words[, c("wordlist", "neg.avg", "RT", "Length", "Freq_HAL")]
+amb.words <- amb.words[, c("wordlist", "neg.avg", "RT", "Length", "Freq_HAL", "Val")]
 
 write.csv(pos.words, "pos.words.csv")
 write.csv(neg.words, "neg.words.csv")
