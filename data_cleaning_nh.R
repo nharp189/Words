@@ -4,6 +4,7 @@ nhpath <- '~/Documents/Nick-Grad/Neta_Lab/Words/'
 path <- nhpath
 setwd(path)
 
+### load v important packages, but quietly ###
 suppressPackageStartupMessages(library(plyr)) 
 suppressPackageStartupMessages(library(readxl))
 suppressPackageStartupMessages(library(tidyverse))
