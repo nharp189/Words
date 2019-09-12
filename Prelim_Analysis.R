@@ -6,6 +6,7 @@ setwd(path)
 
 source("data_cleaning_nh.R")
 
+library(openxlsx)
 
 # ### make item-level data ###
 # ### each word is a row and each subject is a column ###
@@ -54,3 +55,19 @@ amb.words <- amb.words[, c("wordlist", "neg.avg", "RT", "Val")]
 write.csv(pos.words, "pos.words.csv")
 write.csv(neg.words, "neg.words.csv")
 write.csv(amb.words, "amb.words.csv")
+
+final.words <- read.xlsx("From_Maital/words_2019-08-31_MN.xlsx", sheet = 2)
+count(final.words, Val)
+
+### t.test for length ###
+t.test((subset(final.words, Val == "AMB")$Length), (subset(final.words, Val == "POS")$Length))
+t.test((subset(final.words, Val == "AMB")$Length), (subset(final.words, Val == "NEG")$Length))
+t.test((subset(final.words, Val == "POS")$Length), (subset(final.words, Val == "NEG")$Length))
+
+### t.test for frequency ###
+t.test((subset(final.words, Val == "AMB")$Frequency), (subset(final.words, Val != "AMB")$Frequency))
+t.test((subset(final.words, Val == "AMB")$Frequency), (subset(final.words, Val == "NEG")$Frequency))
+t.test((subset(final.words, Val == "POS")$Frequency), (subset(final.words, Val == "NEG")$Frequency))
+
+summary(aov(Frequency ~ Val, data = final.words))
+
