@@ -1,7 +1,7 @@
 ### set wd ###
 cbpath <- '~/Documents/GitHub/Words/'
 nhpath <- '~/Documents/Nick-Grad/Neta_Lab/Words/'
-path <- nhpath
+path <- cbpath
 setwd(path)
 
 ### load v important packages, but quietly ###
