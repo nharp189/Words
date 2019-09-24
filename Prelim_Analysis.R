@@ -23,7 +23,7 @@ library(openxlsx)
 ggplot(aes(x = wordlist, y = neg.avg), data = words.summary) +
   geom_point(stat = "identity")
 
-### looks like 21 positive (e.g., below .25) and 20 negative (e.g., above .75) ###
+### looks like 20 positive (e.g., below .25) and 19 negative (e.g., above .75) ###
 pos.words <- subset(words.summary, words.summary$neg.avg <= .25)
 neg.words <- subset(words.summary, words.summary$neg.avg >= .75)
 
@@ -42,8 +42,8 @@ ggplot(aes(x = wordlist, y = RT, color = Val), data = subset(words.summary, (wor
 ### pull words and list for pos, neg, and amb ###
 ### want quick pos and neg words ###
 ### want slow amb words ###
-pos.words <- subset(pos.words, RT <= 800)
-neg.words <- subset(neg.words, RT <= 800)
+pos.words <- subset(pos.words, RT <= 876)
+neg.words <- subset(neg.words, RT <= 876)
 amb.words <- subset(words.summary, (words.summary$neg.avg <= .75 & words.summary$neg.avg >= .25))
 amb.words <- subset(amb.words, RT >= 875)
 
