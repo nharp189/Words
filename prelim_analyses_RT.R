@@ -1,8 +1,8 @@
 source("data_cleaning_nh.R")
 
 ### plot all RTs per subj ###
-data$`Participant Public ID` <- as.character(data$`Participant Public ID`)
-ggplot(data = data, aes(x = `Participant Public ID`, y = `Reaction Time`)) +
+data$`subjID` <- as.character(data$`subjID`)
+ggplot(data = data, aes(x = `subjID`, y = `Reaction Time`)) +
   geom_point() +
   ylim(0, 10000) +
   geom_hline(mapping = NULL, yintercept = 2932.776)
