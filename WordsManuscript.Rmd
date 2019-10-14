@@ -105,7 +105,19 @@ Using a random seed, we selected 20 positive and 20 negative words from the fina
 The remaining 590 words from the final pilot list were randomly presented across 10 blocks of 59 words using the same button-press procedure as the screener block. 
 
 ### Data preprocessing
-Trials with a response time faster than 250ms (n = ) were removed from the data prior to analysis, as well as trials greater than 3 SDs above the mean reaction time averaged across all trials. 
+Trials with a response time faster than 250ms were removed from the data prior to analysis, as well as trials greater than 3 SDs above the mean reaction time averaged across all trials. 
+
+Valence plotted visually, <25 and >75% negative - initial pos and neg words list
+
+Figure of that
+
+
+RT plotted for words between 35 and 65
+ambiguous (technically some "negative") words all have high rts (n = 40 that were > 875)
+
+shortest ambiguous rt is cutoff for pos and neg words rts, this removes some pos and neg words, so we're at ?? and ??
+
+
 
 ## Results
 
@@ -196,3 +208,4 @@ The same settings were used for the rest of the batches except that they did not
 
 ## Study 1 Stimuli
 Insert link to repository for 'pick_words.R' 
+
