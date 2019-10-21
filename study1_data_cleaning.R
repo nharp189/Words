@@ -4,6 +4,8 @@ setwd("~/Documents/Nick-Grad/Neta_Lab/Words/data/study1_data/data_exp_9792-v16/"
 ### load packages ###
 suppressPackageStartupMessages(library(tidyverse))
 suppressPackageStartupMessages(library(plyr))
+suppressPackageStartupMessages(library(MASS))
+suppressPackageStartupMessages(library(ppcor))
 
 ### set stim lists ###
 {
@@ -59,43 +61,126 @@ suppressPackageStartupMessages(library(plyr))
 ### change directory ###
 setwd("~/Documents/Nick-Grad/Neta_Lab/Words/data/study1_data/data_exp_9792-v16/")
 
+#### read in the demographics data ###
+v16_demo <- read.csv("data_exp_9792-v16_questionnaire-rok5.csv")
+v16_demo <- v16_demo[, c("Participant.Public.ID", "Question.Key", "Response")]
+### spread the data ###
+v16_demo <- spread(v16_demo, key = "Question.Key", value = Response)
+### drop first row (blank) ###
+v16_demo <- v16_demo[-1, ]
+
 ### read in the task data ###
+# v16_dhn3 <- read.csv("data_exp_9792-v16_task-dhn3.csv")
+# v16_uyls <- read.csv("data_exp_9792-v16_task-uyls.csv")
 v16_7sqx <- read.csv("data_exp_9792-v16_task-7sqx.csv")
 v16_6nyj <- read.csv("data_exp_9792-v16_task-6nyj.csv")
 v16_5unm <- read.csv("data_exp_9792-v16_task-5unm.csv")
 v16_b5b7 <- read.csv("data_exp_9792-v16_task-b5b7.csv")
-v16_ulkf <- read.csv("data_exp_9792-v16_task-ulkf.csv")
+# v16_xsf9 <- read.csv("data_exp_9792-v16_task-xsf9.csv")
+# v16_tahj <- read.csv("data_exp_9792-v16_task-tahj.csv")
+v16_jpit <- read.csv("data_exp_9792-v16_task-jpit.csv")
+# v16_u5dg <- read.csv("data_exp_9792-v16_task-u5dg.csv")
+# v16_rugu <- read.csv("data_exp_9792-v16_task-rugu.csv")
+v16_myk4 <- read.csv("data_exp_9792-v16_task-myk4.csv")
+# v16_pdjg <- read.csv("data_exp_9792-v16_task-pdjg.csv")
+# v16_nq9b <- read.csv("data_exp_9792-v16_task-nq9b.csv")
+v16_tazw <- read.csv("data_exp_9792-v16_task-tazw.csv")
+v16_y89e <- read.csv("data_exp_9792-v16_task-y89e.csv")
+v16_f3ii <- read.csv("data_exp_9792-v16_task-f3ii.csv")
+# v16_71u8 <- read.csv("data_exp_9792-v16_task-71u8.csv")
+# v16_7f4u <- read.csv("data_exp_9792-v16_task-7f4u.csv")
+# v16_b86o <- read.csv("data_exp_9792-v16_task-b86o.csv")
+# v16_udom <- read.csv("data_exp_9792-v16_task-udom.csv")
+v16_x6ib <- read.csv("data_exp_9792-v16_task-x6ib.csv")
+v16_shzk <- read.csv("data_exp_9792-v16_task-shzk.csv")
+# v16_dko9 <- read.csv("data_exp_9792-v16_task-dk09.csv")
 
-v16_data <- rbind( v16_7sqx,
-                  v16_6nyj, v16_5unm, v16_b5b7)
+v16_data <- rbind(v16_7sqx,
+                  v16_6nyj, v16_5unm, v16_b5b7,
+                  v16_jpit,
+                  v16_myk4,
+                  v16_tazw,
+                  v16_y89e, v16_f3ii,
 
-rm(v16_7sqx, v16_6nyj, v16_5unm, v16_b5b7)
+                  v16_x6ib, v16_shzk)
+
+### clean workspace ###
+rm(v16_7sqx,
+   v16_6nyj, v16_5unm, v16_b5b7,
+   v16_jpit,
+   v16_myk4,
+   v16_tazw,
+   v16_y89e, v16_f3ii,
+   
+   v16_x6ib, v16_shzk)
 
 v16_data <- v16_data[, c("Event.Index", "Participant.Public.ID",
                          "randomiser.jf65", "randomiser.2tba",
                          "counterbalance.93ib", "counterbalance.m678",
                          "counterbalance.9xcr", "counterbalance.wbyz",
                          "counterbalance.vply", "counterbalance.hleo",
-                         "counterbalance.3v2j",
+                         "counterbalance.3v2j", "counterbalance.ulkf",
+                         "counterbalance.bi4u", "counterbalance.dozd",
+                         "counterbalance.g69h", "counterbalance.8ump",
+                         "counterbalance.wch9", "counterbalance.2v12",
+                         "counterbalance.mcio", "counterbalance.eu1d",
+                         "counterbalance.s1b5", "counterbalance.u2fx",
+                         "counterbalance.sg3w", "counterbalance.t9rn",
+                         "counterbalance.7mrq", "counterbalance.8zsd",
+                         "counterbalance.e4l7", "counterbalance.o3nf",
                          "order.j7mk", "Reaction.Time", "Response",
                          "clearval", "Metadata", "order1", "order2",
                          "order3", "order4", "order5", "order6", "order7",
                          "order8", "order9", "order10", "order11", "order12")]
 
-v16_data_ord1 <- subset(v16_data, counterbalance.m678 == "order1")
-v16_data_ord2 <- subset(v16_data, counterbalance.93ib == "order2")
-v16_data_ord3 <- subset(v16_data, counterbalance.m678 == "order3")
-v16_data_ord4 <- subset(v16_data, counterbalance.93ib == "order4")
-v16_data_ord5 <- subset(v16_data, counterbalance.9xcr == "order5")
-v16_data_ord6 <- subset(v16_data, counterbalance.9xcr == "order6")
-v16_data_ord7 <- subset(v16_data, counterbalance.wbyz == "order7")
-v16_data_ord8 <- subset(v16_data, counterbalance.vply == "order8")
-v16_data_ord9 <- subset(v16_data, counterbalance.wbyz == "order9")
-v16_data_ord10 <- subset(v16_data, counterbalance.vply == "order10")
-v16_data_ord11 <- subset(v16_data, counterbalance.hleo == "order11")
-v16_data_ord12 <- subset(v16_data, counterbalance.hleo == "order12")
-
-### set stim lists ##
+v16_data_ord1 <- subset(v16_data, counterbalance.m678 == "order1" | 
+                          counterbalance.bi4u == "order1" |
+                          counterbalance.dozd == "order1" |
+                          counterbalance.g69h == "order1")
+v16_data_ord2 <- subset(v16_data, counterbalance.93ib == "order2" |
+                          counterbalance.8ump == "order2" |
+                          counterbalance.wch9 == "order2" |
+                          counterbalance.2v12 == "order2")
+v16_data_ord3 <- subset(v16_data, counterbalance.m678 == "order3" |
+                          counterbalance.bi4u == "order3" |
+                          counterbalance.dozd == "order3" |
+                          counterbalance.g69h == "order3")
+v16_data_ord4 <- subset(v16_data, counterbalance.93ib == "order4" |
+                          counterbalance.8ump == "order4" |
+                          counterbalance.wch9 == "order4" |
+                          counterbalance.2v12 == "order4")
+v16_data_ord5 <- subset(v16_data, counterbalance.9xcr == "order5" |
+                          counterbalance.mcio == "order5" |
+                          counterbalance.eu1d == "order5" |
+                          counterbalance.s1b5 == "order5")
+v16_data_ord6 <- subset(v16_data, counterbalance.9xcr == "order6" |
+                          counterbalance.mcio == "order6" |
+                          counterbalance.eu1d == "order6" |
+                          counterbalance.s1b5 == "order6")
+v16_data_ord7 <- subset(v16_data, counterbalance.wbyz == "order7" |
+                          counterbalance.ulkf == "order7" |
+                          counterbalance.u2fx == "order7" |
+                          counterbalance.sg3w == "order7")
+v16_data_ord8 <- subset(v16_data, counterbalance.vply == "order8" |
+                          counterbalance.t9rn == "order8" |
+                          counterbalance.7mrq == "order8" |
+                          counterbalance.8zsd == "order8")
+v16_data_ord9 <- subset(v16_data, counterbalance.wbyz == "order9" |
+                          counterbalance.ulkf == "order9" |
+                          counterbalance.u2fx == "order9" |
+                          counterbalance.sg3w == "order9")
+v16_data_ord10 <- subset(v16_data, counterbalance.vply == "order10" |
+                           counterbalance.t9rn == "order10" |
+                           counterbalance.7mrq == "order10" |
+                           counterbalance.8zsd == "order10")
+v16_data_ord11 <- subset(v16_data, counterbalance.hleo == "order11" |
+                           counterbalance.3v2j == "order11" |
+                           counterbalance.e4l7 == "order11" |
+                           counterbalance.o3nf == "order11")
+v16_data_ord12 <- subset(v16_data, counterbalance.hleo == "order12" |
+                           counterbalance.3v2j == "order12" |
+                           counterbalance.e4l7 == "order12" |
+                           counterbalance.o3nf == "order12")
 
 ### add stim type factor label ###
 {
@@ -117,7 +202,6 @@ v16_data_ord12 <- subset(v16_data, counterbalance.hleo == "order12")
   v16_data_ord6$stimtype <- ifelse(v16_data_ord6$order6 %in% face1, "FACE", 
                                    ifelse(v16_data_ord6$order6 %in% words1, "WORD", 
                                           ifelse(v16_data_ord6$order6 %in% iaps1, "IAPS", "")))
-  
   v16_data_ord7$stimtype <- ifelse(v16_data_ord7$order6 %in% face2, "FACE", 
                                    ifelse(v16_data_ord7$order6 %in% words2, "WORD", 
                                           ifelse(v16_data_ord7$order6 %in% iaps1, "IAPS", "")))
@@ -152,7 +236,6 @@ v16_data$rate <- recode(v16_data$Response,
                         "positive" = 0,
                         "negative" = 1)
 
-
 v16_data.summary <- (ddply(v16_data, "Participant.Public.ID", summarise, 
                            sur_rate = mean(rate[which(stimtype == "FACE" & clearval == "ambiguous")], na.rm = TRUE),
                            hap_rate = mean(rate[which(stimtype == "FACE" & clearval == "positive")], na.rm = TRUE),
@@ -168,6 +251,14 @@ v16_data.summary <- (ddply(v16_data, "Participant.Public.ID", summarise,
 ### change directory ###
 setwd("~/Documents/Nick-Grad/Neta_Lab/Words/data/study1_data/data_exp_9792-v17/")
 
+#### read in the demographics data ###
+v17_demo <- read.csv("data_exp_9792-v17_questionnaire-rok5.csv")
+v17_demo <- v17_demo[, c("Participant.Public.ID", "Question.Key", "Response")]
+### spread the data ###
+v17_demo <- spread(v17_demo, key = "Question.Key", value = Response)
+### drop first row (blank) ###
+v17_demo <- v17_demo[-1, ]
+
 ### read in the task data ###
 v17_dhn3 <- read.csv("data_exp_9792-v17_task-dhn3.csv")
 v17_uyls <- read.csv("data_exp_9792-v17_task-uyls.csv")
@@ -181,39 +272,105 @@ v17_jpit <- read.csv("data_exp_9792-v17_task-jpit.csv")
 # v17_u5dg <- read.csv("data_exp_9792-v17_task-u5dg.csv")
 v17_rugu <- read.csv("data_exp_9792-v17_task-rugu.csv")
 v17_myk4 <- read.csv("data_exp_9792-v17_task-myk4.csv")
+v17_pdjg <- read.csv("data_exp_9792-v17_task-pdjg.csv")
+v17_nq9b <- read.csv("data_exp_9792-v17_task-nq9b.csv")
+v17_tazw <- read.csv("data_exp_9792-v17_task-tazw.csv")
+v17_y89e <- read.csv("data_exp_9792-v17_task-y89e.csv")
+v17_f3ii <- read.csv("data_exp_9792-v17_task-f3ii.csv")
+v17_71u8 <- read.csv("data_exp_9792-v17_task-71u8.csv")
+v17_7f4u <- read.csv("data_exp_9792-v17_task-7f4u.csv")
+v17_b86o <- read.csv("data_exp_9792-v17_task-b86o.csv")
+v17_udom <- read.csv("data_exp_9792-v17_task-udom.csv")
+v17_x6ib <- read.csv("data_exp_9792-v17_task-x6ib.csv")
+v17_shzk <- read.csv("data_exp_9792-v17_task-shzk.csv")
+# v17_dko9 <- read.csv("data_exp_9792-v17_task-dk09.csv")
 
 v17_data <- rbind(v17_dhn3, v17_uyls, v17_7sqx,
                   v17_6nyj, v17_5unm, v17_b5b7,
                   v17_xsf9, v17_tahj, v17_jpit,
-                  v17_rugu, v17_myk4)
+                  v17_rugu, v17_myk4,
+                  v17_pdjg, v17_nq9b, v17_tazw,
+                  v17_y89e, v17_f3ii, v17_71u8,
+                  v17_7f4u, v17_b86o, v17_udom,
+                  v17_x6ib, v17_shzk)
 
-rm(v17_dhn3, v17_uyls, v17_7sqx, v17_6nyj, v17_5unm, v17_b5b7)
+### clean workspace ###
+rm(v17_dhn3, v17_uyls, v17_7sqx,
+   v17_6nyj, v17_5unm, v17_b5b7,
+   v17_xsf9, v17_tahj, v17_jpit,
+   v17_rugu, v17_myk4,
+   v17_pdjg, v17_nq9b, v17_tazw,
+   v17_y89e, v17_f3ii, v17_71u8,
+   v17_7f4u, v17_b86o, v17_udom,
+   v17_x6ib, v17_shzk)
 
 v17_data <- v17_data[, c("Event.Index", "Participant.Public.ID",
                          "randomiser.jf65", "randomiser.2tba",
                          "counterbalance.93ib", "counterbalance.m678",
                          "counterbalance.9xcr", "counterbalance.wbyz",
                          "counterbalance.vply", "counterbalance.hleo",
-                         "counterbalance.3v2j",
+                         "counterbalance.3v2j", "counterbalance.ulkf",
+                         "counterbalance.bi4u", "counterbalance.dozd",
+                         "counterbalance.g69h", "counterbalance.8ump",
+                         "counterbalance.wch9", "counterbalance.2v12",
+                         "counterbalance.mcio", "counterbalance.eu1d",
+                         "counterbalance.s1b5", "counterbalance.u2fx",
+                         "counterbalance.sg3w", "counterbalance.t9rn",
+                         "counterbalance.7mrq", "counterbalance.8zsd",
+                         "counterbalance.e4l7", "counterbalance.o3nf",
                          "order.j7mk", "Reaction.Time", "Response",
                          "clearval", "Metadata", "order1", "order2",
                          "order3", "order4", "order5", "order6", "order7",
                          "order8", "order9", "order10", "order11", "order12")]
 
-v17_data_ord1 <- subset(v17_data, counterbalance.m678 == "order1")
-v17_data_ord2 <- subset(v17_data, counterbalance.93ib == "order2")
-v17_data_ord3 <- subset(v17_data, counterbalance.m678 == "order3")
-v17_data_ord4 <- subset(v17_data, counterbalance.93ib == "order4")
-v17_data_ord5 <- subset(v17_data, counterbalance.9xcr == "order5")
-v17_data_ord6 <- subset(v17_data, counterbalance.9xcr == "order6")
-v17_data_ord7 <- subset(v17_data, counterbalance.wbyz == "order7")
-v17_data_ord8 <- subset(v17_data, counterbalance.vply == "order8")
-v17_data_ord9 <- subset(v17_data, counterbalance.wbyz == "order9")
-v17_data_ord10 <- subset(v17_data, counterbalance.vply == "order10")
-v17_data_ord11 <- subset(v17_data, counterbalance.hleo == "order11")
-v17_data_ord12 <- subset(v17_data, counterbalance.hleo == "order12")
-
-### set stim lists ##
+v17_data_ord1 <- subset(v17_data, counterbalance.m678 == "order1" | 
+                          counterbalance.bi4u == "order1" |
+                          counterbalance.dozd == "order1" |
+                          counterbalance.g69h == "order1")
+v17_data_ord2 <- subset(v17_data, counterbalance.93ib == "order2" |
+                          counterbalance.8ump == "order2" |
+                          counterbalance.wch9 == "order2" |
+                          counterbalance.2v12 == "order2")
+v17_data_ord3 <- subset(v17_data, counterbalance.m678 == "order3" |
+                          counterbalance.bi4u == "order3" |
+                          counterbalance.dozd == "order3" |
+                          counterbalance.g69h == "order3")
+v17_data_ord4 <- subset(v17_data, counterbalance.93ib == "order4" |
+                          counterbalance.8ump == "order4" |
+                          counterbalance.wch9 == "order4" |
+                          counterbalance.2v12 == "order4")
+v17_data_ord5 <- subset(v17_data, counterbalance.9xcr == "order5" |
+                          counterbalance.mcio == "order5" |
+                          counterbalance.eu1d == "order5" |
+                          counterbalance.s1b5 == "order5")
+v17_data_ord6 <- subset(v17_data, counterbalance.9xcr == "order6" |
+                          counterbalance.mcio == "order6" |
+                          counterbalance.eu1d == "order6" |
+                          counterbalance.s1b5 == "order6")
+v17_data_ord7 <- subset(v17_data, counterbalance.wbyz == "order7" |
+                          counterbalance.ulkf == "order7" |
+                          counterbalance.u2fx == "order7" |
+                          counterbalance.sg3w == "order7")
+v17_data_ord8 <- subset(v17_data, counterbalance.vply == "order8" |
+                          counterbalance.t9rn == "order8" |
+                          counterbalance.7mrq == "order8" |
+                          counterbalance.8zsd == "order8")
+v17_data_ord9 <- subset(v17_data, counterbalance.wbyz == "order9" |
+                          counterbalance.ulkf == "order9" |
+                          counterbalance.u2fx == "order9" |
+                          counterbalance.sg3w == "order9")
+v17_data_ord10 <- subset(v17_data, counterbalance.vply == "order10" |
+                           counterbalance.t9rn == "order10" |
+                           counterbalance.7mrq == "order10" |
+                           counterbalance.8zsd == "order10")
+v17_data_ord11 <- subset(v17_data, counterbalance.hleo == "order11" |
+                           counterbalance.3v2j == "order11" |
+                           counterbalance.e4l7 == "order11" |
+                           counterbalance.o3nf == "order11")
+v17_data_ord12 <- subset(v17_data, counterbalance.hleo == "order12" |
+                           counterbalance.3v2j == "order12" |
+                           counterbalance.e4l7 == "order12" |
+                           counterbalance.o3nf == "order12")
 
 ### add stim type factor label ###
 {
@@ -264,11 +421,13 @@ v17_data <- rbind(v17_data_ord1, v17_data_ord2,
                   v17_data_ord9, v17_data_ord10,
                   v17_data_ord11, v17_data_ord12)
 
+### clean workspace ###
+rm(v17_data_ord1, v17_data_ord2,
+   v17_data_ord3, v17_data_ord4)
 ### make "positive" 0 and "negative" 1 ###
 v17_data$rate <- recode(v17_data$Response,
                         "positive" = 0,
                         "negative" = 1)
-
 
 v17_data.summary <- (ddply(v17_data, "Participant.Public.ID", summarise, 
                            sur_rate = mean(rate[which(stimtype == "FACE" & clearval == "ambiguous")], na.rm = TRUE),
@@ -284,6 +443,14 @@ v17_data.summary <- (ddply(v17_data, "Participant.Public.ID", summarise,
 #####################################################
 ### change directory ###
 setwd("~/Documents/Nick-Grad/Neta_Lab/Words/data/study1_data/data_exp_9792-v18/")
+
+#### read in the demographics data ###
+v18_demo <- read.csv("data_exp_9792-v18_questionnaire-rok5.csv")
+v18_demo <- v18_demo[, c("Participant.Public.ID", "Question.Key", "Response")]
+### spread the data ###
+v18_demo <- spread(v18_demo, key = "Question.Key", value = Response)
+### drop first row (blank) ###
+v18_demo <- v18_demo[-1, ]
 
 ### read in the task data ###
 v18_dhn3 <- read.csv("data_exp_9792-v18_task-dhn3.csv")
@@ -469,10 +636,29 @@ cor.test(v18_data.summary$amb_rate, v18_data.summary$amw_rate, use = "complete.o
 cor.test(v18_data.summary$sur_rate, v18_data.summary$amb_rate, use = "complete.obs")
 
 #####################
+### merge the demo data together ###
+demo <- rbind(v16_demo, v17_demo, v18_demo)
 ### merge the data together ###
 full <- rbind(v16_data.summary, v17_data.summary, v18_data.summary)
+### merge all data together ###
+full <- merge(demo, full, by = "Participant.Public.ID")
+### create binary sex variable ###
+full$mal0fem1 <- recode(full$sex,
+                        "Male" = 0,
+                        "Female" = 1)
 
 ###################
+### assess normality ###
+shapiro.test(full$sur_rate) ## non-normal
+shapiro.test(full$amb_rate) # normal
+shapiro.test(full$amw_rate) # normal
+
+### quick correlations ###
 cor.test(full$sur_rate, full$amw_rate, use = "complete.obs")
 cor.test(full$amb_rate, full$amw_rate, use = "complete.obs")
 cor.test(full$sur_rate, full$amb_rate, use = "complete.obs")
+
+### correlations controlling for age and sex ###
+pcor.test(full$sur_rate, full$amw_rate, c(full$age, full$mal0fem1))
+pcor.test(full$amb_rate, full$amw_rate, c(full$age, full$mal0fem1))
+pcor.test(full$sur_rate, full$amb_rate, c(full$age, full$mal0fem1))
