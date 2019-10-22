@@ -6,6 +6,7 @@ suppressPackageStartupMessages(library(tidyverse))
 suppressPackageStartupMessages(library(plyr))
 suppressPackageStartupMessages(library(MASS))
 suppressPackageStartupMessages(library(ppcor))
+suppressPackageStartupMessage(library(dplyr))
 
 ### set stim lists ###
 {
@@ -128,98 +129,124 @@ v16_data <- v16_data[, c("Event.Index", "Participant.Public.ID",
                          "counterbalance.sg3w", "counterbalance.t9rn",
                          "counterbalance.7mrq", "counterbalance.8zsd",
                          "counterbalance.e4l7", "counterbalance.o3nf",
-                         "order.j7mk", "Reaction.Time", "Response",
+                         "order.j7mk", "Screen.Name", "Reaction.Time", "Response",
                          "clearval", "Metadata", "order1", "order2",
                          "order3", "order4", "order5", "order6", "order7",
                          "order8", "order9", "order10", "order11", "order12")]
 
+v16_data <- v16_data[!(v16_data$Event.Index == "END OF FILE"), ]
+
+### set up the stim list based on order assignment ###
 v16_data_ord1 <- subset(v16_data, counterbalance.m678 == "order1" | 
                           counterbalance.bi4u == "order1" |
                           counterbalance.dozd == "order1" |
                           counterbalance.g69h == "order1")
+v16_data_ord1$stim.pres <- v16_data_ord1$order1
+
 v16_data_ord2 <- subset(v16_data, counterbalance.93ib == "order2" |
                           counterbalance.8ump == "order2" |
                           counterbalance.wch9 == "order2" |
                           counterbalance.2v12 == "order2")
+v16_data_ord2$stim.pres <- v16_data_ord2$order2
+
 v16_data_ord3 <- subset(v16_data, counterbalance.m678 == "order3" |
                           counterbalance.bi4u == "order3" |
                           counterbalance.dozd == "order3" |
                           counterbalance.g69h == "order3")
+v16_data_ord3$stim.pres <- v16_data_ord3$order3
+
 v16_data_ord4 <- subset(v16_data, counterbalance.93ib == "order4" |
                           counterbalance.8ump == "order4" |
                           counterbalance.wch9 == "order4" |
                           counterbalance.2v12 == "order4")
+v16_data_ord4$stim.pres <- v16_data_ord4$order4
+
 v16_data_ord5 <- subset(v16_data, counterbalance.9xcr == "order5" |
                           counterbalance.mcio == "order5" |
                           counterbalance.eu1d == "order5" |
                           counterbalance.s1b5 == "order5")
+v16_data_ord5$stim.pres <- v16_data_ord5$order5
+
 v16_data_ord6 <- subset(v16_data, counterbalance.9xcr == "order6" |
                           counterbalance.mcio == "order6" |
                           counterbalance.eu1d == "order6" |
                           counterbalance.s1b5 == "order6")
+v16_data_ord6$stim.pres <- v16_data_ord6$order6
+
 v16_data_ord7 <- subset(v16_data, counterbalance.wbyz == "order7" |
                           counterbalance.ulkf == "order7" |
                           counterbalance.u2fx == "order7" |
                           counterbalance.sg3w == "order7")
+v16_data_ord7$stim.pres <- v16_data_ord7$order7
+
 v16_data_ord8 <- subset(v16_data, counterbalance.vply == "order8" |
                           counterbalance.t9rn == "order8" |
                           counterbalance.7mrq == "order8" |
                           counterbalance.8zsd == "order8")
+v16_data_ord8$stim.pres <- v16_data_ord8$order8
+
 v16_data_ord9 <- subset(v16_data, counterbalance.wbyz == "order9" |
                           counterbalance.ulkf == "order9" |
                           counterbalance.u2fx == "order9" |
                           counterbalance.sg3w == "order9")
+v16_data_ord9$stim.pres <- v16_data_ord9$order9
+
 v16_data_ord10 <- subset(v16_data, counterbalance.vply == "order10" |
                            counterbalance.t9rn == "order10" |
                            counterbalance.7mrq == "order10" |
                            counterbalance.8zsd == "order10")
+v16_data_ord10$stim.pres <- v16_data_ord10$order10
+
 v16_data_ord11 <- subset(v16_data, counterbalance.hleo == "order11" |
                            counterbalance.3v2j == "order11" |
                            counterbalance.e4l7 == "order11" |
                            counterbalance.o3nf == "order11")
+v16_data_ord11$stim.pres <- v16_data_ord11$order11
+
 v16_data_ord12 <- subset(v16_data, counterbalance.hleo == "order12" |
                            counterbalance.3v2j == "order12" |
                            counterbalance.e4l7 == "order12" |
                            counterbalance.o3nf == "order12")
+v16_data_ord12$stim.pres <- v16_data_ord12$order12
 
 ### add stim type factor label ###
 {
-  v16_data_ord1$stimtype <- ifelse(v16_data_ord1$order1 %in% face1, "FACE", 
-                                   ifelse(v16_data_ord1$order1 %in% words1, "WORD", 
-                                          ifelse(v16_data_ord1$order1 %in% iaps1, "IAPS", "")))
-  v16_data_ord2$stimtype <- ifelse(v16_data_ord2$order2 %in% face1, "FACE", 
-                                   ifelse(v16_data_ord2$order2 %in% words1, "WORD", 
-                                          ifelse(v16_data_ord2$order2 %in% iaps1, "IAPS", "")))
-  v16_data_ord3$stimtype <- ifelse(v16_data_ord3$order3 %in% face1, "FACE", 
-                                   ifelse(v16_data_ord3$order3 %in% words1, "WORD", 
-                                          ifelse(v16_data_ord3$order3 %in% iaps1, "IAPS", "")))
-  v16_data_ord4$stimtype <- ifelse(v16_data_ord4$order4 %in% face1, "FACE", 
-                                   ifelse(v16_data_ord4$order4 %in% words1, "WORD", 
-                                          ifelse(v16_data_ord4$order4 %in% iaps1, "IAPS", "")))
-  v16_data_ord5$stimtype <- ifelse(v16_data_ord5$order5 %in% face1, "FACE", 
-                                   ifelse(v16_data_ord5$order5 %in% words1, "WORD", 
-                                          ifelse(v16_data_ord5$order5 %in% iaps1, "IAPS", "")))
-  v16_data_ord6$stimtype <- ifelse(v16_data_ord6$order6 %in% face1, "FACE", 
-                                   ifelse(v16_data_ord6$order6 %in% words1, "WORD", 
-                                          ifelse(v16_data_ord6$order6 %in% iaps1, "IAPS", "")))
-  v16_data_ord7$stimtype <- ifelse(v16_data_ord7$order6 %in% face2, "FACE", 
-                                   ifelse(v16_data_ord7$order6 %in% words2, "WORD", 
-                                          ifelse(v16_data_ord7$order6 %in% iaps1, "IAPS", "")))
-  v16_data_ord8$stimtype <- ifelse(v16_data_ord8$order8 %in% face2, "FACE", 
-                                   ifelse(v16_data_ord8$order8 %in% words2, "WORD", 
-                                          ifelse(v16_data_ord8$order8 %in% iaps1, "IAPS", "")))
-  v16_data_ord9$stimtype <- ifelse(v16_data_ord9$order9 %in% face2, "FACE", 
-                                   ifelse(v16_data_ord9$order9 %in% words2, "WORD", 
-                                          ifelse(v16_data_ord9$order9 %in% iaps1, "IAPS", "")))
-  v16_data_ord10$stimtype <- ifelse(v16_data_ord10$order10 %in% face2, "FACE", 
-                                    ifelse(v16_data_ord10$order10 %in% words2, "WORD", 
-                                           ifelse(v16_data_ord10$order10 %in% iaps1, "IAPS", "")))
-  v16_data_ord11$stimtype <- ifelse(v16_data_ord11$order11 %in% face2, "FACE", 
-                                    ifelse(v16_data_ord11$order11 %in% words2, "WORD", 
-                                           ifelse(v16_data_ord11$order11 %in% iaps1, "IAPS", "")))
-  v16_data_ord12$stimtype <- ifelse(v16_data_ord12$order12 %in% face2, "FACE", 
-                                    ifelse(v16_data_ord12$order12 %in% words2, "WORD", 
-                                           ifelse(v16_data_ord12$order12 %in% iaps1, "IAPS", "")))
+  v16_data_ord1$stimtype <- ifelse(v16_data_ord1$stim.pres %in% face1, "FACE", 
+                                   ifelse(v16_data_ord1$stim.pres %in% words1, "WORD", 
+                                          ifelse(v16_data_ord1$stim.pres %in% iaps1, "IAPS", "")))
+  v16_data_ord2$stimtype <- ifelse(v16_data_ord2$stim.pres %in% face1, "FACE", 
+                                   ifelse(v16_data_ord2$stim.pres %in% words1, "WORD", 
+                                          ifelse(v16_data_ord2$stim.pres %in% iaps1, "IAPS", "")))
+  v16_data_ord3$stimtype <- ifelse(v16_data_ord3$stim.pres %in% face1, "FACE", 
+                                   ifelse(v16_data_ord3$stim.pres %in% words1, "WORD", 
+                                          ifelse(v16_data_ord3$stim.pres %in% iaps1, "IAPS", "")))
+  v16_data_ord4$stimtype <- ifelse(v16_data_ord4$stim.pres %in% face1, "FACE", 
+                                   ifelse(v16_data_ord4$stim.pres %in% words1, "WORD", 
+                                          ifelse(v16_data_ord4$stim.pres %in% iaps1, "IAPS", "")))
+  v16_data_ord5$stimtype <- ifelse(v16_data_ord5$stim.pres %in% face1, "FACE", 
+                                   ifelse(v16_data_ord5$stim.pres %in% words1, "WORD", 
+                                          ifelse(v16_data_ord5$stim.pres %in% iaps1, "IAPS", "")))
+  v16_data_ord6$stimtype <- ifelse(v16_data_ord6$stim.pres %in% face1, "FACE", 
+                                   ifelse(v16_data_ord6$stim.pres %in% words1, "WORD", 
+                                          ifelse(v16_data_ord6$stim.pres %in% iaps1, "IAPS", "")))
+  v16_data_ord7$stimtype <- ifelse(v16_data_ord7$stim.pres %in% face2, "FACE", 
+                                   ifelse(v16_data_ord7$stim.pres %in% words2, "WORD", 
+                                          ifelse(v16_data_ord7$stim.pres %in% iaps1, "IAPS", "")))
+  v16_data_ord8$stimtype <- ifelse(v16_data_ord8$stim.pres %in% face2, "FACE", 
+                                   ifelse(v16_data_ord8$stim.pres %in% words2, "WORD", 
+                                          ifelse(v16_data_ord8$stim.pres %in% iaps1, "IAPS", "")))
+  v16_data_ord9$stimtype <- ifelse(v16_data_ord9$stim.pres %in% face2, "FACE", 
+                                   ifelse(v16_data_ord9$stim.pres %in% words2, "WORD", 
+                                          ifelse(v16_data_ord9$stim.pres %in% iaps1, "IAPS", "")))
+  v16_data_ord10$stimtype <- ifelse(v16_data_ord10$stim.pres %in% face2, "FACE", 
+                                    ifelse(v16_data_ord10$stim.pres %in% words2, "WORD", 
+                                           ifelse(v16_data_ord10$stim.pres %in% iaps1, "IAPS", "")))
+  v16_data_ord11$stimtype <- ifelse(v16_data_ord11$stim.pres %in% face2, "FACE", 
+                                    ifelse(v16_data_ord11$stim.pres %in% words2, "WORD", 
+                                           ifelse(v16_data_ord11$stim.pres %in% iaps1, "IAPS", "")))
+  v16_data_ord12$stimtype <- ifelse(v16_data_ord12$stim.pres %in% face2, "FACE", 
+                                    ifelse(v16_data_ord12$stim.pres %in% words2, "WORD", 
+                                           ifelse(v16_data_ord12$stim.pres %in% iaps1, "IAPS", "")))
 }
 
 ### merge back together ###
@@ -230,6 +257,22 @@ v16_data <- rbind(v16_data_ord1, v16_data_ord2,
                   v16_data_ord7, v16_data_ord8,
                   v16_data_ord9, v16_data_ord10,
                   v16_data_ord11, v16_data_ord12)
+
+### drop order# columns for only one stim column ###
+drop<- c("order1", "order2",
+         "order3", "order4", "order5", "order6", "order7",
+         "order8", "order9", "order10", "order11", "order12")
+
+### drop unnecessary columns and the duplicate rows ###
+### these contain NA's in stim pres ###
+v16_data <- v16_data[ , !(names(v16_data) %in% drop)]
+v16_data <- v16_data[!is.na(v16_data$stim.pres), ]
+
+### drop trials w/ responses in less than 200ms ###
+v16_data$RT.Outl <- ifelse(v16_data$Reaction.Time <= 200 & v16_data$Screen.Name == "stim", 1, 0)
+outliers <- subset(v16_data, RT.Outl == 1)
+v16_data <- subset(v16_data, RT.Outl == 0)
+table(outliers$Participant.Public.ID)
 
 ### make "positive" 0 and "negative" 1 ###
 v16_data$rate <- recode(v16_data$Response,
@@ -246,7 +289,6 @@ v16_data.summary <- (ddply(v16_data, "Participant.Public.ID", summarise,
                            amw_rate = mean(rate[which(stimtype == "WORD" & clearval == "ambiguous")], na.rm = TRUE),
                            pow_rate = mean(rate[which(stimtype == "WORD" & clearval == "positive")], na.rm = TRUE),
                            new_rate = mean(rate[which(stimtype == "WORD" & clearval == "negative")], na.rm = TRUE)))
-
 ###################################################
 ### change directory ###
 setwd("~/Documents/Nick-Grad/Neta_Lab/Words/data/study1_data/data_exp_9792-v17/")
@@ -272,7 +314,7 @@ v17_jpit <- read.csv("data_exp_9792-v17_task-jpit.csv")
 # v17_u5dg <- read.csv("data_exp_9792-v17_task-u5dg.csv")
 v17_rugu <- read.csv("data_exp_9792-v17_task-rugu.csv")
 v17_myk4 <- read.csv("data_exp_9792-v17_task-myk4.csv")
-v17_pdjg <- read.csv("data_exp_9792-v17_task-pdjg.csv")
+v17_pdjg <- read.csv("data_exp_9792-v17_task-pdjg.csv")#
 v17_nq9b <- read.csv("data_exp_9792-v17_task-nq9b.csv")
 v17_tazw <- read.csv("data_exp_9792-v17_task-tazw.csv")
 v17_y89e <- read.csv("data_exp_9792-v17_task-y89e.csv")
@@ -287,9 +329,10 @@ v17_shzk <- read.csv("data_exp_9792-v17_task-shzk.csv")
 
 v17_data <- rbind(v17_dhn3, v17_uyls, v17_7sqx,
                   v17_6nyj, v17_5unm, v17_b5b7,
-                  v17_xsf9, v17_tahj, v17_jpit,
-                  v17_rugu, v17_myk4,
-                  v17_pdjg, v17_nq9b, v17_tazw,
+                  v17_xsf9, v17_tahj,
+                  v17_jpit, v17_rugu,
+                  v17_myk4, v17_pdjg, v17_nq9b,
+                  v17_tazw,
                   v17_y89e, v17_f3ii, v17_71u8,
                   v17_7f4u, v17_b86o, v17_udom,
                   v17_x6ib, v17_shzk)
@@ -297,9 +340,10 @@ v17_data <- rbind(v17_dhn3, v17_uyls, v17_7sqx,
 ### clean workspace ###
 rm(v17_dhn3, v17_uyls, v17_7sqx,
    v17_6nyj, v17_5unm, v17_b5b7,
-   v17_xsf9, v17_tahj, v17_jpit,
-   v17_rugu, v17_myk4,
-   v17_pdjg, v17_nq9b, v17_tazw,
+   v17_xsf9, v17_tahj,
+   v17_jpit, v17_rugu,
+   v17_myk4, v17_pdjg, v17_nq9b,
+   v17_tazw,
    v17_y89e, v17_f3ii, v17_71u8,
    v17_7f4u, v17_b86o, v17_udom,
    v17_x6ib, v17_shzk)
@@ -318,98 +362,124 @@ v17_data <- v17_data[, c("Event.Index", "Participant.Public.ID",
                          "counterbalance.sg3w", "counterbalance.t9rn",
                          "counterbalance.7mrq", "counterbalance.8zsd",
                          "counterbalance.e4l7", "counterbalance.o3nf",
-                         "order.j7mk", "Reaction.Time", "Response",
+                         "order.j7mk", "Screen.Name", "Reaction.Time", "Response",
                          "clearval", "Metadata", "order1", "order2",
                          "order3", "order4", "order5", "order6", "order7",
                          "order8", "order9", "order10", "order11", "order12")]
 
+v17_data <- v17_data[!(v17_data$Event.Index == "END OF FILE"), ]
+
+### set up the stim list based on order assignment ###
 v17_data_ord1 <- subset(v17_data, counterbalance.m678 == "order1" | 
                           counterbalance.bi4u == "order1" |
                           counterbalance.dozd == "order1" |
                           counterbalance.g69h == "order1")
+v17_data_ord1$stim.pres <- v17_data_ord1$order1
+
 v17_data_ord2 <- subset(v17_data, counterbalance.93ib == "order2" |
                           counterbalance.8ump == "order2" |
                           counterbalance.wch9 == "order2" |
                           counterbalance.2v12 == "order2")
+v17_data_ord2$stim.pres <- v17_data_ord2$order2
+
 v17_data_ord3 <- subset(v17_data, counterbalance.m678 == "order3" |
                           counterbalance.bi4u == "order3" |
                           counterbalance.dozd == "order3" |
                           counterbalance.g69h == "order3")
+v17_data_ord3$stim.pres <- v17_data_ord3$order3
+
 v17_data_ord4 <- subset(v17_data, counterbalance.93ib == "order4" |
                           counterbalance.8ump == "order4" |
                           counterbalance.wch9 == "order4" |
                           counterbalance.2v12 == "order4")
+v17_data_ord4$stim.pres <- v17_data_ord4$order4
+
 v17_data_ord5 <- subset(v17_data, counterbalance.9xcr == "order5" |
                           counterbalance.mcio == "order5" |
                           counterbalance.eu1d == "order5" |
                           counterbalance.s1b5 == "order5")
+v17_data_ord5$stim.pres <- v17_data_ord5$order5
+
 v17_data_ord6 <- subset(v17_data, counterbalance.9xcr == "order6" |
                           counterbalance.mcio == "order6" |
                           counterbalance.eu1d == "order6" |
                           counterbalance.s1b5 == "order6")
+v17_data_ord6$stim.pres <- v17_data_ord6$order6
+
 v17_data_ord7 <- subset(v17_data, counterbalance.wbyz == "order7" |
                           counterbalance.ulkf == "order7" |
                           counterbalance.u2fx == "order7" |
                           counterbalance.sg3w == "order7")
+v17_data_ord7$stim.pres <- v17_data_ord7$order7
+
 v17_data_ord8 <- subset(v17_data, counterbalance.vply == "order8" |
                           counterbalance.t9rn == "order8" |
                           counterbalance.7mrq == "order8" |
                           counterbalance.8zsd == "order8")
+v17_data_ord8$stim.pres <- v17_data_ord8$order8
+
 v17_data_ord9 <- subset(v17_data, counterbalance.wbyz == "order9" |
                           counterbalance.ulkf == "order9" |
                           counterbalance.u2fx == "order9" |
                           counterbalance.sg3w == "order9")
+v17_data_ord9$stim.pres <- v17_data_ord9$order9
+
 v17_data_ord10 <- subset(v17_data, counterbalance.vply == "order10" |
                            counterbalance.t9rn == "order10" |
                            counterbalance.7mrq == "order10" |
                            counterbalance.8zsd == "order10")
+v17_data_ord10$stim.pres <- v17_data_ord10$order10
+
 v17_data_ord11 <- subset(v17_data, counterbalance.hleo == "order11" |
                            counterbalance.3v2j == "order11" |
                            counterbalance.e4l7 == "order11" |
                            counterbalance.o3nf == "order11")
+v17_data_ord11$stim.pres <- v17_data_ord11$order11
+
 v17_data_ord12 <- subset(v17_data, counterbalance.hleo == "order12" |
                            counterbalance.3v2j == "order12" |
                            counterbalance.e4l7 == "order12" |
                            counterbalance.o3nf == "order12")
+v17_data_ord12$stim.pres <- v17_data_ord12$order12
 
 ### add stim type factor label ###
 {
-  v17_data_ord1$stimtype <- ifelse(v17_data_ord1$order1 %in% face1, "FACE", 
-                                   ifelse(v17_data_ord1$order1 %in% words1, "WORD", 
-                                          ifelse(v17_data_ord1$order1 %in% iaps1, "IAPS", "")))
-  v17_data_ord2$stimtype <- ifelse(v17_data_ord2$order2 %in% face1, "FACE", 
-                                   ifelse(v17_data_ord2$order2 %in% words1, "WORD", 
-                                          ifelse(v17_data_ord2$order2 %in% iaps1, "IAPS", "")))
-  v17_data_ord3$stimtype <- ifelse(v17_data_ord3$order3 %in% face1, "FACE", 
-                                   ifelse(v17_data_ord3$order3 %in% words1, "WORD", 
-                                          ifelse(v17_data_ord3$order3 %in% iaps1, "IAPS", "")))
-  v17_data_ord4$stimtype <- ifelse(v17_data_ord4$order4 %in% face1, "FACE", 
-                                   ifelse(v17_data_ord4$order4 %in% words1, "WORD", 
-                                          ifelse(v17_data_ord4$order4 %in% iaps1, "IAPS", "")))
-  v17_data_ord5$stimtype <- ifelse(v17_data_ord5$order5 %in% face1, "FACE", 
-                                   ifelse(v17_data_ord5$order5 %in% words1, "WORD", 
-                                          ifelse(v17_data_ord5$order5 %in% iaps1, "IAPS", "")))
-  v17_data_ord6$stimtype <- ifelse(v17_data_ord6$order6 %in% face1, "FACE", 
-                                   ifelse(v17_data_ord6$order6 %in% words1, "WORD", 
-                                          ifelse(v17_data_ord6$order6 %in% iaps1, "IAPS", "")))
-  v17_data_ord7$stimtype <- ifelse(v17_data_ord7$order6 %in% face2, "FACE", 
-                                   ifelse(v17_data_ord7$order6 %in% words2, "WORD", 
-                                          ifelse(v17_data_ord7$order6 %in% iaps1, "IAPS", "")))
-  v17_data_ord8$stimtype <- ifelse(v17_data_ord8$order8 %in% face2, "FACE", 
-                                   ifelse(v17_data_ord8$order8 %in% words2, "WORD", 
-                                          ifelse(v17_data_ord8$order8 %in% iaps1, "IAPS", "")))
-  v17_data_ord9$stimtype <- ifelse(v17_data_ord9$order9 %in% face2, "FACE", 
-                                   ifelse(v17_data_ord9$order9 %in% words2, "WORD", 
-                                          ifelse(v17_data_ord9$order9 %in% iaps1, "IAPS", "")))
-  v17_data_ord10$stimtype <- ifelse(v17_data_ord10$order10 %in% face2, "FACE", 
-                                    ifelse(v17_data_ord10$order10 %in% words2, "WORD", 
-                                           ifelse(v17_data_ord10$order10 %in% iaps1, "IAPS", "")))
-  v17_data_ord11$stimtype <- ifelse(v17_data_ord11$order11 %in% face2, "FACE", 
-                                    ifelse(v17_data_ord11$order11 %in% words2, "WORD", 
-                                           ifelse(v17_data_ord11$order11 %in% iaps1, "IAPS", "")))
-  v17_data_ord12$stimtype <- ifelse(v17_data_ord12$order12 %in% face2, "FACE", 
-                                    ifelse(v17_data_ord12$order12 %in% words2, "WORD", 
-                                           ifelse(v17_data_ord12$order12 %in% iaps1, "IAPS", "")))
+  v17_data_ord1$stimtype <- ifelse(v17_data_ord1$stim.pres %in% face1, "FACE", 
+                                   ifelse(v17_data_ord1$stim.pres %in% words1, "WORD", 
+                                          ifelse(v17_data_ord1$stim.pres %in% iaps1, "IAPS", "")))
+  v17_data_ord2$stimtype <- ifelse(v17_data_ord2$stim.pres %in% face1, "FACE", 
+                                   ifelse(v17_data_ord2$stim.pres %in% words1, "WORD", 
+                                          ifelse(v17_data_ord2$stim.pres %in% iaps1, "IAPS", "")))
+  v17_data_ord3$stimtype <- ifelse(v17_data_ord3$stim.pres %in% face1, "FACE", 
+                                   ifelse(v17_data_ord3$stim.pres %in% words1, "WORD", 
+                                          ifelse(v17_data_ord3$stim.pres %in% iaps1, "IAPS", "")))
+  v17_data_ord4$stimtype <- ifelse(v17_data_ord4$stim.pres %in% face1, "FACE", 
+                                   ifelse(v17_data_ord4$stim.pres %in% words1, "WORD", 
+                                          ifelse(v17_data_ord4$stim.pres %in% iaps1, "IAPS", "")))
+  v17_data_ord5$stimtype <- ifelse(v17_data_ord5$stim.pres %in% face1, "FACE", 
+                                   ifelse(v17_data_ord5$stim.pres %in% words1, "WORD", 
+                                          ifelse(v17_data_ord5$stim.pres %in% iaps1, "IAPS", "")))
+  v17_data_ord6$stimtype <- ifelse(v17_data_ord6$stim.pres %in% face1, "FACE", 
+                                   ifelse(v17_data_ord6$stim.pres %in% words1, "WORD", 
+                                          ifelse(v17_data_ord6$stim.pres %in% iaps1, "IAPS", "")))
+  v17_data_ord7$stimtype <- ifelse(v17_data_ord7$stim.pres %in% face2, "FACE", 
+                                   ifelse(v17_data_ord7$stim.pres %in% words2, "WORD", 
+                                          ifelse(v17_data_ord7$stim.pres %in% iaps1, "IAPS", "")))
+  v17_data_ord8$stimtype <- ifelse(v17_data_ord8$stim.pres %in% face2, "FACE", 
+                                   ifelse(v17_data_ord8$stim.pres %in% words2, "WORD", 
+                                          ifelse(v17_data_ord8$stim.pres %in% iaps1, "IAPS", "")))
+  v17_data_ord9$stimtype <- ifelse(v17_data_ord9$stim.pres %in% face2, "FACE", 
+                                   ifelse(v17_data_ord9$stim.pres %in% words2, "WORD", 
+                                          ifelse(v17_data_ord9$stim.pres %in% iaps1, "IAPS", "")))
+  v17_data_ord10$stimtype <- ifelse(v17_data_ord10$stim.pres %in% face2, "FACE", 
+                                    ifelse(v17_data_ord10$stim.pres %in% words2, "WORD", 
+                                           ifelse(v17_data_ord10$stim.pres %in% iaps1, "IAPS", "")))
+  v17_data_ord11$stimtype <- ifelse(v17_data_ord11$stim.pres %in% face2, "FACE", 
+                                    ifelse(v17_data_ord11$stim.pres %in% words2, "WORD", 
+                                           ifelse(v17_data_ord11$stim.pres %in% iaps1, "IAPS", "")))
+  v17_data_ord12$stimtype <- ifelse(v17_data_ord12$stim.pres %in% face2, "FACE", 
+                                    ifelse(v17_data_ord12$stim.pres %in% words2, "WORD", 
+                                           ifelse(v17_data_ord12$stim.pres %in% iaps1, "IAPS", "")))
 }
 
 ### merge back together ###
@@ -421,9 +491,22 @@ v17_data <- rbind(v17_data_ord1, v17_data_ord2,
                   v17_data_ord9, v17_data_ord10,
                   v17_data_ord11, v17_data_ord12)
 
-### clean workspace ###
-rm(v17_data_ord1, v17_data_ord2,
-   v17_data_ord3, v17_data_ord4)
+### drop order# columns for only one stim column ###
+drop<- c("order1", "order2",
+         "order3", "order4", "order5", "order6", "order7",
+         "order8", "order9", "order10", "order11", "order12")
+
+### drop unnecessary columns and the duplicate rows ###
+### these contain NA's in stim pres ###
+v17_data <- v17_data[ , !(names(v17_data) %in% drop)]
+v17_data <- v17_data[!is.na(v17_data$stim.pres), ]
+
+### drop trials w/ responses in less than 200ms ###
+v17_data$RT.Outl <- ifelse(v17_data$Reaction.Time <= 200 & v17_data$Screen.Name == "stim", 1, 0)
+outliers <- subset(v17_data, RT.Outl == 1)
+v17_data <- subset(v17_data, RT.Outl == 0)
+table(outliers$Participant.Public.ID)
+
 ### make "positive" 0 and "negative" 1 ###
 v17_data$rate <- recode(v17_data$Response,
                         "positive" = 0,
@@ -511,98 +594,124 @@ v18_data <- v18_data[, c("Event.Index", "Participant.Public.ID",
                          "counterbalance.sg3w", "counterbalance.t9rn",
                          "counterbalance.7mrq", "counterbalance.8zsd",
                          "counterbalance.e4l7", "counterbalance.o3nf",
-                         "order.j7mk", "Reaction.Time", "Response",
+                         "order.j7mk", "Screen.Name", "Reaction.Time", "Response",
                          "clearval", "Metadata", "order1", "order2",
                          "order3", "order4", "order5", "order6", "order7",
                          "order8", "order9", "order10", "order11", "order12")]
 
+v18_data <- v18_data[!(v18_data$Event.Index == "END OF FILE"), ]
+
+### set up the stim list based on order assignment ###
 v18_data_ord1 <- subset(v18_data, counterbalance.m678 == "order1" | 
                           counterbalance.bi4u == "order1" |
                           counterbalance.dozd == "order1" |
                           counterbalance.g69h == "order1")
+v18_data_ord1$stim.pres <- v18_data_ord1$order1
+
 v18_data_ord2 <- subset(v18_data, counterbalance.93ib == "order2" |
                           counterbalance.8ump == "order2" |
                           counterbalance.wch9 == "order2" |
                           counterbalance.2v12 == "order2")
+v18_data_ord2$stim.pres <- v18_data_ord2$order2
+
 v18_data_ord3 <- subset(v18_data, counterbalance.m678 == "order3" |
                           counterbalance.bi4u == "order3" |
                           counterbalance.dozd == "order3" |
                           counterbalance.g69h == "order3")
+v18_data_ord3$stim.pres <- v18_data_ord3$order3
+
 v18_data_ord4 <- subset(v18_data, counterbalance.93ib == "order4" |
                           counterbalance.8ump == "order4" |
                           counterbalance.wch9 == "order4" |
                           counterbalance.2v12 == "order4")
+v18_data_ord4$stim.pres <- v18_data_ord4$order4
+
 v18_data_ord5 <- subset(v18_data, counterbalance.9xcr == "order5" |
                           counterbalance.mcio == "order5" |
                           counterbalance.eu1d == "order5" |
                           counterbalance.s1b5 == "order5")
+v18_data_ord5$stim.pres <- v18_data_ord5$order5
+
 v18_data_ord6 <- subset(v18_data, counterbalance.9xcr == "order6" |
                           counterbalance.mcio == "order6" |
                           counterbalance.eu1d == "order6" |
                           counterbalance.s1b5 == "order6")
+v18_data_ord6$stim.pres <- v18_data_ord6$order6
+
 v18_data_ord7 <- subset(v18_data, counterbalance.wbyz == "order7" |
                           counterbalance.ulkf == "order7" |
                           counterbalance.u2fx == "order7" |
                           counterbalance.sg3w == "order7")
+v18_data_ord7$stim.pres <- v18_data_ord7$order7
+
 v18_data_ord8 <- subset(v18_data, counterbalance.vply == "order8" |
                           counterbalance.t9rn == "order8" |
                           counterbalance.7mrq == "order8" |
                           counterbalance.8zsd == "order8")
+v18_data_ord8$stim.pres <- v18_data_ord8$order8
+
 v18_data_ord9 <- subset(v18_data, counterbalance.wbyz == "order9" |
                           counterbalance.ulkf == "order9" |
                           counterbalance.u2fx == "order9" |
                           counterbalance.sg3w == "order9")
+v18_data_ord9$stim.pres <- v18_data_ord9$order9
+
 v18_data_ord10 <- subset(v18_data, counterbalance.vply == "order10" |
                            counterbalance.t9rn == "order10" |
                            counterbalance.7mrq == "order10" |
                            counterbalance.8zsd == "order10")
+v18_data_ord10$stim.pres <- v18_data_ord10$order10
+
 v18_data_ord11 <- subset(v18_data, counterbalance.hleo == "order11" |
                            counterbalance.3v2j == "order11" |
                            counterbalance.e4l7 == "order11" |
                            counterbalance.o3nf == "order11")
+v18_data_ord11$stim.pres <- v18_data_ord11$order11
+
 v18_data_ord12 <- subset(v18_data, counterbalance.hleo == "order12" |
                            counterbalance.3v2j == "order12" |
                            counterbalance.e4l7 == "order12" |
                            counterbalance.o3nf == "order12")
+v18_data_ord12$stim.pres <- v18_data_ord12$order12
 
 ### add stim type factor label ###
 {
-v18_data_ord1$stimtype <- ifelse(v18_data_ord1$order1 %in% face1, "FACE", 
-                                 ifelse(v18_data_ord1$order1 %in% words1, "WORD", 
-                                        ifelse(v18_data_ord1$order1 %in% iaps1, "IAPS", "")))
-v18_data_ord2$stimtype <- ifelse(v18_data_ord2$order2 %in% face1, "FACE", 
-                                 ifelse(v18_data_ord2$order2 %in% words1, "WORD", 
-                                        ifelse(v18_data_ord2$order2 %in% iaps1, "IAPS", "")))
-v18_data_ord3$stimtype <- ifelse(v18_data_ord3$order3 %in% face1, "FACE", 
-                                 ifelse(v18_data_ord3$order3 %in% words1, "WORD", 
-                                        ifelse(v18_data_ord3$order3 %in% iaps1, "IAPS", "")))
-v18_data_ord4$stimtype <- ifelse(v18_data_ord4$order4 %in% face1, "FACE", 
-                                 ifelse(v18_data_ord4$order4 %in% words1, "WORD", 
-                                        ifelse(v18_data_ord4$order4 %in% iaps1, "IAPS", "")))
-v18_data_ord5$stimtype <- ifelse(v18_data_ord5$order5 %in% face1, "FACE", 
-                                 ifelse(v18_data_ord5$order5 %in% words1, "WORD", 
-                                        ifelse(v18_data_ord5$order5 %in% iaps1, "IAPS", "")))
-v18_data_ord6$stimtype <- ifelse(v18_data_ord6$order6 %in% face1, "FACE", 
-                                 ifelse(v18_data_ord6$order6 %in% words1, "WORD", 
-                                        ifelse(v18_data_ord6$order6 %in% iaps1, "IAPS", "")))
-v18_data_ord7$stimtype <- ifelse(v18_data_ord7$order6 %in% face2, "FACE", 
-                                 ifelse(v18_data_ord7$order6 %in% words2, "WORD", 
-                                        ifelse(v18_data_ord7$order6 %in% iaps1, "IAPS", "")))
-v18_data_ord8$stimtype <- ifelse(v18_data_ord8$order8 %in% face2, "FACE", 
-                                 ifelse(v18_data_ord8$order8 %in% words2, "WORD", 
-                                        ifelse(v18_data_ord8$order8 %in% iaps1, "IAPS", "")))
-v18_data_ord9$stimtype <- ifelse(v18_data_ord9$order9 %in% face2, "FACE", 
-                                 ifelse(v18_data_ord9$order9 %in% words2, "WORD", 
-                                        ifelse(v18_data_ord9$order9 %in% iaps1, "IAPS", "")))
-v18_data_ord10$stimtype <- ifelse(v18_data_ord10$order10 %in% face2, "FACE", 
-                                 ifelse(v18_data_ord10$order10 %in% words2, "WORD", 
-                                        ifelse(v18_data_ord10$order10 %in% iaps1, "IAPS", "")))
-v18_data_ord11$stimtype <- ifelse(v18_data_ord11$order11 %in% face2, "FACE", 
-                                 ifelse(v18_data_ord11$order11 %in% words2, "WORD", 
-                                        ifelse(v18_data_ord11$order11 %in% iaps1, "IAPS", "")))
-v18_data_ord12$stimtype <- ifelse(v18_data_ord12$order12 %in% face2, "FACE", 
-                                 ifelse(v18_data_ord12$order12 %in% words2, "WORD", 
-                                        ifelse(v18_data_ord12$order12 %in% iaps1, "IAPS", "")))
+  v18_data_ord1$stimtype <- ifelse(v18_data_ord1$stim.pres %in% face1, "FACE", 
+                                   ifelse(v18_data_ord1$stim.pres %in% words1, "WORD", 
+                                          ifelse(v18_data_ord1$stim.pres %in% iaps1, "IAPS", "")))
+  v18_data_ord2$stimtype <- ifelse(v18_data_ord2$stim.pres %in% face1, "FACE", 
+                                   ifelse(v18_data_ord2$stim.pres %in% words1, "WORD", 
+                                          ifelse(v18_data_ord2$stim.pres %in% iaps1, "IAPS", "")))
+  v18_data_ord3$stimtype <- ifelse(v18_data_ord3$stim.pres %in% face1, "FACE", 
+                                   ifelse(v18_data_ord3$stim.pres %in% words1, "WORD", 
+                                          ifelse(v18_data_ord3$stim.pres %in% iaps1, "IAPS", "")))
+  v18_data_ord4$stimtype <- ifelse(v18_data_ord4$stim.pres %in% face1, "FACE", 
+                                   ifelse(v18_data_ord4$stim.pres %in% words1, "WORD", 
+                                          ifelse(v18_data_ord4$stim.pres %in% iaps1, "IAPS", "")))
+  v18_data_ord5$stimtype <- ifelse(v18_data_ord5$stim.pres %in% face1, "FACE", 
+                                   ifelse(v18_data_ord5$stim.pres %in% words1, "WORD", 
+                                          ifelse(v18_data_ord5$stim.pres %in% iaps1, "IAPS", "")))
+  v18_data_ord6$stimtype <- ifelse(v18_data_ord6$stim.pres %in% face1, "FACE", 
+                                   ifelse(v18_data_ord6$stim.pres %in% words1, "WORD", 
+                                          ifelse(v18_data_ord6$stim.pres %in% iaps1, "IAPS", "")))
+  v18_data_ord7$stimtype <- ifelse(v18_data_ord7$stim.pres %in% face2, "FACE", 
+                                   ifelse(v18_data_ord7$stim.pres %in% words2, "WORD", 
+                                          ifelse(v18_data_ord7$stim.pres %in% iaps1, "IAPS", "")))
+  v18_data_ord8$stimtype <- ifelse(v18_data_ord8$stim.pres %in% face2, "FACE", 
+                                   ifelse(v18_data_ord8$stim.pres %in% words2, "WORD", 
+                                          ifelse(v18_data_ord8$stim.pres %in% iaps1, "IAPS", "")))
+  v18_data_ord9$stimtype <- ifelse(v18_data_ord9$stim.pres %in% face2, "FACE", 
+                                   ifelse(v18_data_ord9$stim.pres %in% words2, "WORD", 
+                                          ifelse(v18_data_ord9$stim.pres %in% iaps1, "IAPS", "")))
+  v18_data_ord10$stimtype <- ifelse(v18_data_ord10$stim.pres %in% face2, "FACE", 
+                                    ifelse(v18_data_ord10$stim.pres %in% words2, "WORD", 
+                                           ifelse(v18_data_ord10$stim.pres %in% iaps1, "IAPS", "")))
+  v18_data_ord11$stimtype <- ifelse(v18_data_ord11$stim.pres %in% face2, "FACE", 
+                                    ifelse(v18_data_ord11$stim.pres %in% words2, "WORD", 
+                                           ifelse(v18_data_ord11$stim.pres %in% iaps1, "IAPS", "")))
+  v18_data_ord12$stimtype <- ifelse(v18_data_ord12$stim.pres %in% face2, "FACE", 
+                                    ifelse(v18_data_ord12$stim.pres %in% words2, "WORD", 
+                                           ifelse(v18_data_ord12$stim.pres %in% iaps1, "IAPS", "")))
 }
 
 ### merge back together ###
@@ -613,6 +722,22 @@ v18_data <- rbind(v18_data_ord1, v18_data_ord2,
                   v18_data_ord7, v18_data_ord8,
                   v18_data_ord9, v18_data_ord10,
                   v18_data_ord11, v18_data_ord12)
+
+### drop order# columns for only one stim column ###
+drop<- c("order1", "order2",
+         "order3", "order4", "order5", "order6", "order7",
+         "order8", "order9", "order10", "order11", "order12")
+
+### drop unnecessary columns and the duplicate rows ###
+### these contain NA's in stim pres ###
+v18_data <- v18_data[ , !(names(v18_data) %in% drop)]
+v18_data <- v18_data[!is.na(v18_data$stim.pres), ]
+
+### drop trials w/ responses in less than 200ms ###
+v18_data$RT.Outl <- ifelse(v18_data$Reaction.Time <= 200 & v18_data$Screen.Name == "stim", 1, 0)
+outliers <- subset(v18_data, RT.Outl == 1)
+v18_data <- subset(v18_data, RT.Outl == 0)
+table(outliers$Participant.Public.ID)
 
 ### make "positive" 0 and "negative" 1 ###
 v18_data$rate <- recode(v18_data$Response,
@@ -630,7 +755,6 @@ v18_data.summary <- (ddply(v18_data, "Participant.Public.ID", summarise,
                            pow_rate = mean(rate[which(stimtype == "WORD" & clearval == "positive")], na.rm = TRUE),
                            new_rate = mean(rate[which(stimtype == "WORD" & clearval == "negative")], na.rm = TRUE)))
 
-
 cor.test(v18_data.summary$sur_rate, v18_data.summary$amw_rate, use = "complete.obs")
 cor.test(v18_data.summary$amb_rate, v18_data.summary$amw_rate, use = "complete.obs")
 cor.test(v18_data.summary$sur_rate, v18_data.summary$amb_rate, use = "complete.obs")
@@ -646,6 +770,11 @@ full <- merge(demo, full, by = "Participant.Public.ID")
 full$mal0fem1 <- recode(full$sex,
                         "Male" = 0,
                         "Female" = 1)
+
+### ditch people that didn't respond accurately ###
+full <- subset(full, (full$hap_rate <= .4 & full$ang_rate >= .6 &
+                              full$pos_rate <= .4 & full$neg_rate >= .6 &
+                              full$pow_rate <= .4 & full$new_rate >= .6))
 
 ###################
 ### assess normality ###
