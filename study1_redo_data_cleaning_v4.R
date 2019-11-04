@@ -1,5 +1,11 @@
+######### A few chunks are commented out and replaced with edited versions. 
+######### Some folders don't have data in them bc I am checking preliminary 
+######### results, so it gives me errors if I don't edit. 
+
+
+
 ### set wd ###
-setwd("~/Documents/GitHub/Words/data/study1_redo_data/")
+setwd("~/Downloads/data_exp_10365-v4/")
 
 ### load packages ###
 suppressPackageStartupMessages(library(tidyverse))
@@ -70,40 +76,12 @@ suppressPackageStartupMessages(library(reshape2))
 ###################################################
 
 #### read in the demographics data ###
-v2_demo <- read.csv("data_exp_10365-v2_questionnaire-rok5.csv")
 v4_demo <- read.csv("data_exp_10365-v4_questionnaire-rok5.csv")
 
-### pull relevant columns, then combine ###
-v2_demo <- v2_demo[, c("Participant.Public.ID", "sex", "age")]
+### pull relevant columns ###
 v4_demo <- v4_demo[, c("Participant.Public.ID", "sex", "age")]
-v2_demo <- rbind(v2_demo,v4_demo)
-remove(v4_demo)
 
 ### read in the task data ###
-v2_dhn3 <- read.csv("data_exp_10365-v2_task-dhn3.csv")
-v2_uyls <- read.csv("data_exp_10365-v2_task-uyls.csv")
-v2_7sqx <- read.csv("data_exp_10365-v2_task-7sqx.csv")
-v2_6nyj <- read.csv("data_exp_10365-v2_task-6nyj.csv")
-v2_5unm <- read.csv("data_exp_10365-v2_task-5unm.csv")
-v2_b5b7 <- read.csv("data_exp_10365-v2_task-b5b7.csv")
-v2_xsf9 <- read.csv("data_exp_10365-v2_task-xsf9.csv")
-v2_tahj <- read.csv("data_exp_10365-v2_task-tahj.csv")
-v2_jpit <- read.csv("data_exp_10365-v2_task-jpit.csv")
-v2_u5dg <- read.csv("data_exp_10365-v2_task-u5dg.csv")
-v2_rugu <- read.csv("data_exp_10365-v2_task-rugu.csv")
-v2_myk4 <- read.csv("data_exp_10365-v2_task-myk4.csv")
-v2_pdjg <- read.csv("data_exp_10365-v2_task-pdjg.csv")
-v2_nq9b <- read.csv("data_exp_10365-v2_task-nq9b.csv")
-v2_tazw <- read.csv("data_exp_10365-v2_task-tazw.csv")
-v2_y89e <- read.csv("data_exp_10365-v2_task-y89e.csv")
-v2_f3ii <- read.csv("data_exp_10365-v2_task-f3ii.csv")
-v2_71u8 <- read.csv("data_exp_10365-v2_task-71u8.csv")
-v2_7f4u <- read.csv("data_exp_10365-v2_task-7f4u.csv")
-v2_b86o <- read.csv("data_exp_10365-v2_task-b86o.csv")
-v2_udom <- read.csv("data_exp_10365-v2_task-udom.csv")
-v2_x6ib <- read.csv("data_exp_10365-v2_task-x6ib.csv")
-v2_shzk <- read.csv("data_exp_10365-v2_task-shzk.csv")
-v2_dko9 <- read.csv("data_exp_10365-v2_task-dko9.csv")
 v4_dhn3 <- read.csv("data_exp_10365-v4_task-dhn3.csv")
 v4_uyls <- read.csv("data_exp_10365-v4_task-uyls.csv")
 v4_7sqx <- read.csv("data_exp_10365-v4_task-7sqx.csv")
@@ -129,47 +107,50 @@ v4_x6ib <- read.csv("data_exp_10365-v4_task-x6ib.csv")
 v4_shzk <- read.csv("data_exp_10365-v4_task-shzk.csv")
 v4_dko9 <- read.csv("data_exp_10365-v4_task-dko9.csv")
 
-v2_data <- rbind(v2_dhn3, v2_uyls, v2_7sqx,
-                 v2_6nyj, v2_5unm, v2_b5b7,
-                 v2_xsf9, v2_tahj, v2_jpit,
-                 v2_u5dg, v2_rugu, v2_myk4,
-                 v2_pdjg, v2_nq9b, v2_tazw,
-                 v2_y89e, v2_f3ii, v2_71u8,
-                 v2_7f4u, v2_b86o, v2_udom,
-                 v2_x6ib, v2_shzk, v2_dko9,
-                 v4_dhn3, v4_uyls, v4_7sqx,
+v4_data <- rbind(v4_dhn3, v4_uyls, v4_7sqx,
                  v4_6nyj, v4_5unm, v4_b5b7,
                  v4_xsf9, v4_tahj, v4_jpit,
-                 v4_u5dg, v4_rugu, v4_myk4,
+                 v4_u5dg,
                  v4_pdjg, v4_nq9b, v4_tazw,
                  v4_y89e, v4_f3ii, v4_71u8,
                  v4_7f4u, v4_b86o, v4_udom,
                  v4_x6ib, v4_shzk, v4_dko9)
 
+# v4_data <- rbind(v4_dhn3, v4_uyls, v4_7sqx,
+#                  v4_6nyj, v4_5unm, v4_b5b7,
+#                  v4_xsf9, v4_tahj, v4_jpit,
+#                  v4_u5dg, v4_rugu, v4_myk4,
+#                  v4_pdjg, v4_nq9b, v4_tazw,
+#                  v4_y89e, v4_f3ii, v4_71u8,
+#                  v4_7f4u, v4_b86o, v4_udom,
+#                  v4_x6ib, v4_shzk, v4_dko9)
+
 ### clean workspace ###
-rm(v2_dhn3, v2_uyls, v2_7sqx,
-   v2_6nyj, v2_5unm, v2_b5b7,
-   v2_xsf9, v2_tahj, v2_jpit,
-   v2_u5dg, v2_rugu, v2_myk4,
-   v2_pdjg, v2_nq9b, v2_tazw,
-   v2_y89e, v2_f3ii, v2_71u8,
-   v2_7f4u, v2_b86o, v2_udom,
-   v2_x6ib, v2_shzk, v2_dko9,
-   v4_dhn3, v4_uyls, v4_7sqx,
+
+rm(v4_dhn3, v4_uyls, v4_7sqx,
    v4_6nyj, v4_5unm, v4_b5b7,
    v4_xsf9, v4_tahj, v4_jpit,
-   v4_u5dg, v4_rugu, v4_myk4,
+   v4_u5dg,
    v4_pdjg, v4_nq9b, v4_tazw,
    v4_y89e, v4_f3ii, v4_71u8,
    v4_7f4u, v4_b86o, v4_udom,
    v4_x6ib, v4_shzk, v4_dko9)
 
-v2_data <- v2_data[, c("Event.Index", "Participant.Public.ID",
+# rm(v4_dhn3, v4_uyls, v4_7sqx,
+#    v4_6nyj, v4_5unm, v4_b5b7,
+#    v4_xsf9, v4_tahj, v4_jpit,
+#    v4_u5dg, v4_rugu, v4_myk4,
+#    v4_pdjg, v4_nq9b, v4_tazw,
+#    v4_y89e, v4_f3ii, v4_71u8,
+#    v4_7f4u, v4_b86o, v4_udom,
+#    v4_x6ib, v4_shzk, v4_dko9)
+
+v4_data <- v4_data[, c("Event.Index", "Participant.Public.ID",
                        "randomiser.jf65", "randomiser.2tba",
                        "counterbalance.93ib", "counterbalance.m678",
                        "counterbalance.9xcr", "counterbalance.wbyz",
                        "counterbalance.vply", "counterbalance.hleo",
-                       "counterbalance.3v2j", "counterbalance.ulkf",
+                       "counterbalance.3v4j", "counterbalance.ulkf",
                        "counterbalance.bi4u", "counterbalance.dozd",
                        "counterbalance.g69h", "counterbalance.8ump",
                        "counterbalance.wch9", "counterbalance.2v12",
@@ -183,92 +164,102 @@ v2_data <- v2_data[, c("Event.Index", "Participant.Public.ID",
                        "order3", "order4", "order5", "order6", "order7",
                        "order8", "order9", "order10", "order11", "order12")]
 
-v2_data <- v2_data[!(v2_data$Event.Index == "END OF FILE"), ]
+v4_data <- v4_data[!(v4_data$Event.Index == "END OF FILE"), ]
 
 ### set up the stim list based on order assignment ###
-v2_data_ord1 <- subset(v2_data, counterbalance.m678 == "order1" | 
+v4_data_ord1 <- subset(v4_data, counterbalance.m678 == "order1" | 
                          counterbalance.bi4u == "order1" |
                          counterbalance.dozd == "order1" |
                          counterbalance.g69h == "order1")
-v2_data_ord1$stim.pres <- v2_data_ord1$order1
+v4_data_ord1$stim.pres <- v4_data_ord1$order1
 
-v2_data_ord2 <- subset(v2_data, counterbalance.93ib == "order2" |
+v4_data_ord2 <- subset(v4_data, counterbalance.93ib == "order2" |
                          counterbalance.8ump == "order2" |
                          counterbalance.wch9 == "order2" |
                          counterbalance.2v12 == "order2")
-v2_data_ord2$stim.pres <- v2_data_ord2$order2
+v4_data_ord2$stim.pres <- v4_data_ord2$order2
 
-v2_data_ord3 <- subset(v2_data, counterbalance.m678 == "order3" |
+v4_data_ord3 <- subset(v4_data, counterbalance.m678 == "order3" |
                          counterbalance.bi4u == "order3" |
                          counterbalance.dozd == "order3" |
                          counterbalance.g69h == "order3")
-v2_data_ord3$stim.pres <- v2_data_ord3$order3
+v4_data_ord3$stim.pres <- v4_data_ord3$order3
 
-v2_data_ord4 <- subset(v2_data, counterbalance.93ib == "order4" |
+v4_data_ord4 <- subset(v4_data, counterbalance.93ib == "order4" |
                          counterbalance.8ump == "order4" |
                          counterbalance.wch9 == "order4" |
                          counterbalance.2v12 == "order4")
-v2_data_ord4$stim.pres <- v2_data_ord4$order4
+v4_data_ord4$stim.pres <- v4_data_ord4$order4
 
-v2_data_ord5 <- subset(v2_data, counterbalance.9xcr == "order5" |
+v4_data_ord5 <- subset(v4_data, counterbalance.9xcr == "order5" |
                          counterbalance.mcio == "order5" |
                          counterbalance.eu1d == "order5" |
                          counterbalance.s1b5 == "order5")
-v2_data_ord5$stim.pres <- v2_data_ord5$order5
+v4_data_ord5$stim.pres <- v4_data_ord5$order5
 
-v2_data_ord6 <- subset(v2_data, counterbalance.9xcr == "order6" |
+v4_data_ord6 <- subset(v4_data, counterbalance.9xcr == "order6" |
                          counterbalance.mcio == "order6" |
                          counterbalance.eu1d == "order6" |
                          counterbalance.s1b5 == "order6")
-v2_data_ord6$stim.pres <- v2_data_ord6$order6
+v4_data_ord6$stim.pres <- v4_data_ord6$order6
 
-v2_data_ord7 <- subset(v2_data, counterbalance.wbyz == "order7" |
+v4_data_ord7 <- subset(v4_data, counterbalance.wbyz == "order7" |
                          counterbalance.ulkf == "order7" |
                          counterbalance.u2fx == "order7" |
                          counterbalance.sg3w == "order7")
-v2_data_ord7$stim.pres <- v2_data_ord7$order7
+v4_data_ord7$stim.pres <- v4_data_ord7$order7
 
-v2_data_ord8 <- subset(v2_data, counterbalance.vply == "order8" |
+v4_data_ord8 <- subset(v4_data, counterbalance.vply == "order8" |
                          counterbalance.t9rn == "order8" |
                          counterbalance.7mrq == "order8" |
                          counterbalance.8zsd == "order8")
-v2_data_ord8$stim.pres <- v2_data_ord8$order8
+v4_data_ord8$stim.pres <- v4_data_ord8$order8
 
-v2_data_ord9 <- subset(v2_data, counterbalance.wbyz == "order9" |
+v4_data_ord9 <- subset(v4_data, counterbalance.wbyz == "order9" |
                          counterbalance.ulkf == "order9" |
                          counterbalance.u2fx == "order9" |
                          counterbalance.sg3w == "order9")
-v2_data_ord9$stim.pres <- v2_data_ord9$order9
+v4_data_ord9$stim.pres <- v4_data_ord9$order9
 
-v2_data_ord10 <- subset(v2_data, counterbalance.vply == "order10" |
+v4_data_ord10 <- subset(v4_data, counterbalance.vply == "order10" |
                           counterbalance.t9rn == "order10" |
                           counterbalance.7mrq == "order10" |
                           counterbalance.8zsd == "order10")
-v2_data_ord10$stim.pres <- v2_data_ord10$order10
+v4_data_ord10$stim.pres <- v4_data_ord10$order10
 
-v2_data_ord11 <- subset(v2_data, counterbalance.hleo == "order11" |
-                          counterbalance.3v2j == "order11" |
+v4_data_ord11 <- subset(v4_data, counterbalance.hleo == "order11" |
                           counterbalance.e4l7 == "order11" |
                           counterbalance.o3nf == "order11")
-v2_data_ord11$stim.pres <- v2_data_ord11$order11
+v4_data_ord11$stim.pres <- v4_data_ord11$order11
 
-v2_data_ord12 <- subset(v2_data, counterbalance.hleo == "order12" |
-                          counterbalance.3v2j == "order12" |
+v4_data_ord12 <- subset(v4_data, counterbalance.hleo == "order12" |
                           counterbalance.e4l7 == "order12" |
                           counterbalance.o3nf == "order12")
-v2_data_ord12$stim.pres <- v2_data_ord12$order12
+v4_data_ord12$stim.pres <- v4_data_ord12$order12
+
+# v4_data_ord11 <- subset(v4_data, counterbalance.hleo == "order11" |
+#                           counterbalance.3v4j == "order11" |
+#                           counterbalance.e4l7 == "order11" |
+#                           counterbalance.o3nf == "order11")
+# v4_data_ord11$stim.pres <- v4_data_ord11$order11
+# 
+# v4_data_ord12 <- subset(v4_data, counterbalance.hleo == "order12" |
+#                           counterbalance.3v4j == "order12" |
+#                           counterbalance.e4l7 == "order12" |
+#                           counterbalance.o3nf == "order12")
+# v4_data_ord12$stim.pres <- v4_data_ord12$order12
 
 ### merge back together ###
-v2_data <- rbind(v2_data_ord1, v2_data_ord2,
-                 v2_data_ord3, v2_data_ord4,
-                 v2_data_ord5, v2_data_ord6,
-                 v2_data_ord7, v2_data_ord8,
-                 v2_data_ord9, v2_data_ord10,
-                 v2_data_ord11, v2_data_ord12)
+v4_data <- rbind(v4_data_ord1, v4_data_ord2,
+                 v4_data_ord3, v4_data_ord4,
+                 v4_data_ord5, v4_data_ord6,
+                 v4_data_ord7, v4_data_ord8,
+                 v4_data_ord9, v4_data_ord10,
+                 v4_data_ord11, v4_data_ord12)
 
-remove(v2_data_ord1,v2_data_ord2,v2_data_ord3,v2_data_ord4,v2_data_ord5,
-       v2_data_ord6,v2_data_ord7,v2_data_ord8,v2_data_ord9,v2_data_ord10,
-       v2_data_ord11,v2_data_ord12)
+remove(v4_data_ord1,v4_data_ord2,v4_data_ord3,v4_data_ord4,v4_data_ord5,
+       v4_data_ord6,v4_data_ord7,v4_data_ord8,v4_data_ord9,v4_data_ord10,
+       v4_data_ord11,v4_data_ord12)
 
 ### drop order# columns for only one stim column ###
 drop <- c("order1", "order2","order3", "order4", "order5", "order6", "order7",
@@ -276,40 +267,35 @@ drop <- c("order1", "order2","order3", "order4", "order5", "order6", "order7",
 
 ### drop unnecessary columns and the duplicate rows ###
 ### these contain NA's in stim pres ###
-v2_data <- v2_data[ , !(names(v2_data) %in% drop)]
-v2_data <- v2_data[!is.na(v2_data$stim.pres), ]
+v4_data <- v4_data[ , !(names(v4_data) %in% drop)]
+v4_data <- v4_data[!is.na(v4_data$stim.pres), ]
 
 ### add stim type factor label ###
-v2_data$stimtype <- ifelse(v2_data$stim.pres %in% c(face1, face2), "FACE",
-                                  ifelse(v2_data$stim.pres %in% c(words1, words2), "WORD",
-                                         ifelse(v2_data$stim.pres %in% c(iaps1, iaps2), "IAPS", "")))
+v4_data$stimtype <- ifelse(v4_data$stim.pres %in% c(face1, face2), "FACE",
+                                  ifelse(v4_data$stim.pres %in% c(words1, words2), "WORD",
+                                         ifelse(v4_data$stim.pres %in% c(iaps1, iaps2), "IAPS", "")))
 
 ### drop trials w/ responses in less than 200ms ###
-v2_data$Reaction.Time <- as.numeric(v2_data$Reaction.Time)
-v2_data$RT.Outl <- ifelse((v2_data$Reaction.Time <= 200 & v2_data$Screen.Name == "stim"), 1, 0)
-outliers <- subset(v2_data, RT.Outl == 1)
-v2_data <- subset(v2_data, RT.Outl == 0)
+v4_data$Reaction.Time <- as.numeric(v4_data$Reaction.Time)
+v4_data$RT.Outl <- ifelse((v4_data$Reaction.Time <= 200 & v4_data$Screen.Name == "stim"), 1, 0)
+outliers <- subset(v4_data, RT.Outl == 1)
+v4_data <- subset(v4_data, RT.Outl == 0)
 table(outliers$Participant.Public.ID)
 
 ### keep first response only ###
-v2_data$flag <- ifelse(v2_data$Attempt >= 2, 1, 0)
+v4_data$flag <- ifelse(v4_data$Attempt >= 2, 1, 0)
 
-v2_data <- subset(v2_data, flag == 0)
+v4_data <- subset(v4_data, flag == 0)
 
 ### count number of trials for each participant ###
-table(v2_data$Participant.Public.ID)
-
-### remove subject if fewer than 75% of trials have a response ###
-v2_data$rem1 <- ifelse(count(v2_data$Participant.Public.ID)<120, 1, "")
-v2_data <- v2_data[(v2_data$rem1 != 1),]
-remove(v2_data$rem1)
+table(v4_data$Participant.Public.ID)
 
 ### make "positive" 0 and "negative" 1 ###
-v2_data$rate <- recode(v2_data$Response,
+v4_data$rate <- recode(v4_data$Response,
                        "positive" = 0,
                        "negative" = 1)
 
-v2_data.summary <- (ddply(v2_data, "Participant.Public.ID", summarise, 
+v4_data.summary <- (ddply(v4_data, "Participant.Public.ID", summarise, 
                           sur_rate = mean(rate[which(stimtype == "FACE" & clearval == "ambiguous")], na.rm = TRUE),
                           hap_rate = mean(rate[which(stimtype == "FACE" & clearval == "positive")], na.rm = TRUE),
                           ang_rate = mean(rate[which(stimtype == "FACE" & clearval == "negative")], na.rm = TRUE),
@@ -322,46 +308,41 @@ v2_data.summary <- (ddply(v2_data, "Participant.Public.ID", summarise,
 
  
 # ### make blocks column if you want to check for bad specific blocks ###
-# v2_data$block <- ifelse(v2_data$stim.pres %in% face1, "face1",
-#                         ifelse(v2_data$stim.pres %in% face2, "face2",
-#                                ifelse(v2_data$stim.pres %in% iaps1, "iaps1",
-#                                       ifelse(v2_data$stim.pres %in% iaps2, "iaps2",
-#                                              ifelse(v2_data$stim.pres %in% words1, "words1",
-#                                                     ifelse(v2_data$stim.pres %in% words2, "words2",""))))))
+# v4_data$block <- ifelse(v4_data$stim.pres %in% face1, "face1",
+#                         ifelse(v4_data$stim.pres %in% face2, "face2",
+#                                ifelse(v4_data$stim.pres %in% iaps1, "iaps1",
+#                                       ifelse(v4_data$stim.pres %in% iaps2, "iaps2",
+#                                              ifelse(v4_data$stim.pres %in% words1, "words1",
+#                                                     ifelse(v4_data$stim.pres %in% words2, "words2",""))))))
 # 
-# v2_data.blocksummary <- ddply(v2_data, c("Participant.Public.ID", "clearval", "block"), summarise,
+# v4_data.blocksummary <- ddply(v4_data, c("Participant.Public.ID", "clearval", "block"), summarise,
 #                           N    = sum(!is.na(rate)),
 #                           mean = mean(rate, na.rm = TRUE),
 #                           sd   = sd(rate, na.rm = TRUE),
 #                           se   = sd / sqrt(N))
 # 
 # ### count number of bad blocks per participant ###
-# v2_data$block <- ifelse(v2_data$stim.pres %in% face1, "face1",
-#                         ifelse(v2_data$stim.pres %in% face2, "face2",
-#                                ifelse(v2_data$stim.pres %in% iaps1, "iaps1",
-#                                       ifelse(v2_data$stim.pres %in% iaps2, "iaps2",
-#                                              ifelse(v2_data$stim.pres %in% words1, "words1",
-#                                                     ifelse(v2_data$stim.pres %in% words2, "words2",""))))))
-# v2_data.blocksummary$badblocks <- ifelse((v2_data.blocksummary$clearval == "negative" & v2_data.blocksummary$mean <= .6),1,
-#                                          ifelse((v2_data.blocksummary$clearval == "positive" & v2_data.blocksummary$mean >= .4),1,0))
+# v4_data$block <- ifelse(v4_data$stim.pres %in% face1, "face1",
+#                         ifelse(v4_data$stim.pres %in% face2, "face2",
+#                                ifelse(v4_data$stim.pres %in% iaps1, "iaps1",
+#                                       ifelse(v4_data$stim.pres %in% iaps2, "iaps2",
+#                                              ifelse(v4_data$stim.pres %in% words1, "words1",
+#                                                     ifelse(v4_data$stim.pres %in% words2, "words2",""))))))
+# v4_data.blocksummary$badblocks <- ifelse((v4_data.blocksummary$clearval == "negative" & v4_data.blocksummary$mean <= .6),1,
+#                                          ifelse((v4_data.blocksummary$clearval == "positive" & v4_data.blocksummary$mean >= .4),1,0))
 
 ### count the bad responders ###
-{v2_data.summary$bad <- ifelse(v2_data.summary$hap_rate > .4, 1,
-                        ifelse(v2_data.summary$ang_rate < .6, 1,
-                               ifelse(v2_data.summary$pos_rate > .4, 1,
-                                      ifelse(v2_data.summary$neg_rate < .6, 1,
-                                             ifelse(v2_data.summary$pow_rate > .4, 1,
-                                                    ifelse(v2_data.summary$new_rate < .6, 1,0))))))
-sum(v2_data.summary$bad)}
+{v4_data.summary$bad <- ifelse(v4_data.summary$hap_rate > .4, 1,
+                        ifelse(v4_data.summary$ang_rate < .6, 1,
+                               ifelse(v4_data.summary$pos_rate > .4, 1,
+                                      ifelse(v4_data.summary$neg_rate < .6, 1,
+                                             ifelse(v4_data.summary$pow_rate > .4, 1,
+                                                    ifelse(v4_data.summary$new_rate < .6, 1,0))))))
+sum(v4_data.summary$bad)}
 
-### remove subject if bad responser ###
-v2_data.bad <- c(v2_data.summary$Participant.Public.ID, v2_data.summary$bad)
-v2_data <- merge(v2_data, v2_data.bad, by = "Participant.Public.ID")
-v2_data <- v2_data[(v2_data$bad != 1),]
-remove(v2_data$bad, v2_data.bad)
 
 ###################################################
-full <- merge(v2_data.summary, v2_demo, by = "Participant.Public.ID")
+full <- merge(v4_data.summary, v4_demo, by = "Participant.Public.ID")
 ###################
 ### assess normality ###
 shapiro.test(full$sur_rate) ## non-normal
