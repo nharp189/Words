@@ -136,33 +136,7 @@ v2_data <- rbind(v2_dhn3, v2_uyls, v2_7sqx,
                  v2_pdjg, v2_nq9b, v2_tazw,
                  v2_y89e, v2_f3ii, v2_71u8,
                  v2_7f4u, v2_b86o, v2_udom,
-                 v2_x6ib, v2_shzk, v2_dko9,
-                 v4_dhn3, v4_uyls, v4_7sqx,
-                 v4_6nyj, v4_5unm, v4_b5b7,
-                 v4_xsf9, v4_tahj, v4_jpit,
-                 v4_u5dg, v4_rugu, v4_myk4,
-                 v4_pdjg, v4_nq9b, v4_tazw,
-                 v4_y89e, v4_f3ii, v4_71u8,
-                 v4_7f4u, v4_b86o, v4_udom,
-                 v4_x6ib, v4_shzk, v4_dko9)
-
-### clean workspace ###
-rm(v2_dhn3, v2_uyls, v2_7sqx,
-   v2_6nyj, v2_5unm, v2_b5b7,
-   v2_xsf9, v2_tahj, v2_jpit,
-   v2_u5dg, v2_rugu, v2_myk4,
-   v2_pdjg, v2_nq9b, v2_tazw,
-   v2_y89e, v2_f3ii, v2_71u8,
-   v2_7f4u, v2_b86o, v2_udom,
-   v2_x6ib, v2_shzk, v2_dko9,
-   v4_dhn3, v4_uyls, v4_7sqx,
-   v4_6nyj, v4_5unm, v4_b5b7,
-   v4_xsf9, v4_tahj, v4_jpit,
-   v4_u5dg, v4_rugu, v4_myk4,
-   v4_pdjg, v4_nq9b, v4_tazw,
-   v4_y89e, v4_f3ii, v4_71u8,
-   v4_7f4u, v4_b86o, v4_udom,
-   v4_x6ib, v4_shzk, v4_dko9)
+                 v2_x6ib, v2_shzk, v2_dko9)
 
 v2_data <- v2_data[, c("Event.Index", "Participant.Public.ID",
                        "randomiser.jf65", "randomiser.2tba",
@@ -182,6 +156,54 @@ v2_data <- v2_data[, c("Event.Index", "Participant.Public.ID",
                        "clearval", "Attempt", "Metadata", "order1", "order2",
                        "order3", "order4", "order5", "order6", "order7",
                        "order8", "order9", "order10", "order11", "order12")]
+
+v4_data <- rbind(v4_dhn3, v4_uyls, v4_7sqx,
+                 v4_6nyj, v4_5unm, v4_b5b7,
+                 v4_xsf9, v4_tahj, v4_jpit,
+                 v4_u5dg, v4_rugu, v4_myk4,
+                 v4_pdjg, v4_nq9b, v4_tazw,
+                 v4_y89e, v4_f3ii, v4_71u8,
+                 v4_7f4u, v4_b86o, v4_udom,
+                 v4_x6ib, v4_shzk, v4_dko9)
+
+v4_data <- v4_data[, c("Event.Index", "Participant.Public.ID",
+                       "randomiser.jf65", "randomiser.2tba",
+                       "counterbalance.93ib", "counterbalance.m678",
+                       "counterbalance.9xcr", "counterbalance.wbyz",
+                       "counterbalance.vply", "counterbalance.hleo",
+                       "counterbalance.3v2j", "counterbalance.ulkf",
+                       "counterbalance.bi4u", "counterbalance.dozd",
+                       "counterbalance.g69h", "counterbalance.8ump",
+                       "counterbalance.wch9", "counterbalance.2v12",
+                       "counterbalance.mcio", "counterbalance.eu1d",
+                       "counterbalance.s1b5", "counterbalance.u2fx",
+                       "counterbalance.sg3w", "counterbalance.t9rn",
+                       "counterbalance.7mrq", "counterbalance.8zsd",
+                       "counterbalance.e4l7", "counterbalance.o3nf",
+                       "order.j7mk", "Screen.Name", "Reaction.Time", "Response",
+                       "clearval", "Attempt", "Metadata", "order1", "order2",
+                       "order3", "order4", "order5", "order6", "order7",
+                       "order8", "order9", "order10", "order11", "order12")]
+
+v2_data <- rbind(v2_data,v4_data)
+
+### clean workspace ###
+rm(v2_dhn3, v2_uyls, v2_7sqx,
+   v2_6nyj, v2_5unm, v2_b5b7,
+   v2_xsf9, v2_tahj, v2_jpit,
+   v2_u5dg, v2_rugu, v2_myk4,
+   v2_pdjg, v2_nq9b, v2_tazw,
+   v2_y89e, v2_f3ii, v2_71u8,
+   v2_7f4u, v2_b86o, v2_udom,
+   v2_x6ib, v2_shzk, v2_dko9,
+   v4_dhn3, v4_uyls, v4_7sqx,
+   v4_6nyj, v4_5unm, v4_b5b7,
+   v4_xsf9, v4_tahj, v4_jpit,
+   v4_u5dg, v4_rugu, v4_myk4,
+   v4_pdjg, v4_nq9b, v4_tazw,
+   v4_y89e, v4_f3ii, v4_71u8,
+   v4_7f4u, v4_b86o, v4_udom,
+   v4_x6ib, v4_shzk, v4_dko9, v4_data)
 
 v2_data <- v2_data[!(v2_data$Event.Index == "END OF FILE"), ]
 
@@ -300,9 +322,11 @@ v2_data <- subset(v2_data, flag == 0)
 table(v2_data$Participant.Public.ID)
 
 ### remove subject if fewer than 75% of trials have a response ###
-v2_data$rem1 <- ifelse(count(v2_data$Participant.Public.ID)<120, 1, "")
-v2_data <- v2_data[(v2_data$rem1 != 1),]
-remove(v2_data$rem1)
+v2_data_trials <- count(v2_data$Participant.Public.ID)
+names(v2_data_trials) <- c("Participant.Public.ID", "trials")
+v2_data <- merge(v2_data, v2_data_trials, by = "Participant.Public.ID")
+rm(v2_data_trials)
+v2_data <- v2_data[(v2_data$trials > 120),]
 
 ### make "positive" 0 and "negative" 1 ###
 v2_data$rate <- recode(v2_data$Response,
@@ -355,13 +379,11 @@ v2_data.summary <- (ddply(v2_data, "Participant.Public.ID", summarise,
 sum(v2_data.summary$bad)}
 
 ### remove subject if bad responser ###
-v2_data.bad <- c(v2_data.summary$Participant.Public.ID, v2_data.summary$bad)
-v2_data <- merge(v2_data, v2_data.bad, by = "Participant.Public.ID")
-v2_data <- v2_data[(v2_data$bad != 1),]
-remove(v2_data$bad, v2_data.bad)
+v2_data.summary <- v2_data.summary[(v2_data.summary$bad != 1),]
 
 ###################################################
 full <- merge(v2_data.summary, v2_demo, by = "Participant.Public.ID")
+
 ###################
 ### assess normality ###
 shapiro.test(full$sur_rate) ## non-normal
@@ -377,4 +399,10 @@ cor.test(full$sur_rate, full$amb_rate, use = "complete.obs")
 pcor.test(full$sur_rate, full$amw_rate, c(full$age, full$mal0fem1))
 pcor.test(full$amb_rate, full$amw_rate, c(full$age, full$mal0fem1))
 pcor.test(full$sur_rate, full$amb_rate, c(full$age, full$mal0fem1))
+
+### correlations for those under 60 years old only (for SAS 2020) ###
+full_60 <- full[full$age < 60,]
+pcor.test(full_60$sur_rate, full_60$amw_rate, c(full_60$age, full_60$mal0fem1))
+pcor.test(full_60$amb_rate, full_60$amw_rate, c(full_60$age, full_60$mal0fem1))
+pcor.test(full_60$sur_rate, full_60$amb_rate, c(full_60$age, full_60$mal0fem1))
 
