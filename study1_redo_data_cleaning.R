@@ -322,10 +322,10 @@ v2_data <- subset(v2_data, flag == 0)
 table(v2_data$Participant.Public.ID)
 
 ### remove subject if fewer than 75% of trials have a response ###
-v2_data_trials <- count(v2_data$Participant.Public.ID)
-names(v2_data_trials) <- c("Participant.Public.ID", "trials")
-v2_data <- merge(v2_data, v2_data_trials, by = "Participant.Public.ID")
-rm(v2_data_trials)
+### v2_data.rm = starting a list of removed sjs to replace w/ correct age category ###
+v2_data.rm <- count(v2_data$Participant.Public.ID)  
+names(v2_data.rm) <- c("Participant.Public.ID", "trials")
+v2_data <- merge(v2_data, v2_data,rm, by = "Participant.Public.ID")
 v2_data <- v2_data[(v2_data$trials > 120),]
 
 ### make "positive" 0 and "negative" 1 ###
@@ -377,6 +377,13 @@ v2_data.summary <- (ddply(v2_data, "Participant.Public.ID", summarise,
                                              ifelse(v2_data.summary$pow_rate > .4, 1,
                                                     ifelse(v2_data.summary$new_rate < .6, 1,0))))))
 sum(v2_data.summary$bad)}
+
+### add bad responders to list of removed sjs, get demographics ###
+v2_data.rm$rm_rate <- v2_data.summary$bad
+v2_data.rm <- v2_data.rm[which(v2_data.rm$freq < 120 | v2_data.rm$rm_rate == 1),]
+colnames(v2_data.rm)[1] <- "Participant.Public.ID"
+v2_data.rm <- merge(v2_data.rm, v2_demo, by = "Participant.Public.ID")
+
 
 ### remove subject if bad responser ###
 v2_data.summary <- v2_data.summary[(v2_data.summary$bad != 1),]

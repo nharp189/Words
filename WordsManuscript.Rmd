@@ -66,6 +66,7 @@ nhpath <- '~/Documents/Nick-Grad/Neta_Lab/Words/'
 path <- cbpath
 # knitr::opts_knit$set(root.dir = path)
 
+
 ### load necessary libraries ###
 #library(tidyverse)
 library(readxl)
@@ -83,7 +84,7 @@ We wanted to identify ambiguous words. Mention in this section why we also gener
 ## Methods
 
 ### Participants
-Workers on Amazon's Mchanical Turk (MTurk) were invted to participate in an eligibility screener worth \$0.20 with the option to earn a bonus of \$2.05 if they met the requirements and completed the entire study. See **Supplementary Information** for specific MTurk batch settings. The Workers clicked a hyperlink that directed them to the study. The screener task included demographic questions and one block of word ratings that included 5 instances of the word "negative" and 5 instances of the word "positive" (see Procedure below for full details). Workers were invited to complete the entire study if they indicated that they were over 18 years old, had English as their native language, had no history of psychological or neurological disorder, and correctly rated the words "positive" and "negative" as positive or negative with at least 80% accuracy. Of the 145 Workers who completed the screener, `r length(participants)` met the eligibility requirements, and `r length(final.participant)` (`r sum(str_count(demog$sex, "Female"))/length(final.participant)*100`% female, `r sum(str_count(demog$sex, "Male"))/length(final.participant) *100`% male) chose to complete the entire study. The final sample was `r sum(str_count(demog$race, "Asian"))/length(final.participant) *100`% Asian, `r sum(str_count(demog$race, "Black - not of Hispanic Origin"))/length(final.participant) *100`% Black, `r sum(str_count(demog$race, "White - not of Hispanic Origin"))/length(final.participant) *100`% White, with a mean(sd) age of `r mean(demog$age)`(`r sd(demog$age)`). 
+Workers on Amazon's Mchanical Turk (MTurk) were invted to participate in an eligibility screener with the option to earn a bonus if they met the requirements and completed the entire study. The Workers clicked a hyperlink that directed them to the study. The screener task included demographic questions and one block of word ratings that included 5 instances of the word "negative" and 5 instances of the word "positive" (see Procedure below for full details). Workers were invited to complete the entire study if they indicated that they were over 18 years old, had English as their native language, had no history of psychological or neurological disorder, and correctly rated the words "positive" and "negative" as positive or negative with at least 80% accuracy. Of the 145 Workers who completed the screener, `r length(participants)` met the eligibility requirements, and `r length(final.participant)` (`r sum(str_count(demog$sex, "Female"))/length(final.participant)*100`% female, `r sum(str_count(demog$sex, "Male"))/length(final.participant) *100`% male) chose to complete the entire study. The final sample was `r sum(str_count(demog$race, "Asian"))/length(final.participant) *100`% Asian, `r sum(str_count(demog$race, "Black - not of Hispanic Origin"))/length(final.participant) *100`% Black, `r sum(str_count(demog$race, "White - not of Hispanic Origin"))/length(final.participant) *100`% White, with a mean(sd) age of `r mean(demog$age)`(`r sd(demog$age)`). 
 
 ### Material
 
@@ -95,35 +96,28 @@ All of the calculations described in this section were scripted using R version 
 #### Software
 All tasks were created and presented using Gorilla Experiment Builder [@anwyl-irvine_gorilla_2019]. The study was only accessible to participants using a computer (not a phone or tablet) within the United States.
 
-### Procedure
-
-#### Screener and word rating task
-After giving informed consent, participants first answered demographic questions about their gender, age, race, native language, and whether they had ever been diagnosed with a psychological or neurological disorder. They then were shown a brief self-guided instructional walkthrough of the task before completing the screener. 
+### Screener and word rating task 
+After giving informed consent, participants first answered demographic questions about their gender, age, race, native language, and whether they had ever been diagnosed with a psychological or neurological disorder. They  were thenshown a brief self-guided instructional walkthrough of the task before completing the screener. 
 
 Using a random seed, we selected 20 positive and 20 negative words from the final pilot list for use in the screener task. These 40 words, along with 5 instances of the word "positive" and 5 instances of the word "negative" were presented randomly, one at a time, each following a 250 ms fixation cross. Each word remained on screen until the participant indicated that they thought it was positive or negative by pressing A or L on their keyboard (key pairing randomized across participants). If no response was made after 2000ms, a reminder appeared on screen, "Please respond as quickly as you can! A = POSITIVE. L = NEGATIVE." Participants who rated the words "positive" and "negative" with less than 80% accuracy were compensated for their time but were not invited to complete the rest of the study. Participants were also excluded at this point if they indicated that they were younger than 18, that English was not their native language, or that they had been diagnosed with a psychological or neurological disorder. 
 
 The remaining 590 words from the final pilot list were randomly presented across 10 blocks of 59 words using the same button-press procedure as the screener block. 
 
-### Data preprocessing
-Trials with a response time faster than 250ms were removed from the data prior to analysis, as well as trials greater than 3 SDs above the mean reaction time averaged across all trials. 
-
-Valence plotted visually, <25 and >75% negative - initial pos and neg words list
-
-Figure of that
-
-
-RT plotted for words between 35 and 65
-ambiguous (technically some "negative") words all have high rts (n = 40 that were > 875)
-
-shortest ambiguous rt is cutoff for pos and neg words rts, this removes some pos and neg words, so we're at ?? and ??
-
-
-
 ## Results
+Trials with a response time faster than 250ms were removed from the data prior to analysis, as well as trials with a reaction time greater than 3 SDs above the mean reaction time averaged across all trials. 
 
-### Subjective ratings
+We assessed average reaction time to identify the ambiguous words within the range of 35%-65% average negative rating, suggesting low response consensus. Previous work has shown that ambiguous faces and images are associated with longer reaction times in a forced-choice valence classification task (CITE). **Figure 1a** shows that 29 amibugous, 5 negative, and 6 positive words surpassed a reaction time threshold of 875ms (Why did we use 875? Just visual inspection?). These 40 words were considered for inclusion in a final list of ambiguous words. We removed 7 words that did not have both a clearly positive and clearly negative definition ("recession", "faceless", "headstone", "inherit", "abundant", "cosmic", "receive"), as well as 1 word that was redundant to another ambiguous word that we included ("courtroom"), resulting in a final list of 32 ambiguous words.
 
-### Reaction times
+As shown in **Figure 1b**, visual inspection of the average valence ratings revealed two distinct groups of words with high response consensus: one with a clearly negative meaning (n = 18, mean valence rating > 75% negative) and one with a clearly positive meaning (n = 20, mean valence rating < 10% negative). We removed the words "positive" and "negative" from each list (explain). Because the valence bias task requires an equal number of ambiguous (50%) and clearly-valenced (25% positive, 25% negative) stimuli, we included the 16 words with the fastest reaction time for the positive and negative word lists, respectively. 
+
+```{r, fig.align="center", fig.width=6, fig.height=6, fig.cap="Figure: Here is a really important caption."}
+
+### figure 1
+
+```
+
+## Study 1 Discussion
+Study 1 generated a list of 32 ambigous words, as well as 16 positive and 16 negative words, for use in determining whether valence bias generalizes to verbal ambiguity. Study 2 aimed to test this by comparing ratings of word to ratings of well-validated stimuli sets consisting of faces and scenes.
 
 # Study 2: Comparison of words with valence bias and IPANAT
 
@@ -185,26 +179,6 @@ r_refs(file = "CANLab_UNL.bib")
 \newpage
 
 # Supplementary Information
-## MTurk Project Settings
-The following are the settings used for the first batch on MTurk. This batch only contributed 6 respondents because the batch was published before the Gorilla task was fully functioning, and the batch expired before all HITs could be filled.
-
-* Title: Screener: Rate words as positive or negative (WARNING: This HIT may contain adult content. Worker discretion is advised.)  
-* Description: Bonus available ($2.05) to those who meet eligibility. Complete short demographic questions. Use your keyboard to indicate if you think individual words are positive or negative. 
-* Keywords: survey, demographics, rating, rate, words 
-* Reward per response: $0.2 
-* Number of respondents: 9 
-* Time allotted per worker: 1 Hour 
-* Survey expires in: 7 Days 
-* Auto-approve and pay Workers in: 3 Days 
-* Require that Workers be Masters to do your tasks: Yes 
-* Specify any additional qualifications Workers must meet to work on your tasks: 
-    + Location is UNITED STATES (US) 
-    + HIT Approval Rate (%) for all Requesters' HITs greater than 95 
-    + Number of HITs Approved greater than 5000 
-* Project contains adult content: selected 
-* Task Visibility: Hidden - Only Workers that meet my Qualification requirements can see and preview my tasks 
-
-The same settings were used for the rest of the batches except that they did not require that Workers be Masters and the Number of HITs Approved was set to greater than 500, not 5000.
 
 ## Study 1 Stimuli
 Insert link to repository for 'pick_words.R' 
