@@ -287,7 +287,7 @@ v2_data$flag <- ifelse(v2_data$Attempt >= 2, 1, 0)
 v2_data <- subset(v2_data, flag == 0)
 
 ### count number of trials for each participant ###
-table(v2_data$Participant.Public.ID)
+table(v2_data_ord1$Participant.Public.ID)
 
 ### make "positive" 0 and "negative" 1 ###
 v2_data$rate <- recode(v2_data$Response,
