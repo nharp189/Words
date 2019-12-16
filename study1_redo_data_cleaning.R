@@ -9,6 +9,7 @@ suppressPackageStartupMessages(library(ppcor))
 suppressPackageStartupMessages(library(dplyr))
 suppressPackageStartupMessages(library(reshape2))
 suppressPackageStartupMessages(library(BayesMed)) 
+suppressPackageStartupMessages(library(ggplot2)) 
    # to get BayesMed to install properly, I had to use the following websites
    # to download/install specific packages
    # https://sourceforge.net/projects/mcmc-jags/
@@ -77,12 +78,14 @@ suppressPackageStartupMessages(library(BayesMed))
 #### read in the demographics data ###
 v2_demo <- read.csv("data_exp_10365-v2_questionnaire-rok5.csv")
 v4_demo <- read.csv("data_exp_10365-v4_questionnaire-rok5.csv")
+v5_demo <- read.csv("data_exp_10365-v5_questionnaire-rok5.csv")
 
 ### pull relevant columns, then combine ###
 v2_demo <- v2_demo[, c("Participant.Public.ID", "sex", "age")]
 v4_demo <- v4_demo[, c("Participant.Public.ID", "sex", "age")]
-v2_demo <- rbind(v2_demo,v4_demo)
-remove(v4_demo)
+v5_demo <- v5_demo[, c("Participant.Public.ID", "sex", "age")]
+v2_demo <- rbind(v2_demo,v4_demo,v5_demo)
+remove(v4_demo,v5_demo)
 
 ### read in the task data ###
 v2_dhn3 <- read.csv("data_exp_10365-v2_task-dhn3.csv")
@@ -409,7 +412,8 @@ v2_data.summary <- (ddply(v2_data, "Participant.Public.ID", summarise,
                           neg_rate = mean(rate[which(stimtype == "IAPS" & clearval == "negative")], na.rm = TRUE),
                           amw_rate = mean(rate[which(stimtype == "WORD" & clearval == "ambiguous")], na.rm = TRUE),
                           pow_rate = mean(rate[which(stimtype == "WORD" & clearval == "positive")], na.rm = TRUE),
-                          new_rate = mean(rate[which(stimtype == "WORD" & clearval == "negative")], na.rm = TRUE)))
+                          new_rate = mean(rate[which(stimtype == "WORD" & clearval == "negative")], na.rm = TRUE),
+                          all_rate = mean(rate[which(clearval == "ambiguous")], na.rm = TRUE)))
 
  
 # ### make blocks column if you want to check for bad specific blocks ###
@@ -458,9 +462,14 @@ v2_data.summary <- v2_data.summary[(v2_data.summary$bad != 1),]
 
 ###################################################
 full <- merge(v2_data.summary, v2_demo, by = "Participant.Public.ID")
-
+full$age <- as.numeric(full$age)
 ### histogram of ages ###
 hist(full$age,breaks = length(unique(full$age)),xlim = c(min(full$age),max(full$age)))
+
+### new sex column
+full$mal0fem1 <- ifelse(full$sex == "Female", 1,
+                               ifelse(full$sex == "Male", 0,""))
+full$mal0fem1 <- as.numeric(full$mal0fem1)
 
 ###################
 ### assess normality ###
@@ -486,7 +495,46 @@ pcor.test(full_60$sur_rate, full_60$amb_rate, c(full_60$age, full_60$mal0fem1))
 
 ###################
 ### Bayes partial correlation controlling for age and sex ###
-jzs_partcor(full$sur_rate, full$amw_rate, c(full$age, full$mal0fem1))
-jzs_partcor(full$amb_rate, full$amw_rate, c(full$age, full$mal0fem1))
-jzs_partcor(full$sur_rate, full$amb_rate, c(full$age, full$mal0fem1))
+jzs_partcor(full$sur_rate, full$amw_rate, c(full$age, full$mal0fem1)) #can't do 2 controls!
+jzs_partcor(full$amb_rate, full$amw_rate, c(full$age, full$mal0fem1)) #can't do 2 controls!
+jzs_partcor(full$sur_rate, full$amb_rate, c(full$age, full$mal0fem1)) #can't do 2 controls!
+
+ggplot(full, aes(x=sur_rate, y = amw_rate))+
+   geom_point()+
+   geom_smooth(method="lm")
+
+ggplot(full, aes(x=amb_rate, y = amw_rate))+
+   geom_point()+
+   geom_smooth(method="lm")
+
+ggplot(full, aes(x=amb_rate, y = sur_rate))+
+   geom_point()+
+   geom_smooth(method="lm")
+
+### Bayes partial correlations with age as variable, controlling for sex ###
+jzs_partcor(full$age, full$sur_rate, c(full$mal0fem1))
+jzs_partcor(full$age, full$amb_rate, c(full$mal0fem1))
+jzs_partcor(full$age, full$amw_rate, c(full$mal0fem1))
+jzs_partcor(full$age, full$all_rate, c(full$mal0fem1))
+
+jzs_cor(full$age, full$sur_rate)
+jzs_cor(full$age, full$amb_rate)
+jzs_cor(full$age, full$amw_rate)
+jzs_cor(full$age, full$all_rate)
+
+ggplot(full, aes(x=full$age, y = sur_rate))+
+   geom_point()+
+   geom_smooth(method="lm")
+
+ggplot(full, aes(x=full$age, y = amb_rate))+
+   geom_point()+
+   geom_smooth(method="lm")
+
+ggplot(full, aes(x=full$age, y = amw_rate))+
+   geom_point()+
+   geom_smooth(method="lm")
+
+ggplot(full, aes(x=full$age, y = all_rate))+
+   geom_point()+
+   geom_smooth(method="lm")
 
