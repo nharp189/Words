@@ -8,6 +8,11 @@ suppressPackageStartupMessages(library(MASS))
 suppressPackageStartupMessages(library(ppcor))
 suppressPackageStartupMessages(library(dplyr))
 suppressPackageStartupMessages(library(reshape2))
+suppressPackageStartupMessages(library(BayesMed)) 
+   # to get BayesMed to install properly, I had to use the following websites
+   # to download/install specific packages
+   # https://sourceforge.net/projects/mcmc-jags/
+   # http://macappstore.org/gsl/
 
 ### set stim lists ###
 {
@@ -128,6 +133,30 @@ v4_udom <- read.csv("data_exp_10365-v4_task-udom.csv")
 v4_x6ib <- read.csv("data_exp_10365-v4_task-x6ib.csv")
 v4_shzk <- read.csv("data_exp_10365-v4_task-shzk.csv")
 v4_dko9 <- read.csv("data_exp_10365-v4_task-dko9.csv")
+v5_dhn3 <- read.csv("data_exp_10365-v5_task-dhn3.csv")
+v5_uyls <- read.csv("data_exp_10365-v5_task-uyls.csv")
+v5_7sqx <- read.csv("data_exp_10365-v5_task-7sqx.csv")
+v5_6nyj <- read.csv("data_exp_10365-v5_task-6nyj.csv")
+v5_5unm <- read.csv("data_exp_10365-v5_task-5unm.csv")
+v5_b5b7 <- read.csv("data_exp_10365-v5_task-b5b7.csv")
+v5_xsf9 <- read.csv("data_exp_10365-v5_task-xsf9.csv")
+v5_tahj <- read.csv("data_exp_10365-v5_task-tahj.csv")
+v5_jpit <- read.csv("data_exp_10365-v5_task-jpit.csv")
+v5_u5dg <- read.csv("data_exp_10365-v5_task-u5dg.csv")
+v5_rugu <- read.csv("data_exp_10365-v5_task-rugu.csv")
+v5_myk4 <- read.csv("data_exp_10365-v5_task-myk4.csv")
+v5_pdjg <- read.csv("data_exp_10365-v5_task-pdjg.csv")
+v5_nq9b <- read.csv("data_exp_10365-v5_task-nq9b.csv")
+v5_tazw <- read.csv("data_exp_10365-v5_task-tazw.csv")
+v5_y89e <- read.csv("data_exp_10365-v5_task-y89e.csv")
+v5_f3ii <- read.csv("data_exp_10365-v5_task-f3ii.csv")
+v5_71u8 <- read.csv("data_exp_10365-v5_task-71u8.csv")
+v5_7f4u <- read.csv("data_exp_10365-v5_task-7f4u.csv")
+v5_b86o <- read.csv("data_exp_10365-v5_task-b86o.csv")
+v5_udom <- read.csv("data_exp_10365-v5_task-udom.csv")
+v5_x6ib <- read.csv("data_exp_10365-v5_task-x6ib.csv")
+#v5_shzk <- read.csv("data_exp_10365-v5_task-shzk.csv")
+v5_dko9 <- read.csv("data_exp_10365-v5_task-dko9.csv")
 
 v2_data <- rbind(v2_dhn3, v2_uyls, v2_7sqx,
                  v2_6nyj, v2_5unm, v2_b5b7,
@@ -185,7 +214,36 @@ v4_data <- v4_data[, c("Event.Index", "Participant.Public.ID",
                        "order3", "order4", "order5", "order6", "order7",
                        "order8", "order9", "order10", "order11", "order12")]
 
-v2_data <- rbind(v2_data,v4_data)
+v5_data <- rbind(v5_dhn3, v5_uyls, v5_7sqx,
+                 v5_6nyj, v5_5unm, v5_b5b7,
+                 v5_xsf9, v5_tahj, v5_jpit,
+                 v5_u5dg, v5_rugu, v5_myk4,
+                 v5_pdjg, v5_nq9b, v5_tazw,
+                 v5_y89e, v5_f3ii, v5_71u8,
+                 v5_7f4u, v5_b86o, v5_udom,
+                 v5_x6ib, #v5_shzk, 
+                 v5_dko9)
+
+v5_data <- v5_data[, c("Event.Index", "Participant.Public.ID",
+                       "randomiser.jf65", "randomiser.2tba",
+                       "counterbalance.93ib", "counterbalance.m678",
+                       "counterbalance.9xcr", "counterbalance.wbyz",
+                       "counterbalance.vply", "counterbalance.hleo",
+                       "counterbalance.3v2j", "counterbalance.ulkf",
+                       "counterbalance.bi4u", "counterbalance.dozd",
+                       "counterbalance.g69h", "counterbalance.8ump",
+                       "counterbalance.wch9", "counterbalance.2v12",
+                       "counterbalance.mcio", "counterbalance.eu1d",
+                       "counterbalance.s1b5", "counterbalance.u2fx",
+                       "counterbalance.sg3w", "counterbalance.t9rn",
+                       "counterbalance.7mrq", "counterbalance.8zsd",
+                       "counterbalance.e4l7", "counterbalance.o3nf",
+                       "order.j7mk", "Screen.Name", "Reaction.Time", "Response",
+                       "clearval", "Attempt", "Metadata", "order1", "order2",
+                       "order3", "order4", "order5", "order6", "order7",
+                       "order8", "order9", "order10", "order11", "order12")]
+
+v2_data <- rbind(v2_data,v4_data,v5_data)
 
 ### clean workspace ###
 rm(v2_dhn3, v2_uyls, v2_7sqx,
@@ -203,7 +261,16 @@ rm(v2_dhn3, v2_uyls, v2_7sqx,
    v4_pdjg, v4_nq9b, v4_tazw,
    v4_y89e, v4_f3ii, v4_71u8,
    v4_7f4u, v4_b86o, v4_udom,
-   v4_x6ib, v4_shzk, v4_dko9, v4_data)
+   v4_x6ib, v4_shzk, v4_dko9, v4_data,
+   v5_dhn3, v5_uyls, v5_7sqx,
+   v5_6nyj, v5_5unm, v5_b5b7,
+   v5_xsf9, v5_tahj, v5_jpit,
+   v5_u5dg, v5_rugu, v5_myk4,
+   v5_pdjg, v5_nq9b, v5_tazw,
+   v5_y89e, v5_f3ii, v5_71u8,
+   v5_7f4u, v5_b86o, v5_udom,
+   v5_x6ib, #v5_shzk, 
+   v5_dko9, v5_data)
 
 v2_data <- v2_data[!(v2_data$Event.Index == "END OF FILE"), ]
 
@@ -318,14 +385,14 @@ v2_data$flag <- ifelse(v2_data$Attempt >= 2, 1, 0)
 
 v2_data <- subset(v2_data, flag == 0)
 
-### count number of trials for each participant ###
-table(v2_data_ord1$Participant.Public.ID)
+### display number of trials for each participant ###
+table(v2_data$Participant.Public.ID)
 
 ### remove subject if fewer than 75% of trials have a response ###
 ### v2_data.rm = starting a list of removed sjs to replace w/ correct age category ###
 v2_data.rm <- count(v2_data$Participant.Public.ID)  
 names(v2_data.rm) <- c("Participant.Public.ID", "trials")
-v2_data <- merge(v2_data, v2_data,rm, by = "Participant.Public.ID")
+v2_data <- merge(v2_data, v2_data.rm, by = "Participant.Public.ID")
 v2_data <- v2_data[(v2_data$trials > 120),]
 
 ### make "positive" 0 and "negative" 1 ###
@@ -379,6 +446,7 @@ v2_data.summary <- (ddply(v2_data, "Participant.Public.ID", summarise,
 sum(v2_data.summary$bad)}
 
 ### add bad responders to list of removed sjs, get demographics ###
+v2_data.rm <- v2_data.rm[(v2_data.rm$trials >119),]
 v2_data.rm$rm_rate <- v2_data.summary$bad
 v2_data.rm <- v2_data.rm[which(v2_data.rm$freq < 120 | v2_data.rm$rm_rate == 1),]
 colnames(v2_data.rm)[1] <- "Participant.Public.ID"
@@ -390,6 +458,9 @@ v2_data.summary <- v2_data.summary[(v2_data.summary$bad != 1),]
 
 ###################################################
 full <- merge(v2_data.summary, v2_demo, by = "Participant.Public.ID")
+
+### histogram of ages ###
+hist(full$age,breaks = length(unique(full$age)),xlim = c(min(full$age),max(full$age)))
 
 ###################
 ### assess normality ###
@@ -412,4 +483,10 @@ full_60 <- full[full$age < 60,]
 pcor.test(full_60$sur_rate, full_60$amw_rate, c(full_60$age, full_60$mal0fem1))
 pcor.test(full_60$amb_rate, full_60$amw_rate, c(full_60$age, full_60$mal0fem1))
 pcor.test(full_60$sur_rate, full_60$amb_rate, c(full_60$age, full_60$mal0fem1))
+
+###################
+### Bayes partial correlation controlling for age and sex ###
+jzs_partcor(full$sur_rate, full$amw_rate, c(full$age, full$mal0fem1))
+jzs_partcor(full$amb_rate, full$amw_rate, c(full$age, full$mal0fem1))
+jzs_partcor(full$sur_rate, full$amb_rate, c(full$age, full$mal0fem1))
 
