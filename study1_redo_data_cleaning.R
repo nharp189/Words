@@ -476,6 +476,7 @@ full$mal0fem1 <- as.numeric(full$mal0fem1)
 shapiro.test(full$sur_rate) ## non-normal
 shapiro.test(full$amb_rate) # normal
 shapiro.test(full$amw_rate) # normal
+shapiro.test(full$age)
 
 ### quick correlations ###
 cor.test(full$sur_rate, full$amw_rate, use = "complete.obs")
@@ -538,3 +539,10 @@ ggplot(full, aes(x=full$age, y = all_rate))+
    geom_point()+
    geom_smooth(method="lm")
 
+cor.test(full$sur_rate, full$age, use = "complete.obs", method = "spearman")
+cor.test(full$amb_rate, full$age, use = "complete.obs", method = "spearman")
+cor.test(full$amw_rate, full$age, use = "complete.obs", method = "spearman")
+
+pcor.test(full$sur_rate, full$age, full$mal0fem1, method = "Spearman")
+pcor.test(full$amb_rate, full$age, full$mal0fem1, method = "Spearman")
+pcor.test(full$amw_rate, full$age, full$mal0fem1, method = "Spearman")
