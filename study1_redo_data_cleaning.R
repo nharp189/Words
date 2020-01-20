@@ -158,7 +158,7 @@ v5_7f4u <- read.csv("data_exp_10365-v5_task-7f4u.csv")
 v5_b86o <- read.csv("data_exp_10365-v5_task-b86o.csv")
 v5_udom <- read.csv("data_exp_10365-v5_task-udom.csv")
 v5_x6ib <- read.csv("data_exp_10365-v5_task-x6ib.csv")
-#v5_shzk <- read.csv("data_exp_10365-v5_task-shzk.csv")
+v5_shzk <- read.csv("data_exp_10365-v5_task-shzk.csv")
 v5_dko9 <- read.csv("data_exp_10365-v5_task-dko9.csv")
 
 v2_data <- rbind(v2_dhn3, v2_uyls, v2_7sqx,
@@ -224,7 +224,7 @@ v5_data <- rbind(v5_dhn3, v5_uyls, v5_7sqx,
                  v5_pdjg, v5_nq9b, v5_tazw,
                  v5_y89e, v5_f3ii, v5_71u8,
                  v5_7f4u, v5_b86o, v5_udom,
-                 v5_x6ib, #v5_shzk, 
+                 v5_x6ib, v5_shzk, 
                  v5_dko9)
 
 v5_data <- v5_data[, c("Event.Index", "Participant.Public.ID",
@@ -272,7 +272,7 @@ rm(v2_dhn3, v2_uyls, v2_7sqx,
    v5_pdjg, v5_nq9b, v5_tazw,
    v5_y89e, v5_f3ii, v5_71u8,
    v5_7f4u, v5_b86o, v5_udom,
-   v5_x6ib, #v5_shzk, 
+   v5_x6ib, v5_shzk, 
    v5_dko9, v5_data)
 
 v2_data <- v2_data[!(v2_data$Event.Index == "END OF FILE"), ]
@@ -495,9 +495,9 @@ pcor.test(full_60$sur_rate, full_60$amb_rate, c(full_60$age, full_60$mal0fem1))
 
 ###################
 ### Bayes partial correlation controlling for age and sex ###
-jzs_partcor(full$sur_rate, full$amw_rate, c(full$age, full$mal0fem1)) #can't do 2 controls!
-jzs_partcor(full$amb_rate, full$amw_rate, c(full$age, full$mal0fem1)) #can't do 2 controls!
-jzs_partcor(full$sur_rate, full$amb_rate, c(full$age, full$mal0fem1)) #can't do 2 controls!
+# jzs_partcor(full$sur_rate, full$amw_rate, c(full$age, full$mal0fem1)) #can't do 2 controls!
+# jzs_partcor(full$amb_rate, full$amw_rate, c(full$age, full$mal0fem1)) #can't do 2 controls!
+# jzs_partcor(full$sur_rate, full$amb_rate, c(full$age, full$mal0fem1)) #can't do 2 controls!
 
 ggplot(full, aes(x=sur_rate, y = amw_rate))+
    geom_point()+
