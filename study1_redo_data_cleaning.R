@@ -1,5 +1,5 @@
 ### set wd ###
-setwd("~/Documents/GitHub/Words/data/study1_redo_data/")
+setwd("~/Documents/Nick-Grad/Neta_Lab/words/data/study1_redo_data/")
 
 ### load packages ###
 suppressPackageStartupMessages(library(tidyverse))
@@ -325,7 +325,7 @@ table(v2_data_ord1$Participant.Public.ID)
 ### v2_data.rm = starting a list of removed sjs to replace w/ correct age category ###
 v2_data.rm <- count(v2_data$Participant.Public.ID)  
 names(v2_data.rm) <- c("Participant.Public.ID", "trials")
-v2_data <- merge(v2_data, v2_data,rm, by = "Participant.Public.ID")
+v2_data <- merge(v2_data, v2_data.rm, by = "Participant.Public.ID")
 v2_data <- v2_data[(v2_data$trials > 120),]
 
 ### make "positive" 0 and "negative" 1 ###
