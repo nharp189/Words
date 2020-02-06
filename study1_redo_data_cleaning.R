@@ -1,5 +1,7 @@
 ### set wd ###
-setwd("~/Documents/Nick-Grad/Neta_Lab/words/data/study1_redo_data/")
+nhpath <- "~/Documents/Nick-Grad/Neta_Lab/words/data/study1_redo_data/"
+cbpath <- "~/Documents/Github/words/data/study1_redo_data/"
+setwd(cbpath)
 
 ### load packages ###
 suppressPackageStartupMessages(library(tidyverse))
