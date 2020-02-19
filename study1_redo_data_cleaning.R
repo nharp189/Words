@@ -1,7 +1,7 @@
 ### set wd ###
 nhpath <- "~/Documents/Nick-Grad/Neta_Lab/words/data/study1_redo_data/"
 cbpath <- "~/Documents/Github/words/data/study1_redo_data/"
-setwd(cbpath)
+setwd(nhpath)
 
 ### load packages ###
 suppressPackageStartupMessages(library(tidyverse))
@@ -405,6 +405,28 @@ v2_data$rate <- recode(v2_data$Response,
                        "positive" = 0,
                        "negative" = 1)
 
+
+### pull full response matrix ###
+temp <- v2_data %>% 
+  group_by(Participant.Public.ID) %>% 
+  mutate(dup_count = stim.pres, 
+         key = paste("new_code", dup_count, sep = "_")) %>%  # need this to retain image/stim name
+  tidyr::spread(., 
+                key = key,
+                value = rate) %>% 
+  tidyr::fill(dplyr::starts_with("new_code"), .direction = "up") %>% 
+  dplyr::distinct(., Participant.Public.ID, .keep_all = TRUE)
+
+
+#> # A tibble: 4 x 3
+#> # Groups:   id [4]
+#>      id new_code_1 new_code_2
+#>   <dbl> <chr>      <chr>     
+#> 1     1 A          B         
+#> 2     2 C          D         
+#> 3     3 E          <NA>      
+#> 4     4 <NA>       <NA>
+
 v2_data.summary <- (ddply(v2_data, "Participant.Public.ID", summarise, 
                           sur_rate = mean(rate[which(stimtype == "FACE" & clearval == "ambiguous")], na.rm = TRUE),
                           hap_rate = mean(rate[which(stimtype == "FACE" & clearval == "positive")], na.rm = TRUE),
@@ -451,7 +473,7 @@ v2_data.summary <- (ddply(v2_data, "Participant.Public.ID", summarise,
                                                     ifelse(v2_data.summary$new_rate < .6, 1,0))))))
 sum(v2_data.summary$bad)}
 
-### add bad responders to list of removed sjs, get demographics ###
+ons### add bad responders to list of removed sjs, get demographics ###
 v2_data.rm <- v2_data.rm[(v2_data.rm$trials >119),]
 v2_data.rm$rm_rate <- v2_data.summary$bad
 v2_data.rm <- v2_data.rm[which(v2_data.rm$trials < 120 | v2_data.rm$rm_rate == 1),]
