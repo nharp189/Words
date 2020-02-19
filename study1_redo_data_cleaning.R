@@ -473,7 +473,7 @@ v2_data.summary <- (ddply(v2_data, "Participant.Public.ID", summarise,
                                                     ifelse(v2_data.summary$new_rate < .6, 1,0))))))
 sum(v2_data.summary$bad)}
 
-ons### add bad responders to list of removed sjs, get demographics ###
+### add bad responders to list of removed sjs, get demographics ###
 v2_data.rm <- v2_data.rm[(v2_data.rm$trials >119),]
 v2_data.rm$rm_rate <- v2_data.summary$bad
 v2_data.rm <- v2_data.rm[which(v2_data.rm$trials < 120 | v2_data.rm$rm_rate == 1),]
@@ -482,6 +482,9 @@ v2_data.rm <- merge(v2_data.rm, v2_demo, by = "Participant.Public.ID")
 
 ### remove subject if bad responser ###
 v2_data.summary <- v2_data.summary[(v2_data.summary$bad != 1),]
+
+### drop bad subjs from response matrix ###
+temp <- temp %>% subset(Participant.Public.ID %in% v2_data.summary$Participant.Public.ID)
 
 ###################################################
 full <- merge(v2_data.summary, v2_demo, by = "Participant.Public.ID")
