@@ -405,18 +405,15 @@ v2_data$rate <- recode(v2_data$Response,
                        "positive" = 0,
                        "negative" = 1)
 
-
 ### pull full response matrix ###
 temp <- v2_data %>% 
   group_by(Participant.Public.ID) %>% 
-  mutate(dup_count = stim.pres, 
-         key = paste("new_code", dup_count, sep = "_")) %>%  # need this to retain image/stim name
+  mutate(key = paste("stim", paste(paste(clearval, stimtype, sep = "_"), stim.pres, sep = "_"), sep = "_")) %>%  # need this to retain image/stim name
   tidyr::spread(., 
                 key = key,
                 value = rate) %>% 
-  tidyr::fill(dplyr::starts_with("new_code"), .direction = "up") %>% 
+  tidyr::fill(dplyr::starts_with("stim"), .direction = "up") %>% 
   dplyr::distinct(., Participant.Public.ID, .keep_all = TRUE)
-
 
 #> # A tibble: 4 x 3
 #> # Groups:   id [4]
@@ -439,7 +436,18 @@ v2_data.summary <- (ddply(v2_data, "Participant.Public.ID", summarise,
                           new_rate = mean(rate[which(stimtype == "WORD" & clearval == "negative")], na.rm = TRUE),
                           all_rate = mean(rate[which(clearval == "ambiguous")], na.rm = TRUE)))
 
- 
+### double check that data wrangling worked and the values are correct ###
+test <- dplyr::select(temp, Participant.Public.ID, stim_ambiguous_FACE_01F_SP_O.jpg:stim_ambiguous_FACE_AM35SUS.JPG)
+test$sur_rate <- rowMeans(test[, c(2:25)], na.rm = T)
+
+### make character for easier sorting when viewing the dataframes ###
+v2_data.summary$Participant.Public.ID <- as.character(v2_data.summary$Participant.Public.ID)
+test$Participant.Public.ID <- as.character(test$Participant.Public.ID)
+
+### compare test and v2_data.summary visually ###
+
+
+
 # ### make blocks column if you want to check for bad specific blocks ###
 # v2_data$block <- ifelse(v2_data$stim.pres %in% face1, "face1",
 #                         ifelse(v2_data$stim.pres %in% face2, "face2",
@@ -485,6 +493,13 @@ v2_data.summary <- v2_data.summary[(v2_data.summary$bad != 1),]
 
 ### drop bad subjs from response matrix ###
 temp <- temp %>% subset(Participant.Public.ID %in% v2_data.summary$Participant.Public.ID)
+
+### add demographic variables ###
+temp <- merge(temp, v2_demo, by = "Participant.Public.ID")
+temp$age <- as.numeric(temp$age)
+
+### write out response matrix ###
+write.csv(temp, "~/Desktop/subj_response_matrix.csv", row.names = F)
 
 ###################################################
 full <- merge(v2_data.summary, v2_demo, by = "Participant.Public.ID")
