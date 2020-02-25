@@ -415,14 +415,17 @@ temp <- v2_data %>%
   tidyr::fill(dplyr::starts_with("stim"), .direction = "up") %>% 
   dplyr::distinct(., Participant.Public.ID, .keep_all = TRUE)
 
-#> # A tibble: 4 x 3
-#> # Groups:   id [4]
-#>      id new_code_1 new_code_2
-#>   <dbl> <chr>      <chr>     
-#> 1     1 A          B         
-#> 2     2 C          D         
-#> 3     3 E          <NA>      
-#> 4     4 <NA>       <NA>
+### analysis of response matrix suggests that
+### slide14, slide18, and slide43 words 
+### are being rated clearly positive, and should be dropped
+v2_data <- v2_data %>% subset(!(stim.pres %in% c("Slide14.jpeg", 
+                                           "Slide18.jpeg",
+                                           "Slide43.jpeg")))
+
+
+
+### also of note is IAPS9432 and IAPS9561 are being rated
+### as ambiguous rather than negative... strange
 
 v2_data.summary <- (ddply(v2_data, "Participant.Public.ID", summarise, 
                           sur_rate = mean(rate[which(stimtype == "FACE" & clearval == "ambiguous")], na.rm = TRUE),
@@ -498,8 +501,11 @@ temp <- temp %>% subset(Participant.Public.ID %in% v2_data.summary$Participant.P
 temp <- merge(temp, v2_demo, by = "Participant.Public.ID")
 temp$age <- as.numeric(temp$age)
 
+### drop unnecessary columns ###
+temp <- temp[, c(1, 3, 40:202)]
+
 ### write out response matrix ###
-write.csv(temp, "~/Desktop/subj_response_matrix.csv", row.names = F)
+# write.csv(temp, "~/Desktop/subj_response_matrix.csv", row.names = F)
 
 ###################################################
 full <- merge(v2_data.summary, v2_demo, by = "Participant.Public.ID")
@@ -541,6 +547,7 @@ pcor.test(full_60$sur_rate, full_60$amb_rate, c(full_60$age, full_60$mal0fem1))
 # jzs_partcor(full$amb_rate, full$amw_rate, c(full$age, full$mal0fem1)) #can't do 2 controls!
 # jzs_partcor(full$sur_rate, full$amb_rate, c(full$age, full$mal0fem1)) #can't do 2 controls!
 
+
 ggplot(full, aes(x=sur_rate, y = amw_rate))+
    geom_point()+
    geom_smooth(method="lm")
@@ -558,7 +565,7 @@ jzs_partcor(full$age, full$sur_rate, c(full$mal0fem1))
 jzs_partcor(full$age, full$amb_rate, c(full$mal0fem1))
 jzs_partcor(full$age, full$amw_rate, c(full$mal0fem1))
 jzs_partcor(full$age, full$all_rate, c(full$mal0fem1))
-
+?jzs_partcor
 jzs_cor(full$age, full$sur_rate)
 jzs_cor(full$age, full$amb_rate)
 jzs_cor(full$age, full$amw_rate)
