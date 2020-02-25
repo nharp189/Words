@@ -1,7 +1,7 @@
 ### set wd ###
 cbpath <- '~/Documents/GitHub/Words/'
 nhpath <- '~/Documents/Nick-Grad/Neta_Lab/Words/'
-path <- nhpath
+path = cbpath
 setwd(path)
 
 ### load v important packages, but quietly ###
@@ -12,13 +12,13 @@ suppressPackageStartupMessages(library(ggplot2))
 
 ### import task data ###
 ## Main task, A = positive, L = negative
-data1 <- read_csv('data_exp_8700-v20-9/data_exp_8700-v20_task-l2xg.csv')
+data1 <- read_csv('data/pilot_data_20190719/data_exp_8700-v20_task-l2xg.csv')
 ## Main task, A = negative, L = positive
-data2 <- read_csv('data_exp_8700-v20-9/data_exp_8700-v20_task-bx4b.csv')
+data2 <- read_csv('data/pilot_data_20190719/data_exp_8700-v20_task-bx4b.csv')
 ## Screener task, A = positive, L = negative
-data3 <- read_csv('data_exp_8700-v20-9/data_exp_8700-v20_task-jdgj.csv')
+data3 <- read_csv('data/pilot_data_20190719/data_exp_8700-v20_task-jdgj.csv')
 ## Screener task, A = negative, L = positive
-data4 <- read_csv('data_exp_8700-v20-9/data_exp_8700-v20_task-3raa.csv')
+data4 <- read_csv('data/pilot_data_20190719/data_exp_8700-v20_task-3raa.csv')
 
 ### pick the cool colomns ###
 data1 <- data1[, c("Participant Public ID", "Trial Number", "Reaction Time", "Response", "Correct", "Incorrect", "randomise_trials", "display", 
@@ -63,6 +63,7 @@ names(data1) <- c("subjID", "Trial Number", "Reaction Time", "Response", "Correc
 names(data2) <- c("subjID", "Trial Number", "Reaction Time", "Response", "Correct", "Incorrect", "randomise_trials", "display", 
                  "ANSWER", "exwords", "wordlist", "Metadata")
 data <- rbind(data, data1, data2)
+
 
 ### clean workspace ###
 rm(data1, data2, data3, data4)
@@ -155,12 +156,12 @@ write.csv(words.summary,paste(path,"words.summary",'.csv',sep = ''))
 
 ############################ Demographics ###########################
 ## Demographic Questionnaire and Screener Questions
-demog <- read_csv('data_exp_8700-v20-9/data_exp_8700-v20_questionnaire-rok5.csv')
+demog <- read_csv('data/pilot_data_20190719/data_exp_8700-v20_questionnaire-rok5.csv')
 
 ### pick the cool colomns ###
 demog <- demog[, c("Participant Public ID", "Question Key","Response")]
 
-### separate into 2 data frames
+### separate into 3 data frames
 demog_age<-demog[(demog$`Question Key` == "age"),]
 demog_race<-demog[(demog$`Question Key`== "race"),]
 demog_sex<-demog[(demog$`Question Key`== "sex"),]
@@ -204,3 +205,46 @@ sum(str_count(demog$sex, "Other"))/length(final.participant) *100
 prop.table(table(demog$race))
 tbl <- table(demog$race)
 cbind(tbl,prop.table(tbl))
+
+### create an interactive scatterplot
+p <- ggplot(words.summary, aes(x = wordlist, y = neg.avg,
+                                             text = paste(
+                                               "Word: ", wordlist, 
+                                               "\n", "Valence Mean: ", (neg.avg*100), 
+                                               "\n", "Valence SD: ", (neg.sd*100),
+                                               sep = ""), fill = Val)) + 
+  scale_fill_manual(values = c("blue","red","green")) +
+  labs(x = "Stimulus Valence", 
+       y = "% Negative Rating Across Participants",
+       title = "Average Valence Ratings Across Participants",
+       fill = "Valence") +
+  geom_jitter() 
+p <- ggplotly(p, tooltip = "text")
+print(p)
+
+### save interactive scatterplot as an html file
+wordpath <- "~/Documents/Github/words/"
+setwd(wordpath)
+htmlwidgets::saveWidget(as_widget(p), "scatterplot_pilot_val.html")
+
+### create an interactive scatterplot
+p <- ggplot(words.summary, aes(x = wordlist, y = RT,
+                               text = paste(
+                                 "Word: ", wordlist, 
+                                 "\n", "RT: ", (RT), 
+                                 "\n", "RT SD: ", (RT.sd),
+                                 sep = ""), fill = Val)) + 
+  scale_fill_manual(values = c("blue","red","green")) +
+  labs(x = "Stimulus Valence", 
+       y = "Reaction Time (ms)",
+       fill = "Valence") +
+  geom_jitter() +
+  geom_hline(yintercept=875, linetype="dashed", color = "#2C528C", size=0.5) 
+p <- ggplotly(p, tooltip = "text")
+print(p)
+
+### save interactive scatterplot as an html file
+wordpath <- "~/Documents/Github/words/"
+setwd(wordpath)
+htmlwidgets::saveWidget(as_widget(p), "scatterplot_pilot_rt.html")
+
