@@ -1,7 +1,7 @@
 ### set wd ###
 nhpath <- "~/Documents/Nick-Grad/Neta_Lab/words/data/study1_redo_data/"
 cbpath <- "~/Documents/Github/words/data/study1_redo_data/"
-setwd(cbpath)
+setwd(nhpath)
 
 ### load packages ###
 suppressPackageStartupMessages(library(tidyverse))
@@ -419,10 +419,10 @@ temp <- v2_data %>%
 
 ### analysis of response matrix suggests that
 ### slide14, slide18, and slide43 words 
-### are being rated clearly positive, and should be dropped
-v2_data <- v2_data %>% subset(!(stim.pres %in% c("Slide14.jpeg", 
-                                           "Slide18.jpeg",
-                                           "Slide43.jpeg")))
+### are being rated clearly positive, and COULD be dropped
+# v2_data <- v2_data %>% subset(!(stim.pres %in% c("Slide14.jpeg", 
+#                                            "Slide18.jpeg",
+#                                            "Slide43.jpeg")))
 
 
 
@@ -439,7 +439,7 @@ v2_data.summary <- (ddply(v2_data, "Participant.Public.ID", summarise,
                           amw_rate = mean(rate[which(stimtype == "WORD" & clearval == "ambiguous")], na.rm = TRUE),
                           pow_rate = mean(rate[which(stimtype == "WORD" & clearval == "positive")], na.rm = TRUE),
                           new_rate = mean(rate[which(stimtype == "WORD" & clearval == "negative")], na.rm = TRUE),
-                          all_rate = mean(rate[which(clearval == "ambiguous")], na.rm = TRUE), 
+                          all_rate = mean(rate[which(clearval == "ambiguous")], na.rm = TRUE),
                           sur_rt = mean(Reaction.Time[which(stimtype == "FACE" & clearval == "ambiguous")], na.rm = TRUE),
                           hap_rt = mean(Reaction.Time[which(stimtype == "FACE" & clearval == "positive")], na.rm = TRUE),
                           ang_rt = mean(Reaction.Time[which(stimtype == "FACE" & clearval == "negative")], na.rm = TRUE),
@@ -454,7 +454,7 @@ v2_data.summary <- (ddply(v2_data, "Participant.Public.ID", summarise,
                           amb_neg_rt = mean(Reaction.Time[which(stimtype == "FACE" & clearval == "ambiguous" & rate ==1)], na.rm = TRUE),
                           amb_pos_rt = mean(Reaction.Time[which(stimtype == "FACE" & clearval == "ambiguous" & rate ==1)], na.rm = TRUE),
                           amw_neg_rt = mean(Reaction.Time[which(stimtype == "FACE" & clearval == "ambiguous" & rate ==1)], na.rm = TRUE),
-                          amw_pos_rt = mean(Reaction.Time[which(stimtype == "FACE" & clearval == "ambiguous" & rate ==1)], na.rm = TRUE),))
+                          amw_pos_rt = mean(Reaction.Time[which(stimtype == "FACE" & clearval == "ambiguous" & rate ==1)], na.rm = TRUE)))
 
 ### double check that data wrangling worked and the values are correct ###
 test <- dplyr::select(temp, Participant.Public.ID, stim_ambiguous_FACE_01F_SP_O.jpg:stim_ambiguous_FACE_AM35SUS.JPG)
@@ -518,13 +518,8 @@ temp <- temp %>% subset(Participant.Public.ID %in% v2_data.summary$Participant.P
 temp <- merge(temp, v2_demo, by = "Participant.Public.ID")
 temp$age <- as.numeric(temp$age)
 
-<<<<<<< HEAD
 ### drop unnecessary columns ###
 temp <- temp[, c(1, 3, 40:202)]
-=======
-###remove colums 2-28 (staggered order info) ###
-temp <- subset(temp, select = -c(2:28))
->>>>>>> 9a0258e2d5444e15325793cad968291ec5ab99e0
 
 ### write out response matrix ###
 # write.csv(temp, "~/Desktop/subj_response_matrix.csv", row.names = F)
