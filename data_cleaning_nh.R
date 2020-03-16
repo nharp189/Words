@@ -1,7 +1,7 @@
 ### set wd ###
 cbpath <- '~/Documents/GitHub/Words/'
 nhpath <- '~/Documents/Nick-Grad/Neta_Lab/Words/'
-path = cbpath
+path = nhpath
 setwd(path)
 
 ### load v important packages, but quietly ###
@@ -206,45 +206,45 @@ prop.table(table(demog$race))
 tbl <- table(demog$race)
 cbind(tbl,prop.table(tbl))
 
-### create an interactive scatterplot
-p <- ggplot(words.summary, aes(x = wordlist, y = neg.avg,
-                                             text = paste(
-                                               "Word: ", wordlist, 
-                                               "\n", "Valence Mean: ", (neg.avg*100), 
-                                               "\n", "Valence SD: ", (neg.sd*100),
-                                               sep = ""), fill = Val)) + 
-  scale_fill_manual(values = c("blue","red","green")) +
-  labs(x = "Stimulus Valence", 
-       y = "% Negative Rating Across Participants",
-       title = "Average Valence Ratings Across Participants",
-       fill = "Valence") +
-  geom_jitter() 
-p <- ggplotly(p, tooltip = "text")
-print(p)
-
-### save interactive scatterplot as an html file
-wordpath <- "~/Documents/Github/words/"
-setwd(wordpath)
-htmlwidgets::saveWidget(as_widget(p), "scatterplot_pilot_val.html")
-
-### create an interactive scatterplot
-p <- ggplot(words.summary, aes(x = wordlist, y = RT,
-                               text = paste(
-                                 "Word: ", wordlist, 
-                                 "\n", "RT: ", (RT), 
-                                 "\n", "RT SD: ", (RT.sd),
-                                 sep = ""), fill = Val)) + 
-  scale_fill_manual(values = c("blue","red","green")) +
-  labs(x = "Stimulus Valence", 
-       y = "Reaction Time (ms)",
-       fill = "Valence") +
-  geom_jitter() +
-  geom_hline(yintercept=875, linetype="dashed", color = "#2C528C", size=0.5) 
-p <- ggplotly(p, tooltip = "text")
-print(p)
-
-### save interactive scatterplot as an html file
-wordpath <- "~/Documents/Github/words/"
-setwd(wordpath)
-htmlwidgets::saveWidget(as_widget(p), "scatterplot_pilot_rt.html")
+# ### create an interactive scatterplot
+# p <- ggplot(words.summary, aes(x = wordlist, y = neg.avg,
+#                                              text = paste(
+#                                                "Word: ", wordlist, 
+#                                                "\n", "Valence Mean: ", (neg.avg*100), 
+#                                                "\n", "Valence SD: ", (neg.sd*100),
+#                                                sep = ""), fill = Val)) + 
+#   scale_fill_manual(values = c("blue","red","green")) +
+#   labs(x = "Stimulus Valence", 
+#        y = "% Negative Rating Across Participants",
+#        title = "Average Valence Ratings Across Participants",
+#        fill = "Valence") +
+#   geom_jitter() 
+# p <- ggplotly(p, tooltip = "text")
+# print(p)
+# 
+# ### save interactive scatterplot as an html file
+# wordpath <- "~/Documents/Github/words/"
+# setwd(wordpath)
+# htmlwidgets::saveWidget(as_widget(p), "scatterplot_pilot_val.html")
+# 
+# ### create an interactive scatterplot
+# p <- ggplot(words.summary, aes(x = wordlist, y = RT,
+#                                text = paste(
+#                                  "Word: ", wordlist, 
+#                                  "\n", "RT: ", (RT), 
+#                                  "\n", "RT SD: ", (RT.sd),
+#                                  sep = ""), fill = Val)) + 
+#   scale_fill_manual(values = c("blue","red","green")) +
+#   labs(x = "Stimulus Valence", 
+#        y = "Reaction Time (ms)",
+#        fill = "Valence") +
+#   geom_jitter() +
+#   geom_hline(yintercept=875, linetype="dashed", color = "#2C528C", size=0.5) 
+# p <- ggplotly(p, tooltip = "text")
+# print(p)
+# 
+# ### save interactive scatterplot as an html file
+# wordpath <- "~/Documents/Github/words/"
+# setwd(wordpath)
+# htmlwidgets::saveWidget(as_widget(p), "scatterplot_pilot_rt.html")
 

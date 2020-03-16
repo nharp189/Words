@@ -382,7 +382,7 @@ v2_data$stimtype <- ifelse(v2_data$stim.pres %in% c(face1, face2), "FACE",
 
 ### drop trials w/ responses in less than 200ms ###
 v2_data$Reaction.Time <- as.numeric(v2_data$Reaction.Time)
-v2_data$RT.Outl <- ifelse((v2_data$Reaction.Time <= 200 & v2_data$Screen.Name == "stim"), 1, 0)
+v2_data$RT.Outl <- ifelse((v2_data$Reaction.Time <= 250 & v2_data$Screen.Name == "stim"), 1, 0)
 outliers <- subset(v2_data, RT.Outl == 1)
 v2_data <- subset(v2_data, RT.Outl == 0)
 table(outliers$Participant.Public.ID)
@@ -414,6 +414,16 @@ temp <- v2_data %>%
   tidyr::spread(., 
                 key = key,
                 value = rate) %>% 
+  tidyr::fill(dplyr::starts_with("stim"), .direction = "up") %>% 
+  dplyr::distinct(., Participant.Public.ID, .keep_all = TRUE)
+
+### pull RT matrix ###
+RT.matrix <- v2_data %>% 
+  group_by(Participant.Public.ID) %>% 
+  mutate(key = paste("stim", paste(paste(clearval, stimtype, sep = "_"), stim.pres, sep = "_"), sep = "_")) %>%  # need this to retain image/stim name
+  tidyr::spread(., 
+                key = key,
+                value = Reaction.Time) %>% 
   tidyr::fill(dplyr::starts_with("stim"), .direction = "up") %>% 
   dplyr::distinct(., Participant.Public.ID, .keep_all = TRUE)
 
@@ -513,22 +523,27 @@ v2_data.summary <- v2_data.summary[(v2_data.summary$bad != 1),]
 
 ### drop bad subjs from response matrix ###
 temp <- temp %>% subset(Participant.Public.ID %in% v2_data.summary$Participant.Public.ID)
-
+RT.matrix <- RT.matrix %>% subset(Participant.Public.ID %in% v2_data.summary$Participant.Public.ID)
 ### add demographic variables ###
 temp <- merge(temp, v2_demo, by = "Participant.Public.ID")
 temp$age <- as.numeric(temp$age)
 
 ### drop unnecessary columns ###
 temp <- temp[, c(1, 3, 40:202)]
-
+RT.matrix <- RT.matrix[, c(1, 3, 40:200)]
 ### write out response matrix ###
 # write.csv(temp, "~/Desktop/subj_response_matrix.csv", row.names = F)
 
 ###################################################
 full <- merge(v2_data.summary, v2_demo, by = "Participant.Public.ID")
 full$age <- as.numeric(full$age)
+
+### MOVE EVERYTHING BELOW TO A NEW SCRIPT... 
+### DATA CLEANING SCRIPT SHOULD BE SOURCEABLE
+###################################################
+# 
 ### histogram of ages ###
-hist(full$age,breaks = length(unique(full$age)),xlim = c(min(full$age),max(full$age)))
+#hist(full$age,breaks = length(unique(full$age)),xlim = c(min(full$age),max(full$age)))
 
 ### new sex column
 full$mal0fem1 <- ifelse(full$sex == "Female", 1,
@@ -538,406 +553,408 @@ full$mal0fem1 <- as.numeric(full$mal0fem1)
 ### display table of races
 prop.table(table(full$race))
 tbl <- table(full$race)
-cbind(tbl,prop.table(tbl))
+### make table for races ###
+dem.sum <- as.data.frame(cbind(tbl,prop.table(tbl)))
 
-###################
-### assess normality ###
-shapiro.test(full$sur_rate) ## non-normal
-shapiro.test(full$amb_rate) # normal
-shapiro.test(full$amw_rate) # normal
-shapiro.test(full$age)
-
-### quick correlations ###
-cor.test(full$sur_rate, full$amw_rate, use = "complete.obs", method = "spearman")
-cor.test(full$amb_rate, full$amw_rate, use = "complete.obs")
-cor.test(full$sur_rate, full$amb_rate, use = "complete.obs", method = "spearman")
-
-### correlations controlling for age and sex ###
-pcor.test(full$sur_rate, full$amw_rate, c(full$age, full$mal0fem1))
-pcor.test(full$amb_rate, full$amw_rate, c(full$age, full$mal0fem1))
-pcor.test(full$sur_rate, full$amb_rate, c(full$age, full$mal0fem1))
-
-### correlations for those under 60 years old only (for SAS 2020) ###
-full_60 <- full[full$age < 60,]
-pcor.test(full_60$sur_rate, full_60$amw_rate, c(full_60$age, full_60$mal0fem1))
-pcor.test(full_60$amb_rate, full_60$amw_rate, c(full_60$age, full_60$mal0fem1))
-pcor.test(full_60$sur_rate, full_60$amb_rate, c(full_60$age, full_60$mal0fem1))
-
-###################
-### Bayes partial correlation controlling for age and sex ###
-# jzs_partcor(full$sur_rate, full$amw_rate, c(full$age, full$mal0fem1)) #can't do 2 controls!
-# jzs_partcor(full$amb_rate, full$amw_rate, c(full$age, full$mal0fem1)) #can't do 2 controls!
-# jzs_partcor(full$sur_rate, full$amb_rate, c(full$age, full$mal0fem1)) #can't do 2 controls!
-
-
-ggplot(full, aes(x=sur_rate, y = amw_rate))+
-   geom_point()+
-   geom_smooth(method="lm")
-
-ggplot(full, aes(x=amb_rate, y = amw_rate))+
-   geom_point()+
-   geom_smooth(method="lm")
-
-ggplot(full, aes(x=amb_rate, y = sur_rate))+
-   geom_point()+
-   geom_smooth(method="lm")
-
-### Bayes partial correlations with age as variable, controlling for sex ###
-jzs_partcor(full$age, full$sur_rate, c(full$mal0fem1))
-jzs_partcor(full$age, full$amb_rate, c(full$mal0fem1))
-jzs_partcor(full$age, full$amw_rate, c(full$mal0fem1))
-jzs_partcor(full$age, full$all_rate, c(full$mal0fem1))
-?jzs_partcor
-jzs_cor(full$age, full$sur_rate)
-jzs_cor(full$age, full$amb_rate)
-jzs_cor(full$age, full$amw_rate)
-jzs_cor(full$age, full$all_rate)
-
-ggplot(full, aes(x=full$age, y = sur_rate))+
-   geom_point()+
-   geom_smooth(method="lm")
-
-ggplot(full, aes(x=full$age, y = amb_rate))+
-   geom_point()+
-   geom_smooth(method="lm")
-
-ggplot(full, aes(x=full$age, y = amw_rate))+
-   geom_point()+
-   geom_smooth(method="lm")
-
-ggplot(full, aes(x=full$age, y = all_rate))+
-   geom_point()+
-   geom_smooth(method="lm")
-
-cor.test(full$sur_rate, full$age, use = "complete.obs", method = "spearman")
-cor.test(full$amb_rate, full$age, use = "complete.obs", method = "spearman")
-cor.test(full$amw_rate, full$age, use = "complete.obs", method = "spearman")
-
-pcor.test(full$sur_rate, full$age, full$mal0fem1, method = "Spearman")
-pcor.test(full$amb_rate, full$age, full$mal0fem1, method = "Spearman")
-pcor.test(full$amw_rate, full$age, full$mal0fem1, method = "Spearman")
-
-################### Stim analysis
-
-### make a df of the sitmulus properties to merge later
-stim.props <- subset(v2_data, select = c("stimtype","clearval","stim.pres"))
-### remove duplicate rows
-stim.props <- distinct(stim.props)
-
-### create df that summarizes mean and sd for valence and rt for each stimulus
-v2_data.stim <- (ddply(v2_data, "stim.pres", summarise, 
-                       rate_mean = mean(rate), 
-                       rate_sd = sd(rate),
-                       rt_mean = mean(Reaction.Time),
-                       rt_sd = sd(Reaction.Time)))
-
-### add on properties of each stim
-v2_data.stim <- merge(stim.props, v2_data.stim, by = "stim.pres")
-
-### rename words from their slide names 
-### forgive me, efficient syntax gods ###
-v2_data.stim$stim.pres[v2_data.stim$stim.pres == "Slide5.jpeg"] <- "STUN"
-v2_data.stim$stim.pres[v2_data.stim$stim.pres == "Slide6.jpeg"] <- "SNAPPY"
-v2_data.stim$stim.pres[v2_data.stim$stim.pres == "Slide7.jpeg"] <- "CLUB"
-v2_data.stim$stim.pres[v2_data.stim$stim.pres == "Slide8.jpeg"] <- "RETREAT"
-v2_data.stim$stim.pres[v2_data.stim$stim.pres == "Slide9.jpeg"] <- "DISCIPLINE"
-v2_data.stim$stim.pres[v2_data.stim$stim.pres == "Slide10.jpeg"] <- "TERMINAL"
-v2_data.stim$stim.pres[v2_data.stim$stim.pres == "Slide11.jpeg"] <- "CRUSH"
-v2_data.stim$stim.pres[v2_data.stim$stim.pres == "Slide12.jpeg"] <- "BATTER"
-v2_data.stim$stim.pres[v2_data.stim$stim.pres == "Slide13.jpeg"] <- "PICK"
-v2_data.stim$stim.pres[v2_data.stim$stim.pres == "Slide14.jpeg"] <- "PLAYER"
-v2_data.stim$stim.pres[v2_data.stim$stim.pres == "Slide15.jpeg"] <- "POP"
-v2_data.stim$stim.pres[v2_data.stim$stim.pres == "Slide16.jpeg"] <- "SURVIVAL"
-v2_data.stim$stim.pres[v2_data.stim$stim.pres == "Slide17.jpeg"] <- "TRICK"
-v2_data.stim$stim.pres[v2_data.stim$stim.pres == "Slide18.jpeg"] <- "CHECK"
-v2_data.stim$stim.pres[v2_data.stim$stim.pres == "Slide19.jpeg"] <- "RUSH"
-v2_data.stim$stim.pres[v2_data.stim$stim.pres == "Slide20.jpeg"] <- "COURT"
-v2_data.stim$stim.pres[v2_data.stim$stim.pres == "Slide21.jpeg"] <- "EVIL"
-v2_data.stim$stim.pres[v2_data.stim$stim.pres == "Slide22.jpeg"] <- "SLAVE"
-v2_data.stim$stim.pres[v2_data.stim$stim.pres == "Slide23.jpeg"] <- "ROTTEN"
-v2_data.stim$stim.pres[v2_data.stim$stim.pres == "Slide24.jpeg"] <- "CRAPPY"
-v2_data.stim$stim.pres[v2_data.stim$stim.pres == "Slide25.jpeg"] <- "DECAY"
-v2_data.stim$stim.pres[v2_data.stim$stim.pres == "Slide26.jpeg"] <- "DEADLY"
-v2_data.stim$stim.pres[v2_data.stim$stim.pres == "Slide27.jpeg"] <- "CROOK"
-v2_data.stim$stim.pres[v2_data.stim$stim.pres == "Slide28.jpeg"] <- "VANDAL"
-v2_data.stim$stim.pres[v2_data.stim$stim.pres == "Slide29.jpeg"] <- "LOVEABLE"
-v2_data.stim$stim.pres[v2_data.stim$stim.pres == "Slide30.jpeg"] <- "MUSIC"
-v2_data.stim$stim.pres[v2_data.stim$stim.pres == "Slide31.jpeg"] <- "MOTHER"
-v2_data.stim$stim.pres[v2_data.stim$stim.pres == "Slide32.jpeg"] <- "FOOD"
-v2_data.stim$stim.pres[v2_data.stim$stim.pres == "Slide33.jpeg"] <- "TREASURED"
-v2_data.stim$stim.pres[v2_data.stim$stim.pres == "Slide34.jpeg"] <- "FRUITFUL"
-v2_data.stim$stim.pres[v2_data.stim$stim.pres == "Slide35.jpeg"] <- "COMIC"
-v2_data.stim$stim.pres[v2_data.stim$stim.pres == "Slide36.jpeg"] <- "LEMONADE"
-v2_data.stim$stim.pres[v2_data.stim$stim.pres == "Slide37.jpeg"] <- "CLOSE"
-v2_data.stim$stim.pres[v2_data.stim$stim.pres == "Slide38.jpeg"] <- "REVOLUTION"
-v2_data.stim$stim.pres[v2_data.stim$stim.pres == "Slide39.jpeg"] <- "FIGHTER"
-v2_data.stim$stim.pres[v2_data.stim$stim.pres == "Slide40.jpeg"] <- "HAIL"
-v2_data.stim$stim.pres[v2_data.stim$stim.pres == "Slide41.jpeg"] <- "HANG"
-v2_data.stim$stim.pres[v2_data.stim$stim.pres == "Slide42.jpeg"] <- "OPERATION"
-v2_data.stim$stim.pres[v2_data.stim$stim.pres == "Slide43.jpeg"] <- "DIRECT"
-v2_data.stim$stim.pres[v2_data.stim$stim.pres == "Slide44.jpeg"] <- "SHAKE"
-v2_data.stim$stim.pres[v2_data.stim$stim.pres == "Slide45.jpeg"] <- "BEAT"
-v2_data.stim$stim.pres[v2_data.stim$stim.pres == "Slide46.jpeg"] <- "RADICAL"
-v2_data.stim$stim.pres[v2_data.stim$stim.pres == "Slide47.jpeg"] <- "THICK"
-v2_data.stim$stim.pres[v2_data.stim$stim.pres == "Slide48.jpeg"] <- "SHRED"
-v2_data.stim$stim.pres[v2_data.stim$stim.pres == "Slide49.jpeg"] <- "TRAFFIC"
-v2_data.stim$stim.pres[v2_data.stim$stim.pres == "Slide50.jpeg"] <- "BREAK"
-v2_data.stim$stim.pres[v2_data.stim$stim.pres == "Slide51.jpeg"] <- "OVERCOME"
-v2_data.stim$stim.pres[v2_data.stim$stim.pres == "Slide52.jpeg"] <- "CATCH"
-v2_data.stim$stim.pres[v2_data.stim$stim.pres == "Slide53.jpeg"] <- "FUNERAL"
-v2_data.stim$stim.pres[v2_data.stim$stim.pres == "Slide54.jpeg"] <- "PISS"
-v2_data.stim$stim.pres[v2_data.stim$stim.pres == "Slide55.jpeg"] <- "URINE"
-v2_data.stim$stim.pres[v2_data.stim$stim.pres == "Slide56.jpeg"] <- "WRECK"
-v2_data.stim$stim.pres[v2_data.stim$stim.pres == "Slide57.jpeg"] <- "USELESS"
-v2_data.stim$stim.pres[v2_data.stim$stim.pres == "Slide58.jpeg"] <- "LAWSUIT"
-v2_data.stim$stim.pres[v2_data.stim$stim.pres == "Slide59.jpeg"] <- "MISFIRE"
-v2_data.stim$stim.pres[v2_data.stim$stim.pres == "Slide60.jpeg"] <- "SPINELESS"
-v2_data.stim$stim.pres[v2_data.stim$stim.pres == "Slide61.jpeg"] <- "BRAVE"
-v2_data.stim$stim.pres[v2_data.stim$stim.pres == "Slide62.jpeg"] <- "COMEDIAN"
-v2_data.stim$stim.pres[v2_data.stim$stim.pres == "Slide63.jpeg"] <- "SUNSET"
-v2_data.stim$stim.pres[v2_data.stim$stim.pres == "Slide64.jpeg"] <- "AMUSE"
-v2_data.stim$stim.pres[v2_data.stim$stim.pres == "Slide65.jpeg"] <- "FEMININE"
-v2_data.stim$stim.pres[v2_data.stim$stim.pres == "Slide66.jpeg"] <- "THINKER"
-v2_data.stim$stim.pres[v2_data.stim$stim.pres == "Slide67.jpeg"] <- "RABBIT"
-v2_data.stim$stim.pres[v2_data.stim$stim.pres == "Slide68.jpeg"] <- "GENTLEMAN"
-
-### create an interactive scatterplot
-scatterplot_stim <- ggplot(v2_data.stim, aes(x = clearval, y = rate_mean,
-                                             text = paste(
-                                                "Stimulus: ", stim.pres, 
-                                                "\n", "Valence Mean: ", (rate_mean*100), 
-                                                "\n", "Valence SD: ", (rate_sd*100), 
-                                                "\n", "RT Mean: ", rt_mean, 
-                                                "\n", "RT SD: ", rt_sd, 
-                                                sep = ""))) + 
-   labs(x = "Stimulus Valence", 
-        y = "% Negative Rating Across Participants",
-        title = "Average Valence Ratings Across Participants",
-        color = "Stimulus Type") +
-   geom_jitter(aes(color = stimtype)) 
-p <- ggplotly(scatterplot_stim, tooltip = "text")
-
-### save interactive scatterplot as an html file
-wordpath <- "~/Documents/Github/words/"
-setwd(wordpath)
-htmlwidgets::saveWidget(as_widget(p), "scatterplot_stim.html")
-
-### interactive plot for rt
-scatterplot_rt <- ggplot(v2_data.stim, aes(x = stim.pres, y = rate_mean,
-                                             text = paste(
-                                                "Stimulus: ", stim.pres, 
-                                                "\n", "Valence Mean: ", (rate_mean*100), 
-                                                "\n", "Valence SD: ", (rate_sd*100), 
-                                                "\n", "RT Mean: ", rt_mean, 
-                                                "\n", "RT SD: ", rt_sd, 
-                                                sep = ""))) + 
-   scale_fill_manual(values = c("blue","red","green")) +
-   labs(x = "Stimulus Valence", 
-        y = "Reaction Time (ms)",
-        fill = "Valence") + 
-   geom_jitter(aes(fill = clearval))
-p <- ggplotly(scatterplot_rt, tooltip = "text")
-print(p)
-### save interactive scatterplot as an html file
-wordpath <- "~/Documents/Github/words/"
-setwd(wordpath)
-htmlwidgets::saveWidget(as_widget(p), "scatterplot_rt.html")
-
-### pirate plots
-### Stimuli
-stim.data <- gather(full, key = condition, value = Negativity,
-                    "hap_rate", "ang_rate", "sur_rate", "pos_rate", "neg_rate", "amb_rate",
-                    "pow_rate","new_rate","amw_rate")
-
-stim.data$Valence <- ifelse(stim.data$condition %in% 
-                               c("ang_rate", "neg_rate","new_rate"), "Negative",
-                            ifelse(stim.data$condition %in% 
-                                      c("hap_rate", "pos_rate","pow_rate"), "Positive",
-                                   ifelse(stim.data$condition %in% 
-                                             c("sur_rate", "amb_rate","amw_rate"), "Ambiguous", "")))
-stim.data$Stimuli <- ifelse(stim.data$condition %in% 
-                               c("sur_rate", "hap_rate", "ang_rate"), "Faces",
-                            ifelse(stim.data$condition %in% 
-                                      c("pos_rate", "neg_rate", "amb_rate"), "IAPS",
-                                   ifelse(stim.data$condition %in% 
-                                             c("pow_rate", "new_rate", "amw_rate"), "Words", "")))
-
-stim.data$Valence = factor(stim.data$Valence, levels = c("Negative","Ambiguous","Positive"))
-pirateplot(Negativity ~ Stimuli * Valence, data = stim.data,
-           pal = c("Red", "Blue", "Green"), inf.method = "se", 
-           bar.f.o = 0,
-           inf.f.o = .5, 
-           bean.b.o = 0,
-           bean.f.o = .4,
-           point.o = 1,
-           bean.f.col = c("Red","Red","red", "Blue","Blue","Blue","Green","Green","Green"),
-           bean.b.col = "White",
-           point.col = c("Red","Red","red", "Blue","Blue","Blue","Green","Green","Green"),
-           avg.line.col = c("Red","Red","red", "Blue","Blue","Blue","Green","Green","Green"),
-           back.col = "White",
-           gl.col = "White", #turn off grid lines
-           main = "Valence")
-
-
-pirateplot(Negativity ~ Stimuli , data = stim.data,
-           pal = c("Red", "Blue", "Green"), inf.method = "se", 
-           bar.f.o = 0,
-           inf.f.o = .5, 
-           bean.b.o = 0,
-           bean.f.o = .4,
-           point.o = 1,
-           bean.f.col = c("Red", "Blue", "Green"),
-           bean.b.col = "White",
-           point.col = c("Red", "Blue", "Green"),
-           avg.line.col = c("Red", "Blue", "Green"),
-           back.col = "White",
-           gl.col = "White", #turn off grid lines
-           main = "Valence")
-
-
-stim.data$Valence = factor(stim.data$Valence, levels = c("Negative","Ambiguous","Positive"))
-pirateplot(Negativity ~ Valence , data = stim.data,
-           pal = c("Red", "Blue", "Green"), inf.method = "se", 
-           bar.f.o = 0,
-           inf.f.o = .5, 
-           bean.b.o = 0,
-           bean.f.o = .4,
-           point.o = 1,
-           bean.f.col = c("Red", "Blue", "Green"),
-           bean.b.col = "White",
-           point.col = c("Red", "Blue", "Green"),
-           avg.line.col = c("Red", "Blue", "Green"),
-           back.col = "White",
-           gl.col = "White", #turn off grid lines
-           main = "Valence")
-
-stim.data$Valence = factor(stim.data$Valence, levels = c("Negative","Ambiguous","Positive"))
-pirateplot(Negativity ~ Valence * Stimuli, data = stim.data,
-           pal = c("Red", "Blue", "Green"), inf.method = "se", 
-           bar.f.o = 0,
-           inf.f.o = .5, 
-           bean.b.o = 0,
-           bean.f.o = .4,
-           point.o = 1,
-           bean.f.col = c("Red","Blue","Green", "Red","Blue","Green","Red","Blue","Green"),
-           bean.b.col = "White",
-           point.col = c("Red","Blue","Green", "Red","Blue","Green","Red","Blue","Green"),
-           avg.line.col = c("Red","Blue","Green", "Red","Blue","Green","Red","Blue","Green"),
-           back.col = "White",
-           gl.col = "White", #turn off grid lines
-           main = "Valence")
-
-### Reaction Time
-rt.data <- gather(full, key = condition, value = Negativity,
-                    "hap_rt", "ang_rt", "sur_rt", "pos_rt", "neg_rt", "amb_rt",
-                    "pow_rt","new_rt","amw_rt")
-
-rt.data$Valence <- ifelse(rt.data$condition %in% 
-                               c("ang_rt", "neg_rt","new_rt"), "Negative",
-                            ifelse(rt.data$condition %in% 
-                                      c("hap_rt", "pos_rt","pow_rt"), "Positive",
-                                   ifelse(rt.data$condition %in% 
-                                             c("sur_rt", "amb_rt","amw_rt"), "Ambiguous", "")))
-rt.data$Stimuli <- ifelse(rt.data$condition %in% 
-                               c("sur_rt", "hap_rt", "ang_rt"), "Faces",
-                            ifelse(rt.data$condition %in% 
-                                      c("pos_rt", "neg_rt", "amb_rt"), "IAPS",
-                                   ifelse(rt.data$condition %in% 
-                                             c("pow_rt", "new_rt", "amw_rt"), "Words", "")))
-
-rt.data$Valence = factor(rt.data$Valence, levels = c("Negative","Ambiguous","Positive"))
-pirateplot(Negativity ~ Stimuli * Valence, data = rt.data,
-           pal = c("Red", "Blue", "Green"), inf.method = "se", 
-           bar.f.o = 0,
-           inf.f.o = .5, 
-           bean.b.o = 0,
-           bean.f.o = .4,
-           point.o = 1,
-           bean.f.col = c("Red","Red","red", "Blue","Blue","Blue","Green","Green","Green"),
-           bean.b.col = "White",
-           point.col = c("Red","Red","red", "Blue","Blue","Blue","Green","Green","Green"),
-           avg.line.col = c("Red","Red","red", "Blue","Blue","Blue","Green","Green","Green"),
-           back.col = "White",
-           gl.col = "White", #turn off grid lines
-           main = "Valence")
-
-
-pirateplot(Negativity ~ Stimuli , data = rt.data,
-           pal = c("Red", "Blue", "Green"), inf.method = "se", 
-           bar.f.o = 0,
-           inf.f.o = .5, 
-           bean.b.o = 0,
-           bean.f.o = .4,
-           point.o = 1,
-           bean.f.col = c("Red", "Blue", "Green"),
-           bean.b.col = "White",
-           point.col = c("Red", "Blue", "Green"),
-           avg.line.col = c("Red", "Blue", "Green"),
-           back.col = "White",
-           gl.col = "White", #turn off grid lines
-           main = "Valence")
-
-rt.data$Valence = factor(rt.data$Valence, levels = c("Negative","Ambiguous","Positive"))
-pirateplot(Negativity ~ Valence , data = rt.data,
-           pal = c("Red", "Blue", "Green"), inf.method = "se", 
-           bar.f.o = 0,
-           inf.f.o = .5, 
-           bean.b.o = 0,
-           bean.f.o = .4,
-           point.o = 1,
-           bean.f.col = c("Red", "Blue", "Green"),
-           bean.b.col = "White",
-           point.col = c("Red", "Blue", "Green"),
-           avg.line.col = c("Red", "Blue", "Green"),
-           back.col = "White",
-           gl.col = "White", #turn off grid lines
-           main = "Valence")
-
-rt.data$Valence = factor(rt.data$Valence, levels = c("Negative","Ambiguous","Positive"))
-pirateplot(Negativity ~ Valence * Stimuli, data = rt.data,
-           pal = c("Red", "Blue", "Green"), inf.method = "se", 
-           bar.f.o = 0,
-           inf.f.o = .5, 
-           bean.b.o = 0,
-           bean.f.o = .4,
-           point.o = 1,
-           bean.f.col = c("Red","Blue","Green", "Red","Blue","Green","Red","Blue","Green"),
-           bean.b.col = "White",
-           point.col = c("Red","Blue","Green", "Red","Blue","Green","Red","Blue","Green"),
-           avg.line.col = c("Red","Blue","Green", "Red","Blue","Green","Red","Blue","Green"),
-           back.col = "White",
-           gl.col = "White", #turn off grid lines
-           main = "Valence")
-
-### Reaction Time for ambiguous sitm as pos or neg
-rt.data2 <- gather(full, key = condition, value = Negativity,
-                  "sur_pos_rt", "sur_neg_rt","amb_pos_rt", "amb_neg_rt", "amw_pos_rt","amw_neg_rt")
-
-rt.data2$Valence <- ifelse(rt.data2$condition %in% 
-                             c("ang_rt", "neg_rt","new_rt"), "Negative",
-                          ifelse(rt.data2$condition %in% 
-                                    c("hap_rt", "pos_rt","pow_rt"), "Positive",
-                                 ifelse(rt.data2$condition %in% 
-                                           c("sur_rt", "amb_rt","amw_rt"), "Ambiguous", "")))
-rt.data2$Stimuli <- ifelse(rt.data2$condition %in% 
-                             c("sur_rt", "hap_rt", "ang_rt"), "Faces",
-                          ifelse(rt.data2$condition %in% 
-                                    c("pos_rt", "neg_rt", "amb_rt"), "IAPS",
-                                 ifelse(rt.data2$condition %in% 
-                                           c("pow_rt", "new_rt", "amw_rt"), "Words", "")))
-
-rt.data2$ValenceChoice = factor(rt.data2$Valence, levels = c("Negative","Positive"))
-pirateplot(Negativity ~ Stimuli * Valence, data = rt.data,
-           pal = c("Red", "Green"), inf.method = "se", 
-           bar.f.o = 0,
-           inf.f.o = .5, 
-           bean.b.o = 0,
-           bean.f.o = .4,
-           point.o = 1,
-           bean.f.col = c("Red","Red","Red", "Green","Green","Green"),
-           bean.b.col = "White",
-           point.col = c("Red","Red","Red","Green","Green","Green"),
-           avg.line.col = c("Red","Red","Red", "Green","Green","Green"),
-           back.col = "White",
-           gl.col = "White", #turn off grid lines
-           main = "Valence")
+# 
+# ###################
+# ### assess normality ###
+# shapiro.test(full$sur_rate) ## non-normal
+# shapiro.test(full$amb_rate) # normal
+# shapiro.test(full$amw_rate) # normal
+# shapiro.test(full$age)
+# 
+# ### quick correlations ###
+# cor.test(full$sur_rate, full$amw_rate, use = "complete.obs", method = "spearman")
+# cor.test(full$amb_rate, full$amw_rate, use = "complete.obs")
+# cor.test(full$sur_rate, full$amb_rate, use = "complete.obs", method = "spearman")
+# 
+# ### correlations controlling for age and sex ###
+# pcor.test(full$sur_rate, full$amw_rate, c(full$age, full$mal0fem1))
+# pcor.test(full$amb_rate, full$amw_rate, c(full$age, full$mal0fem1))
+# pcor.test(full$sur_rate, full$amb_rate, c(full$age, full$mal0fem1))
+# 
+# ### correlations for those under 60 years old only (for SAS 2020) ###
+# full_60 <- full[full$age < 60,]
+# pcor.test(full_60$sur_rate, full_60$amw_rate, c(full_60$age, full_60$mal0fem1))
+# pcor.test(full_60$amb_rate, full_60$amw_rate, c(full_60$age, full_60$mal0fem1))
+# pcor.test(full_60$sur_rate, full_60$amb_rate, c(full_60$age, full_60$mal0fem1))
+# 
+# ###################
+# ### Bayes partial correlation controlling for age and sex ###
+# # jzs_partcor(full$sur_rate, full$amw_rate, c(full$age, full$mal0fem1)) #can't do 2 controls!
+# # jzs_partcor(full$amb_rate, full$amw_rate, c(full$age, full$mal0fem1)) #can't do 2 controls!
+# # jzs_partcor(full$sur_rate, full$amb_rate, c(full$age, full$mal0fem1)) #can't do 2 controls!
+# 
+# 
+# ggplot(full, aes(x=sur_rate, y = amw_rate))+
+#    geom_point()+
+#    geom_smooth(method="lm")
+# 
+# ggplot(full, aes(x=amb_rate, y = amw_rate))+
+#    geom_point()+
+#    geom_smooth(method="lm")
+# 
+# ggplot(full, aes(x=amb_rate, y = sur_rate))+
+#    geom_point()+
+#    geom_smooth(method="lm")
+# 
+# ### Bayes partial correlations with age as variable, controlling for sex ###
+# jzs_partcor(full$age, full$sur_rate, c(full$mal0fem1))
+# jzs_partcor(full$age, full$amb_rate, c(full$mal0fem1))
+# jzs_partcor(full$age, full$amw_rate, c(full$mal0fem1))
+# jzs_partcor(full$age, full$all_rate, c(full$mal0fem1))
+# ?jzs_partcor
+# jzs_cor(full$age, full$sur_rate)
+# jzs_cor(full$age, full$amb_rate)
+# jzs_cor(full$age, full$amw_rate)
+# jzs_cor(full$age, full$all_rate)
+# 
+# ggplot(full, aes(x=full$age, y = sur_rate))+
+#    geom_point()+
+#    geom_smooth(method="lm")
+# 
+# ggplot(full, aes(x=full$age, y = amb_rate))+
+#    geom_point()+
+#    geom_smooth(method="lm")
+# 
+# ggplot(full, aes(x=full$age, y = amw_rate))+
+#    geom_point()+
+#    geom_smooth(method="lm")
+# 
+# ggplot(full, aes(x=full$age, y = all_rate))+
+#    geom_point()+
+#    geom_smooth(method="lm")
+# 
+# cor.test(full$sur_rate, full$age, use = "complete.obs", method = "spearman")
+# cor.test(full$amb_rate, full$age, use = "complete.obs", method = "spearman")
+# cor.test(full$amw_rate, full$age, use = "complete.obs", method = "spearman")
+# 
+# pcor.test(full$sur_rate, full$age, full$mal0fem1, method = "Spearman")
+# pcor.test(full$amb_rate, full$age, full$mal0fem1, method = "Spearman")
+# pcor.test(full$amw_rate, full$age, full$mal0fem1, method = "Spearman")
+# 
+# ################### Stim analysis
+# 
+# ### make a df of the sitmulus properties to merge later
+# stim.props <- subset(v2_data, select = c("stimtype","clearval","stim.pres"))
+# ### remove duplicate rows
+# stim.props <- distinct(stim.props)
+# 
+# ### create df that summarizes mean and sd for valence and rt for each stimulus
+# v2_data.stim <- (ddply(v2_data, "stim.pres", summarise, 
+#                        rate_mean = mean(rate), 
+#                        rate_sd = sd(rate),
+#                        rt_mean = mean(Reaction.Time),
+#                        rt_sd = sd(Reaction.Time)))
+# 
+# ### add on properties of each stim
+# v2_data.stim <- merge(stim.props, v2_data.stim, by = "stim.pres")
+# 
+# ### rename words from their slide names 
+# ### forgive me, efficient syntax gods ###
+# v2_data.stim$stim.pres[v2_data.stim$stim.pres == "Slide5.jpeg"] <- "STUN"
+# v2_data.stim$stim.pres[v2_data.stim$stim.pres == "Slide6.jpeg"] <- "SNAPPY"
+# v2_data.stim$stim.pres[v2_data.stim$stim.pres == "Slide7.jpeg"] <- "CLUB"
+# v2_data.stim$stim.pres[v2_data.stim$stim.pres == "Slide8.jpeg"] <- "RETREAT"
+# v2_data.stim$stim.pres[v2_data.stim$stim.pres == "Slide9.jpeg"] <- "DISCIPLINE"
+# v2_data.stim$stim.pres[v2_data.stim$stim.pres == "Slide10.jpeg"] <- "TERMINAL"
+# v2_data.stim$stim.pres[v2_data.stim$stim.pres == "Slide11.jpeg"] <- "CRUSH"
+# v2_data.stim$stim.pres[v2_data.stim$stim.pres == "Slide12.jpeg"] <- "BATTER"
+# v2_data.stim$stim.pres[v2_data.stim$stim.pres == "Slide13.jpeg"] <- "PICK"
+# v2_data.stim$stim.pres[v2_data.stim$stim.pres == "Slide14.jpeg"] <- "PLAYER"
+# v2_data.stim$stim.pres[v2_data.stim$stim.pres == "Slide15.jpeg"] <- "POP"
+# v2_data.stim$stim.pres[v2_data.stim$stim.pres == "Slide16.jpeg"] <- "SURVIVAL"
+# v2_data.stim$stim.pres[v2_data.stim$stim.pres == "Slide17.jpeg"] <- "TRICK"
+# v2_data.stim$stim.pres[v2_data.stim$stim.pres == "Slide18.jpeg"] <- "CHECK"
+# v2_data.stim$stim.pres[v2_data.stim$stim.pres == "Slide19.jpeg"] <- "RUSH"
+# v2_data.stim$stim.pres[v2_data.stim$stim.pres == "Slide20.jpeg"] <- "COURT"
+# v2_data.stim$stim.pres[v2_data.stim$stim.pres == "Slide21.jpeg"] <- "EVIL"
+# v2_data.stim$stim.pres[v2_data.stim$stim.pres == "Slide22.jpeg"] <- "SLAVE"
+# v2_data.stim$stim.pres[v2_data.stim$stim.pres == "Slide23.jpeg"] <- "ROTTEN"
+# v2_data.stim$stim.pres[v2_data.stim$stim.pres == "Slide24.jpeg"] <- "CRAPPY"
+# v2_data.stim$stim.pres[v2_data.stim$stim.pres == "Slide25.jpeg"] <- "DECAY"
+# v2_data.stim$stim.pres[v2_data.stim$stim.pres == "Slide26.jpeg"] <- "DEADLY"
+# v2_data.stim$stim.pres[v2_data.stim$stim.pres == "Slide27.jpeg"] <- "CROOK"
+# v2_data.stim$stim.pres[v2_data.stim$stim.pres == "Slide28.jpeg"] <- "VANDAL"
+# v2_data.stim$stim.pres[v2_data.stim$stim.pres == "Slide29.jpeg"] <- "LOVEABLE"
+# v2_data.stim$stim.pres[v2_data.stim$stim.pres == "Slide30.jpeg"] <- "MUSIC"
+# v2_data.stim$stim.pres[v2_data.stim$stim.pres == "Slide31.jpeg"] <- "MOTHER"
+# v2_data.stim$stim.pres[v2_data.stim$stim.pres == "Slide32.jpeg"] <- "FOOD"
+# v2_data.stim$stim.pres[v2_data.stim$stim.pres == "Slide33.jpeg"] <- "TREASURED"
+# v2_data.stim$stim.pres[v2_data.stim$stim.pres == "Slide34.jpeg"] <- "FRUITFUL"
+# v2_data.stim$stim.pres[v2_data.stim$stim.pres == "Slide35.jpeg"] <- "COMIC"
+# v2_data.stim$stim.pres[v2_data.stim$stim.pres == "Slide36.jpeg"] <- "LEMONADE"
+# v2_data.stim$stim.pres[v2_data.stim$stim.pres == "Slide37.jpeg"] <- "CLOSE"
+# v2_data.stim$stim.pres[v2_data.stim$stim.pres == "Slide38.jpeg"] <- "REVOLUTION"
+# v2_data.stim$stim.pres[v2_data.stim$stim.pres == "Slide39.jpeg"] <- "FIGHTER"
+# v2_data.stim$stim.pres[v2_data.stim$stim.pres == "Slide40.jpeg"] <- "HAIL"
+# v2_data.stim$stim.pres[v2_data.stim$stim.pres == "Slide41.jpeg"] <- "HANG"
+# v2_data.stim$stim.pres[v2_data.stim$stim.pres == "Slide42.jpeg"] <- "OPERATION"
+# v2_data.stim$stim.pres[v2_data.stim$stim.pres == "Slide43.jpeg"] <- "DIRECT"
+# v2_data.stim$stim.pres[v2_data.stim$stim.pres == "Slide44.jpeg"] <- "SHAKE"
+# v2_data.stim$stim.pres[v2_data.stim$stim.pres == "Slide45.jpeg"] <- "BEAT"
+# v2_data.stim$stim.pres[v2_data.stim$stim.pres == "Slide46.jpeg"] <- "RADICAL"
+# v2_data.stim$stim.pres[v2_data.stim$stim.pres == "Slide47.jpeg"] <- "THICK"
+# v2_data.stim$stim.pres[v2_data.stim$stim.pres == "Slide48.jpeg"] <- "SHRED"
+# v2_data.stim$stim.pres[v2_data.stim$stim.pres == "Slide49.jpeg"] <- "TRAFFIC"
+# v2_data.stim$stim.pres[v2_data.stim$stim.pres == "Slide50.jpeg"] <- "BREAK"
+# v2_data.stim$stim.pres[v2_data.stim$stim.pres == "Slide51.jpeg"] <- "OVERCOME"
+# v2_data.stim$stim.pres[v2_data.stim$stim.pres == "Slide52.jpeg"] <- "CATCH"
+# v2_data.stim$stim.pres[v2_data.stim$stim.pres == "Slide53.jpeg"] <- "FUNERAL"
+# v2_data.stim$stim.pres[v2_data.stim$stim.pres == "Slide54.jpeg"] <- "PISS"
+# v2_data.stim$stim.pres[v2_data.stim$stim.pres == "Slide55.jpeg"] <- "URINE"
+# v2_data.stim$stim.pres[v2_data.stim$stim.pres == "Slide56.jpeg"] <- "WRECK"
+# v2_data.stim$stim.pres[v2_data.stim$stim.pres == "Slide57.jpeg"] <- "USELESS"
+# v2_data.stim$stim.pres[v2_data.stim$stim.pres == "Slide58.jpeg"] <- "LAWSUIT"
+# v2_data.stim$stim.pres[v2_data.stim$stim.pres == "Slide59.jpeg"] <- "MISFIRE"
+# v2_data.stim$stim.pres[v2_data.stim$stim.pres == "Slide60.jpeg"] <- "SPINELESS"
+# v2_data.stim$stim.pres[v2_data.stim$stim.pres == "Slide61.jpeg"] <- "BRAVE"
+# v2_data.stim$stim.pres[v2_data.stim$stim.pres == "Slide62.jpeg"] <- "COMEDIAN"
+# v2_data.stim$stim.pres[v2_data.stim$stim.pres == "Slide63.jpeg"] <- "SUNSET"
+# v2_data.stim$stim.pres[v2_data.stim$stim.pres == "Slide64.jpeg"] <- "AMUSE"
+# v2_data.stim$stim.pres[v2_data.stim$stim.pres == "Slide65.jpeg"] <- "FEMININE"
+# v2_data.stim$stim.pres[v2_data.stim$stim.pres == "Slide66.jpeg"] <- "THINKER"
+# v2_data.stim$stim.pres[v2_data.stim$stim.pres == "Slide67.jpeg"] <- "RABBIT"
+# v2_data.stim$stim.pres[v2_data.stim$stim.pres == "Slide68.jpeg"] <- "GENTLEMAN"
+# 
+# ### create an interactive scatterplot
+# scatterplot_stim <- ggplot(v2_data.stim, aes(x = clearval, y = rate_mean,
+#                                              text = paste(
+#                                                 "Stimulus: ", stim.pres, 
+#                                                 "\n", "Valence Mean: ", (rate_mean*100), 
+#                                                 "\n", "Valence SD: ", (rate_sd*100), 
+#                                                 "\n", "RT Mean: ", rt_mean, 
+#                                                 "\n", "RT SD: ", rt_sd, 
+#                                                 sep = ""))) + 
+#    labs(x = "Stimulus Valence", 
+#         y = "% Negative Rating Across Participants",
+#         title = "Average Valence Ratings Across Participants",
+#         color = "Stimulus Type") +
+#    geom_jitter(aes(color = stimtype)) 
+# p <- ggplotly(scatterplot_stim, tooltip = "text")
+# 
+# ### save interactive scatterplot as an html file
+# wordpath <- "~/Documents/Github/words/"
+# setwd(wordpath)
+# htmlwidgets::saveWidget(as_widget(p), "scatterplot_stim.html")
+# 
+# ### interactive plot for rt
+# scatterplot_rt <- ggplot(v2_data.stim, aes(x = stim.pres, y = rate_mean,
+#                                              text = paste(
+#                                                 "Stimulus: ", stim.pres, 
+#                                                 "\n", "Valence Mean: ", (rate_mean*100), 
+#                                                 "\n", "Valence SD: ", (rate_sd*100), 
+#                                                 "\n", "RT Mean: ", rt_mean, 
+#                                                 "\n", "RT SD: ", rt_sd, 
+#                                                 sep = ""))) + 
+#    scale_fill_manual(values = c("blue","red","green")) +
+#    labs(x = "Stimulus Valence", 
+#         y = "Reaction Time (ms)",
+#         fill = "Valence") + 
+#    geom_jitter(aes(fill = clearval))
+# p <- ggplotly(scatterplot_rt, tooltip = "text")
+# print(p)
+# ### save interactive scatterplot as an html file
+# wordpath <- "~/Documents/Github/words/"
+# setwd(wordpath)
+# htmlwidgets::saveWidget(as_widget(p), "scatterplot_rt.html")
+# 
+# ### pirate plots
+# ### Stimuli
+# stim.data <- gather(full, key = condition, value = Negativity,
+#                     "hap_rate", "ang_rate", "sur_rate", "pos_rate", "neg_rate", "amb_rate",
+#                     "pow_rate","new_rate","amw_rate")
+# 
+# stim.data$Valence <- ifelse(stim.data$condition %in% 
+#                                c("ang_rate", "neg_rate","new_rate"), "Negative",
+#                             ifelse(stim.data$condition %in% 
+#                                       c("hap_rate", "pos_rate","pow_rate"), "Positive",
+#                                    ifelse(stim.data$condition %in% 
+#                                              c("sur_rate", "amb_rate","amw_rate"), "Ambiguous", "")))
+# stim.data$Stimuli <- ifelse(stim.data$condition %in% 
+#                                c("sur_rate", "hap_rate", "ang_rate"), "Faces",
+#                             ifelse(stim.data$condition %in% 
+#                                       c("pos_rate", "neg_rate", "amb_rate"), "IAPS",
+#                                    ifelse(stim.data$condition %in% 
+#                                              c("pow_rate", "new_rate", "amw_rate"), "Words", "")))
+# 
+# stim.data$Valence = factor(stim.data$Valence, levels = c("Negative","Ambiguous","Positive"))
+# pirateplot(Negativity ~ Stimuli * Valence, data = stim.data,
+#            pal = c("Red", "Blue", "Green"), inf.method = "se", 
+#            bar.f.o = 0,
+#            inf.f.o = .5, 
+#            bean.b.o = 0,
+#            bean.f.o = .4,
+#            point.o = 1,
+#            bean.f.col = c("Red","Red","red", "Blue","Blue","Blue","Green","Green","Green"),
+#            bean.b.col = "White",
+#            point.col = c("Red","Red","red", "Blue","Blue","Blue","Green","Green","Green"),
+#            avg.line.col = c("Red","Red","red", "Blue","Blue","Blue","Green","Green","Green"),
+#            back.col = "White",
+#            gl.col = "White", #turn off grid lines
+#            main = "Valence")
+# 
+# 
+# pirateplot(Negativity ~ Stimuli , data = stim.data,
+#            pal = c("Red", "Blue", "Green"), inf.method = "se", 
+#            bar.f.o = 0,
+#            inf.f.o = .5, 
+#            bean.b.o = 0,
+#            bean.f.o = .4,
+#            point.o = 1,
+#            bean.f.col = c("Red", "Blue", "Green"),
+#            bean.b.col = "White",
+#            point.col = c("Red", "Blue", "Green"),
+#            avg.line.col = c("Red", "Blue", "Green"),
+#            back.col = "White",
+#            gl.col = "White", #turn off grid lines
+#            main = "Valence")
+# 
+# 
+# stim.data$Valence = factor(stim.data$Valence, levels = c("Negative","Ambiguous","Positive"))
+# pirateplot(Negativity ~ Valence , data = stim.data,
+#            pal = c("Red", "Blue", "Green"), inf.method = "se", 
+#            bar.f.o = 0,
+#            inf.f.o = .5, 
+#            bean.b.o = 0,
+#            bean.f.o = .4,
+#            point.o = 1,
+#            bean.f.col = c("Red", "Blue", "Green"),
+#            bean.b.col = "White",
+#            point.col = c("Red", "Blue", "Green"),
+#            avg.line.col = c("Red", "Blue", "Green"),
+#            back.col = "White",
+#            gl.col = "White", #turn off grid lines
+#            main = "Valence")
+# 
+# stim.data$Valence = factor(stim.data$Valence, levels = c("Negative","Ambiguous","Positive"))
+# pirateplot(Negativity ~ Valence * Stimuli, data = stim.data,
+#            pal = c("Red", "Blue", "Green"), inf.method = "se", 
+#            bar.f.o = 0,
+#            inf.f.o = .5, 
+#            bean.b.o = 0,
+#            bean.f.o = .4,
+#            point.o = 1,
+#            bean.f.col = c("Red","Blue","Green", "Red","Blue","Green","Red","Blue","Green"),
+#            bean.b.col = "White",
+#            point.col = c("Red","Blue","Green", "Red","Blue","Green","Red","Blue","Green"),
+#            avg.line.col = c("Red","Blue","Green", "Red","Blue","Green","Red","Blue","Green"),
+#            back.col = "White",
+#            gl.col = "White", #turn off grid lines
+#            main = "Valence")
+# 
+# ### Reaction Time
+# rt.data <- gather(full, key = condition, value = Negativity,
+#                     "hap_rt", "ang_rt", "sur_rt", "pos_rt", "neg_rt", "amb_rt",
+#                     "pow_rt","new_rt","amw_rt")
+# 
+# rt.data$Valence <- ifelse(rt.data$condition %in% 
+#                                c("ang_rt", "neg_rt","new_rt"), "Negative",
+#                             ifelse(rt.data$condition %in% 
+#                                       c("hap_rt", "pos_rt","pow_rt"), "Positive",
+#                                    ifelse(rt.data$condition %in% 
+#                                              c("sur_rt", "amb_rt","amw_rt"), "Ambiguous", "")))
+# rt.data$Stimuli <- ifelse(rt.data$condition %in% 
+#                                c("sur_rt", "hap_rt", "ang_rt"), "Faces",
+#                             ifelse(rt.data$condition %in% 
+#                                       c("pos_rt", "neg_rt", "amb_rt"), "IAPS",
+#                                    ifelse(rt.data$condition %in% 
+#                                              c("pow_rt", "new_rt", "amw_rt"), "Words", "")))
+# 
+# rt.data$Valence = factor(rt.data$Valence, levels = c("Negative","Ambiguous","Positive"))
+# pirateplot(Negativity ~ Stimuli * Valence, data = rt.data,
+#            pal = c("Red", "Blue", "Green"), inf.method = "se", 
+#            bar.f.o = 0,
+#            inf.f.o = .5, 
+#            bean.b.o = 0,
+#            bean.f.o = .4,
+#            point.o = 1,
+#            bean.f.col = c("Red","Red","red", "Blue","Blue","Blue","Green","Green","Green"),
+#            bean.b.col = "White",
+#            point.col = c("Red","Red","red", "Blue","Blue","Blue","Green","Green","Green"),
+#            avg.line.col = c("Red","Red","red", "Blue","Blue","Blue","Green","Green","Green"),
+#            back.col = "White",
+#            gl.col = "White", #turn off grid lines
+#            main = "Valence")
+# 
+# 
+# pirateplot(Negativity ~ Stimuli , data = rt.data,
+#            pal = c("Red", "Blue", "Green"), inf.method = "se", 
+#            bar.f.o = 0,
+#            inf.f.o = .5, 
+#            bean.b.o = 0,
+#            bean.f.o = .4,
+#            point.o = 1,
+#            bean.f.col = c("Red", "Blue", "Green"),
+#            bean.b.col = "White",
+#            point.col = c("Red", "Blue", "Green"),
+#            avg.line.col = c("Red", "Blue", "Green"),
+#            back.col = "White",
+#            gl.col = "White", #turn off grid lines
+#            main = "Valence")
+# 
+# rt.data$Valence = factor(rt.data$Valence, levels = c("Negative","Ambiguous","Positive"))
+# pirateplot(Negativity ~ Valence , data = rt.data,
+#            pal = c("Red", "Blue", "Green"), inf.method = "se", 
+#            bar.f.o = 0,
+#            inf.f.o = .5, 
+#            bean.b.o = 0,
+#            bean.f.o = .4,
+#            point.o = 1,
+#            bean.f.col = c("Red", "Blue", "Green"),
+#            bean.b.col = "White",
+#            point.col = c("Red", "Blue", "Green"),
+#            avg.line.col = c("Red", "Blue", "Green"),
+#            back.col = "White",
+#            gl.col = "White", #turn off grid lines
+#            main = "Valence")
+# 
+# rt.data$Valence = factor(rt.data$Valence, levels = c("Negative","Ambiguous","Positive"))
+# pirateplot(Negativity ~ Valence * Stimuli, data = rt.data,
+#            pal = c("Red", "Blue", "Green"), inf.method = "se", 
+#            bar.f.o = 0,
+#            inf.f.o = .5, 
+#            bean.b.o = 0,
+#            bean.f.o = .4,
+#            point.o = 1,
+#            bean.f.col = c("Red","Blue","Green", "Red","Blue","Green","Red","Blue","Green"),
+#            bean.b.col = "White",
+#            point.col = c("Red","Blue","Green", "Red","Blue","Green","Red","Blue","Green"),
+#            avg.line.col = c("Red","Blue","Green", "Red","Blue","Green","Red","Blue","Green"),
+#            back.col = "White",
+#            gl.col = "White", #turn off grid lines
+#            main = "Valence")
+# 
+# ### Reaction Time for ambiguous sitm as pos or neg
+# rt.data2 <- gather(full, key = condition, value = Negativity,
+#                   "sur_pos_rt", "sur_neg_rt","amb_pos_rt", "amb_neg_rt", "amw_pos_rt","amw_neg_rt")
+# 
+# rt.data2$Valence <- ifelse(rt.data2$condition %in% 
+#                              c("ang_rt", "neg_rt","new_rt"), "Negative",
+#                           ifelse(rt.data2$condition %in% 
+#                                     c("hap_rt", "pos_rt","pow_rt"), "Positive",
+#                                  ifelse(rt.data2$condition %in% 
+#                                            c("sur_rt", "amb_rt","amw_rt"), "Ambiguous", "")))
+# rt.data2$Stimuli <- ifelse(rt.data2$condition %in% 
+#                              c("sur_rt", "hap_rt", "ang_rt"), "Faces",
+#                           ifelse(rt.data2$condition %in% 
+#                                     c("pos_rt", "neg_rt", "amb_rt"), "IAPS",
+#                                  ifelse(rt.data2$condition %in% 
+#                                            c("pow_rt", "new_rt", "amw_rt"), "Words", "")))
+# 
+# rt.data2$ValenceChoice = factor(rt.data2$Valence, levels = c("Negative","Positive"))
+# pirateplot(Negativity ~ Stimuli * Valence, data = rt.data,
+#            pal = c("Red", "Green"), inf.method = "se", 
+#            bar.f.o = 0,
+#            inf.f.o = .5, 
+#            bean.b.o = 0,
+#            bean.f.o = .4,
+#            point.o = 1,
+#            bean.f.col = c("Red","Red","Red", "Green","Green","Green"),
+#            bean.b.col = "White",
+#            point.col = c("Red","Red","Red","Green","Green","Green"),
+#            avg.line.col = c("Red","Red","Red", "Green","Green","Green"),
+#            back.col = "White",
+#            gl.col = "White", #turn off grid lines
+#            main = "Valence")

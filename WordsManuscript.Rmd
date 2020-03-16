@@ -1,6 +1,6 @@
 ---
-title             : "Ambiguous Words"
-shorttitle        : "AMBIGUOUS WORDS"
+title             : "Spring break of heart break? Extending the valence bias to emotional words"
+shorttitle        : "VALENCE BIAS AND EMOTIONAL WORDS"
 
 author: 
   - name          : "Nicholas R. Harp"
@@ -9,6 +9,8 @@ author:
     address       : "Postal address"
     email         : "nharp@huskers.unl.edu"
   - name          : "Catherine C. Brown"
+    affiliation   : "1"
+  - name          : "Nathan M. Petro"
     affiliation   : "1"
   - name          : "Maital Neta"
     affiliation   : "1"
@@ -20,18 +22,11 @@ affiliation:
 authornote: |
   Nicholas R. Harp, Department of Psychology, Center for Brain, Biology, and Behavior, University of Nebraska-Lincoln
   Catherine C. Brown, Department of Psychology, Center for Brain, Biology, and Behavior, University of Nebraska-Lincoln
+  Nathan M. Petro, Department of Psychology, Center for Brain, Biology, and Behavior, University of Nebraska-Lincoln
   Maital Neta, Department of Psychology, Center for Brain, Biology, and Behavior, University of Nebraska-Lincoln
 
 abstract: |
-  We found some ambiugous words.
-  
-  Two or three sentences explaining what the **main result** reveals in direct comparison to what was thought to be the case previously, or how the  main result adds to previous knowledge.
-  
-  One or two sentences to put the results into a more **general context**.
-  
-  Two or three sentences to provide a **broader perspective**, readily comprehensible to a scientist in any discipline.
-  
-  <!-- https://tinyurl.com/ybremelq -->
+  Language is a powerful tool for expressing emotion, but also shapes our emotional experiences. Although language is often used to provide context that disambiguates nonverbal emotion signals, language itself is inherently ambiguous. Indeed, words that sound the same (homophones) or look the same (homonyms) can take on multiple meanings, and even refer to opposing emotional signals. For example, a single word can convey a positive (spring “break”) or negative (heart “break”) meaning. In the absence of necessary contextual cues, we often rely on our emotional states and biases to guide our resolution of this emotional ambiguity. Previous work has characterized individual differences in valence bias, or the tendency to categorize emotional ambiguity as positive or negative, in response to nonverbal signals such as faces (surprised expression) and scenes. Here we extend this work by showing that a similar valence bias is at work when responding to verbal ambiguity. In a pilot study, 103 (56 female) participants rated a list of 630 words from existing stimulus sets as either positive or negative. These data produced a set of 32 words with dual valence ambiguity (i.e., low response consensus and relatively slow response times across participants) and 32 words with clear valence (16 positive, 16 negative). To demonstrate the generalizability of the valence bias across stimulus categories, a new sample of 254 participants rated these words as well as the well-validated faces and scenes.  Preregistered analyses conducted on the final sample (N=197, 103 female) supported our hypothesis: the valence bias in response to ambiguous words was correlated with the bias for ambiguous faces (rS = .26, p < .001) and scenes (r(195) = .44, p < .001). Exploratory analyses revealed that ambiguous compared to clearly valenced words are used with greater frequency in the English language (t(58.3) = 2.08, p = .04).  We discuss these findings as a function of linguistic properties (e.g., word frequency) and in light of their implications for psychological well-being (e.g., negativity bias evidence in mood and anxiety disorders). 
   
 keywords          : "ambiguity"
 wordcount         : "X"
@@ -48,11 +43,13 @@ draft             : no
 
 documentclass     : "apa6"
 classoption       : "man"
-output            : papaja::apa6_pdf
+output            : papaja::apa6_word
 ---
 
 ```{r setup, include = FALSE}
 library("papaja")
+library(emmeans)
+library(lme4)
 ```
 
 ```{r analysis-preferences, include = FALSE}
@@ -63,7 +60,7 @@ knitr::opts_chunk$set(cache.extra = knitr::rand_seed)
 # Set root directory
 cbpath <- '~/Documents/GitHub/Words/'
 nhpath <- '~/Documents/Nick-Grad/Neta_Lab/Words/'
-path <- cbpath
+path <- nhpath
 # knitr::opts_knit$set(root.dir = path)
 
 
@@ -77,7 +74,12 @@ library(broom)
 source("data_cleaning_nh.R")
 ```
 # Introduction
-We wanted to identify ambiguous words. Mention in this section why we also generated clearly positive and negative words.
+Language is a powerful tool for expressing emotion, contributing to both the communication of emotional states and the construction of emotions (Foolen, 2012). For example, both nonlinguistic characteristics of speech (e.g., prosody; Ishii, Reyes, & Kitayama, 2003) and the words we choose (CITE) convey emotional states. Additionally, concept knowledge of emotion terms aids the construction of cognitive representations of the feelings of both others and ourselves (Lindquist, 2009). Indeed, language facilitates the communication and understanding of emotional experiences among people, disambiguating and shaping perceptions of nonverbal signals (e.g., facial expressions; Matsumoto & Assar, 1992; gestures; Caridakis, et al., 2007), but it also shapes emotional experiences. For instance, using words to describe one’s emotions (i.e., affect labeling) is an effective emotion regulation technique, dampening both positive and negative affective responses (Lieberman et al., 2011). Evidence from the develepmental literature has shown language development accompanies that of emotion regulation skills as well (Eisenberger, Sadovsky, & Spinrad, 2005; Cole et al., 1994). Indeed, language is a critical building block of emotional experience (Barret, Lindquist, & Gendron, 2007) and a rich source of affective information. 
+
+Although language is often used to provide context that disambiguates other nonverbal emotion signals, language itself is inherently ambiguous. In fact, ambiguity is a common feature across languages and contributes to the flexibility and efficiency of communication through the recycling of language units (Piantadosi, Tily, & Gibson, 2012). Indeed, some words sound (homophones) or look the same (homonyms), take on multiple meanings or parts of speech (e.g., break is both a noun and a verb), and even refer to opposing emotional signals. For example, a single word can convey a positive (spring “break”) or negative (heart “break”) meaning. In the absence of necessary contextual cues, emotional states and biases often guide the resolution of emotional ambiguity. For instance, emotional states aid the resolution of homophones with neutral-positive (e.g., presence-presents) or neutral-negative (e.g., morning-mourning) meanings, such that subjects were more likely to interpret the words in line with their emotional state (Halberstadt, Niedenthal, & Kushner, 1995), but previous work fails to capitalize on words with dual valence ambiguity (i.e., plausible positive and negative interpretations).  
+
+Other lines of work have characterized individual differences in valence bias, or the tendency to categorize dual valence ambiguity as positive or negative, but only in response to nonverbal signals such as faces (surprised expression; Neta et al. 2009) and scenes (Neta, Kelley, & Whalen, 2011). Just as some words have both positive and negative meanings, surprised expressions predict both positive (e.g., birthday party) and negative (e.g., car crash) outcomes. A growing body of work linking valence bias to important mental health and societal concerns (e.g., stress; Brown et al., 2017; depression (Petro, Tottenham, & Neta, 2019); emotion regulation; Petro et al., 2018; Kim et al., 2003), highlights the importance of understanding this bias. Here we show that a similar valence bias is at work when responding to verbal ambiguity as when categorizing nonverbal emotional signals.
+
 
 # Study 1: Pilot 
 
@@ -122,42 +124,112 @@ As shown in **Figure 1b**, visual inspection of the average valence ratings reve
 Study 1 generated a list of 32 ambigous words, as well as 16 positive and 16 negative words, for use in determining whether valence bias generalizes to verbal ambiguity. Study 2 aimed to test this by comparing ratings of word to ratings of well-validated stimuli sets consisting of faces and scenes.
 
 # Study 2: Comparison of words with valence bias and IPANAT
-
+``` {r}
+source("study1_redo_data_cleaning.R")
+```
 ## Methods
 
 ### Participants
+Amazon MTurk Workers were again invited to participate in the study through a hyperlink. After completing the same eligibility screener used in Study 1, eligible participants proceeded to complete a valence bias task, described below. XX of the XX participants were eligible to participate, and XX chose to complete the study (XX male). The final sample was `r dem.sum[c("Asian"), ]$V2*100`% Asian, `r dem.sum[c("Black - not of Hispanic Origin"), ]$V2*100`% Black, `r dem.sum[c("Hispanic or Latino"), ]$V2*100`% Hispanic or Latino, `r dem.sum[c("White - not of Hispanic Origin"), ]$V2*100`% White, and `r dem.sum[c("Other"), ]$V2*100`% Other, and included a wide range of ages (`r min(full$age)`-`r max(full$age)`).  
 
 ### Material
 
 #### Stimuli
-##### Valence Bias with Words
-##### Valence Bias with Faces
-##### Valence Bias with IAPS
-##### IPANAT
+##### Valence Bias Task
+Three task blocks (faces, scenes, and words) were used to assess valence bias. As in previous work [@neta_corrugator_2009], the face and scene task blocks included 24 ambiguous images, 12 positive images, and 12 negative images. The facial expressions were selected from the NimStim (Tottenham et al., 2011) and Karolinska Directed Emotional Faces (Lundqvist, Flykt, & Öhman, 1998) sets, and the scenes were selected from the International Affective Picture System (Lang, Bradley, & Cuthbert, 2008). For the words block, the 32 ambiguous, 16 positive, and 16 negative words identified in Study 1 were used. All words were presented in all capital letters in plain black font on a white background. 
 
 #### Software
+As in Study 1, the task was administered using Gorilla Experiment Builder [@anwyl-irvine_gorilla_2019], and was only accessible to participants in the United States through a computer. 
 
 ### Procedure
-#### Valence Bias Tasks
-#### IPANAT
+### Valence Bias Tasks
+Participants were randomly assigned to pseudorandom presentation orders of the faces, scenes, and words blocks. Within each block, all stimuli were preceded by a 2000 ms fixation cross and then presented for XX ms. If participants did not make a response within 2000 ms, no response was recorded and the task advanced to the next trial. Participants responded by pressing either the "WHICH" or "WHICH" key on their keyboard, with the positive and negative response keys counterbalanced across participants. Valence bias for each stimulus category was calculated as the percent of negative responses for the ambiguous stimuli. 
 
 ### Data analysis
-#### Valence Bias Tasks
-#### IPANAT
+Preregistration is available at the Open Science Framework website (osf.io/LINK). All data cleaning, analyses, and visualizations were completed using R (Version 3.6.0; R Core Team, 2017). Packages needed to reproduce analyses include (a bunch... list here). Prior to calculating our measure of valence bias (i.e., percent negativity for ambiguous stimuli), trials with reaction times less than 250 ms were removed (*note that this was set to 200 ms in the data cleaning script. I've since updated to 250, but our previous results were likely at the 200 ms cutoff*), as in Study 1. Additionally, only participants' first response during each stimulus presentation was retained for analysis, and participants that failed to respond to 75% or more of the trials or did not correctly rate the clearly valenced stimuli greater than 60% of the time (n = `r length(v2_data.rm)`) were removed prior to the statistical analyses. After, we calculated the proportion of trials in which each stimulus category was categorized as negative to measure valence bias. Linear mixed effects models were used to test for differences in percent negativity and reaction time across the stimulus and valence categories. Partial correlations were used to assess whether valence bias towards the ambiguous words was related to that of the faces and scenes, while controlling for gender and age. Where applicable, non-parametric tests were used for data failing to meet normality assumptions. 
+
 
 ## Results
+``` {r, include = F}
+library(lmerTest)
+### make data long ###
+aov.bias.data <- gather(v2_data.summary, Condition, PerNeg,
+                        ang_rate, hap_rate, sur_rate,
+                        neg_rate, pos_rate, amb_rate,
+                        new_rate, pow_rate, amw_rate)
 
+aov.bias.data$Val <- dplyr::recode(aov.bias.data$Condition,
+                                   "ang_rate" = "Negative",
+                                   "neg_rate" = "Negative",
+                                   "new_rate" = "Negative",
+                                   "hap_rate" = "Positive",
+                                   "pos_rate" = "Positive",
+                                   "pow_rate" = "Positive",
+                                   "sur_rate" = "Ambiguous",
+                                   "amb_rate" = "Ambiguous",
+                                   "amw_rate" = "Ambiguous")
+aov.bias.data$Stim <- dplyr::recode(aov.bias.data$Condition,
+                                   "ang_rate" = "Faces",
+                                   "neg_rate" = "Scenes",
+                                   "new_rate" = "Words",
+                                   "hap_rate" = "Faces",
+                                   "pos_rate" = "Scenes",
+                                   "pow_rate" = "Words",
+                                   "sur_rate" = "Faces",
+                                   "amb_rate" = "Scenes",
+                                   "amw_rate" = "Words")
+
+aov.bias.data$PerNeg <- aov.bias.data$PerNeg * 100
+
+### run 3 x 3 ANOVA ###
+aov.bias.res <- lmer(PerNeg ~ Val * Stim + (1 | Participant.Public.ID),
+                     aov.bias.data, REML = F)
+
+### summarise results ###
+summary(aov.bias.res)
+# install.packages("afex")
+### probe main effect: Val ###
+Val.Effect <- emmeans(aov.bias.res, pairwise ~ Val, adjust = "none")
+Stim.Effect <- emmeans(aov.bias.res, pairwise ~ Stim, adjust = "none")
+Interaction.Effect <- emmeans(aov.bias.res, pairwise ~ Val:Stim, adjust = "none")
+
+Val.Effect.Means <- as.data.frame(Val.Effect$emmeans)
+Stim.Effect.Means <- as.data.frame(Stim.Effect$emmeans)
+Interaction.Effect.Means <- as.data.frame(Interaction.Effect$emmeans)
+
+Val.Effect.Contr <- as.data.frame(Val.Effect$contrasts)
+Stim.Effect.Contr <- as.data.frame(Stim.Effect$contrasts)
+Interaction.Effect.Contr <- as.data.frame(Interaction.Effect$contrasts)
+summary(Interaction.Effect)
+aov.table <- anova(aov.bias.res)
+```
 ### Subjective ratings
-##### Valence Bias with Words
-##### Valence Bias with Faces
-##### Valence Bias with IAPS
-##### IPANAT
+As predicted, there was a significant main effect of Valence on percent negativity for positive (*M* = `r Val.Effect.Means[3,]$emmean`%), negative (*M* = `r Val.Effect.Means[2,]$emmean`%), and ambiguous (*M* = `r Val.Effect.Means[1,]$emmean`%) images (*F*(`r aov.table[c("Val"),]$NumDF`, `r aov.table[c("Val"),]$DenDF`) = `r aov.table[c("Val"),]$'F value'`, *p* = `r aov.table[c("Val"),]$'Pr(>F)'`), such that negative images were rated more negatively than both positive (*t*(`r Val.Effect.Contr[which(Val.Effect.Contr$contrast == "Negative - Positive"), ]$df`) =  `r Val.Effect.Contr[which(Val.Effect.Contr$contrast == "Negative - Positive"), ]$t.ratio`, *p* = `r Val.Effect.Contr[which(Val.Effect.Contr$contrast == "Negative - Positive"), ]$p.value`) and ambiguous images (*t*(`r Val.Effect.Contr[which(Val.Effect.Contr$contrast == "Ambiguous - Negative"), ]$df`) =  `r Val.Effect.Contr[which(Val.Effect.Contr$contrast == "Ambiguous - Negative"), ]$t.ratio`, *p* = `r Val.Effect.Contr[which(Val.Effect.Contr$contrast == "Ambiguous - Negative"), ]$p.value`), and ambiguous images were more negative than positive images (*t*(`r Val.Effect.Contr[which(Val.Effect.Contr$contrast == "Ambiguous - Positive"), ]$df`) =  `r Val.Effect.Contr[which(Val.Effect.Contr$contrast == "Ambiguous - Positive"), ]$t.ratio`, *p* = `r Val.Effect.Contr[which(Val.Effect.Contr$contrast == "Ambiguous - Positive"), ]$p.value`). Additionally, there was a significant main effect of Stimulus on percent negativity for the faces (*M* = `r Stim.Effect.Means[which(Stim.Effect.Means$Stim == "Faces"), ]$emmean`%), scenes (*M* = `r Stim.Effect.Means[which(Stim.Effect.Means$Stim == "Scenes"), ]$emmean`%), and words (*M* = `r Stim.Effect.Means[which(Stim.Effect.Means$Stim == "Words"), ]$emmean`%; (*F*(`r aov.table[c("Stim"),]$NumDF`, `r aov.table[c("Stim"),]$DenDF`) = `r aov.table[c("Stim"),]$'F value'`, *p* = `r aov.table[c("Stim"),]$'Pr(>F)'`), such that faces were rated more negatively than scenes *t*(`r Stim.Effect.Contr[which(Stim.Effect.Contr$contrast == "Faces - Scenes"), ]$df`) =  `r Stim.Effect.Contr[which(Stim.Effect.Contr$contrast == "Faces - Scenes"), ]$t.ratio`, *p* = `r Stim.Effect.Contr[which(Stim.Effect.Contr$contrast == "Faces - Scenes"), ]$p.value`) and words (*M* = `r Stim.Effect.Means[which(Stim.Effect.Means$Stim == "Faces"), ]$emmean`%) and words (*t*(`r Stim.Effect.Contr[which(Stim.Effect.Contr$contrast == "Faces - Words"), ]$df`) =  `r Stim.Effect.Contr[which(Stim.Effect.Contr$contrast == "Faces - Words"), ]$t.ratio`, *p* = `r Stim.Effect.Contr[which(Stim.Effect.Contr$contrast == "Faces - Words"), ]$p.value`), but words were not significantly different from scenes (*t*(`r Stim.Effect.Contr[which(Stim.Effect.Contr$contrast == "Scenes - Words"), ]$df`) =  `r Stim.Effect.Contr[which(Stim.Effect.Contr$contrast == "Scenes - Words"), ]$t.ratio`, *p* = `r Stim.Effect.Contr[which(Stim.Effect.Contr$contrast == "Scenes - Words"), ]$p.value`). These main effects were qualified by a significant interaction of Valence x Stimulus (*F*(`r aov.table[c("Val:Stim"),]$NumDF`, `r aov.table[c("Val:Stim"),]$DenDF`) = `r aov.table[c("Val"),]$'F value'`, *p* = `r aov.table[c("Val:Stim"),]$'Pr(>F)'`), such that negative images were rated as more negative than both positive and ambiguous images in all three stimulus categories (all *p's* < .001), but there were also differences across stimulus categories within each valence condition. Specifically, negative words were rated more negatively than both faces (*t*(`r Interaction.Effect.Contr[which(Interaction.Effect.Contr$contrast == "Negative,Faces - Negative,Words"), ]$df`) =  `r Interaction.Effect.Contr[which(Interaction.Effect.Contr$contrast == "Negative,Faces - Negative,Words"), ]$t.ratio`, *p* = `r Interaction.Effect.Contr[which(Interaction.Effect.Contr$contrast == "Negative,Faces - Negative,Words"), ]$p.value`; Bonferroni corrected significance for these analyses p < `r .05/18`) and scenes (*t*(`r Interaction.Effect.Contr[which(Interaction.Effect.Contr$contrast == "Negative,Scenes - Negative,Words"), ]$df`) =  `r Interaction.Effect.Contr[which(Interaction.Effect.Contr$contrast == "Negative,Scenes - Negative,Words"), ]$t.ratio`, *p* = `r Interaction.Effect.Contr[which(Interaction.Effect.Contr$contrast == "Negative,Scenes - Negative,Words"), ]$p.value`), but faces and scenes did not differ after correcting for multiple comparisons (*t*(`r Interaction.Effect.Contr[which(Interaction.Effect.Contr$contrast == "Negative,Faces - Negative,Scenes"), ]$df`) =  `r Interaction.Effect.Contr[which(Interaction.Effect.Contr$contrast == "Negative,Faces - Negative,Scenes"), ]$t.ratio`, *p* = `r Interaction.Effect.Contr[which(Interaction.Effect.Contr$contrast == "Negative,Faces - Negative,Scenes"), ]$p.value`). Further, ambiguous faces were rated more negatively than both scenes (*t*(`r Interaction.Effect.Contr[which(Interaction.Effect.Contr$contrast == "Ambiguous,Faces - Ambiguous,Scenes"), ]$df`) =  `r Interaction.Effect.Contr[which(Interaction.Effect.Contr$contrast == "Ambiguous,Faces - Ambiguous,Scenes"), ]$t.ratio`, *p* = `r Interaction.Effect.Contr[which(Interaction.Effect.Contr$contrast == "Ambiguous,Faces - Ambiguous,Scenes"), ]$p.value`) and words (*t*(`r Interaction.Effect.Contr[which(Interaction.Effect.Contr$contrast == "Ambiguous,Faces - Ambiguous,Words"), ]$df`) =  `r Interaction.Effect.Contr[which(Interaction.Effect.Contr$contrast == "Ambiguous,Faces - Ambiguous,Words"), ]$t.ratio`, *p* = `r Interaction.Effect.Contr[which(Interaction.Effect.Contr$contrast == "Ambiguous,Faces - Ambiguous,Words"), ]$p.value`), but scenes and words did not differ after correcting for multiple comparisons (*t*(`r Interaction.Effect.Contr[which(Interaction.Effect.Contr$contrast == "Ambiguous,Scenes - Ambiguous,Words"), ]$df`) =  `r Interaction.Effect.Contr[which(Interaction.Effect.Contr$contrast == "Ambiguous,Scenes - Ambiguous,Words"), ]$t.ratio`, *p* = `r Interaction.Effect.Contr[which(Interaction.Effect.Contr$contrast == "Ambiguous,Scenes - Ambiguous,Words"), ]$p.value`). There were no significant differences in negativity across stimulus categories for positively valenced stimuli (all *p's* > .172). 
+``` {r, include = F}
+### assess normality ###
+shapiro.test(full$sur_rate) ## non-normal
+shapiro.test(full$amb_rate) # normal
+shapiro.test(full$amw_rate) # normal
+shapiro.test(full$age)
+
+### quick correlations ###
+cor.test(full$sur_rate, full$amw_rate, use = "complete.obs", method = "spearman")
+cor.test(full$amb_rate, full$amw_rate, use = "complete.obs")
+cor.test(full$sur_rate, full$amb_rate, use = "complete.obs", method = "spearman")
+
+### correlations controlling for age and sex ###
+pcor.test(full$sur_rate, full$amw_rate, c(full$age, full$mal0fem1))
+pcor.test(full$amb_rate, full$amw_rate, c(full$age, full$mal0fem1))
+pcor.test(full$sur_rate, full$amb_rate, c(full$age, full$mal0fem1))
+
+```
+Next, we tested for relationships among valence bias for faces, scenes, and words within participants while controlling for age and gender. Replicating previous work [@neta_neural_2013], there was a positive relationship between categorizations of ambiguous stimuli for the faces and scenes...  
 
 ### Reaction times
 ##### Valence Bias with Words
 ##### Valence Bias with Faces
 ##### Valence Bias with IAPS
-##### IPANAT
+
 
 ### Relationships between the measures
 
