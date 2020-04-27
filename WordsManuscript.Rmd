@@ -50,6 +50,8 @@ output            : papaja::apa6_word
 library("papaja")
 library(emmeans)
 library(lme4)
+### set contrasts
+ options(contrasts=c("contr.sum","contr.poly"))
 ```
 
 ```{r analysis-preferences, include = FALSE}
@@ -202,9 +204,86 @@ Stim.Effect.Contr <- as.data.frame(Stim.Effect$contrasts)
 Interaction.Effect.Contr <- as.data.frame(Interaction.Effect$contrasts)
 summary(Interaction.Effect)
 aov.table <- anova(aov.bias.res)
+aov.table2 <- car::Anova(aov.bias.res, type = "III")
+
 ```
+### Manipulation check
+Confirming our prediction that response consensus for the ambiguous words would be lower than that of the clearly valenced (positive and negative) words, a paired sample t-test showed that standard deviations of ambiguous words (M = ```r ``` SD = ```r ```)were higher than those of the clearly valenced words (M = SD = ; t(df) = X, p = X). 
+``` {r, include = F}
+AmbWordResponseMatrix <- Resp.matrix[grep("ambiguous_WORD", rownames(Resp.matrix)), ]
+ClearWordResponseMatrix <- Resp.matrix[grep("positive_WORD", rownames(Resp.matrix)), ]
+ClearWordResponseMatrix <- rbind(ClearWordResponseMatrix,
+                                 Resp.matrix[grep("negative_WORD", rownames(Resp.matrix)), ])
+### note that one of the clear words has NA SD.. bc no variability.. 
+### recode to be SD = 0
+ClearWordResponseMatrix$stimSDs <- replace_na(ClearWordResponseMatrix$stimSDs, 0)
+mean(AmbWordResponseMatrix$stimSDs)
+sd(AmbWordResponseMatrix$stimSDs)
+mean(ClearWordResponseMatrix$stimSDs)
+sd(ClearWordResponseMatrix$stimSDs)
+
+t.test(AmbWordResponseMatrix$stimSDs, ClearWordResponseMatrix$stimSDs, paired = T)
+```
+
 ### Subjective ratings
 As predicted, there was a significant main effect of Valence on percent negativity for positive (*M* = `r Val.Effect.Means[3,]$emmean`%), negative (*M* = `r Val.Effect.Means[2,]$emmean`%), and ambiguous (*M* = `r Val.Effect.Means[1,]$emmean`%) images (*F*(`r aov.table[c("Val"),]$NumDF`, `r aov.table[c("Val"),]$DenDF`) = `r aov.table[c("Val"),]$'F value'`, *p* = `r aov.table[c("Val"),]$'Pr(>F)'`), such that negative images were rated more negatively than both positive (*t*(`r Val.Effect.Contr[which(Val.Effect.Contr$contrast == "Negative - Positive"), ]$df`) =  `r Val.Effect.Contr[which(Val.Effect.Contr$contrast == "Negative - Positive"), ]$t.ratio`, *p* = `r Val.Effect.Contr[which(Val.Effect.Contr$contrast == "Negative - Positive"), ]$p.value`) and ambiguous images (*t*(`r Val.Effect.Contr[which(Val.Effect.Contr$contrast == "Ambiguous - Negative"), ]$df`) =  `r Val.Effect.Contr[which(Val.Effect.Contr$contrast == "Ambiguous - Negative"), ]$t.ratio`, *p* = `r Val.Effect.Contr[which(Val.Effect.Contr$contrast == "Ambiguous - Negative"), ]$p.value`), and ambiguous images were more negative than positive images (*t*(`r Val.Effect.Contr[which(Val.Effect.Contr$contrast == "Ambiguous - Positive"), ]$df`) =  `r Val.Effect.Contr[which(Val.Effect.Contr$contrast == "Ambiguous - Positive"), ]$t.ratio`, *p* = `r Val.Effect.Contr[which(Val.Effect.Contr$contrast == "Ambiguous - Positive"), ]$p.value`). Additionally, there was a significant main effect of Stimulus on percent negativity for the faces (*M* = `r Stim.Effect.Means[which(Stim.Effect.Means$Stim == "Faces"), ]$emmean`%), scenes (*M* = `r Stim.Effect.Means[which(Stim.Effect.Means$Stim == "Scenes"), ]$emmean`%), and words (*M* = `r Stim.Effect.Means[which(Stim.Effect.Means$Stim == "Words"), ]$emmean`%; (*F*(`r aov.table[c("Stim"),]$NumDF`, `r aov.table[c("Stim"),]$DenDF`) = `r aov.table[c("Stim"),]$'F value'`, *p* = `r aov.table[c("Stim"),]$'Pr(>F)'`), such that faces were rated more negatively than scenes *t*(`r Stim.Effect.Contr[which(Stim.Effect.Contr$contrast == "Faces - Scenes"), ]$df`) =  `r Stim.Effect.Contr[which(Stim.Effect.Contr$contrast == "Faces - Scenes"), ]$t.ratio`, *p* = `r Stim.Effect.Contr[which(Stim.Effect.Contr$contrast == "Faces - Scenes"), ]$p.value`) and words (*M* = `r Stim.Effect.Means[which(Stim.Effect.Means$Stim == "Faces"), ]$emmean`%) and words (*t*(`r Stim.Effect.Contr[which(Stim.Effect.Contr$contrast == "Faces - Words"), ]$df`) =  `r Stim.Effect.Contr[which(Stim.Effect.Contr$contrast == "Faces - Words"), ]$t.ratio`, *p* = `r Stim.Effect.Contr[which(Stim.Effect.Contr$contrast == "Faces - Words"), ]$p.value`), but words were not significantly different from scenes (*t*(`r Stim.Effect.Contr[which(Stim.Effect.Contr$contrast == "Scenes - Words"), ]$df`) =  `r Stim.Effect.Contr[which(Stim.Effect.Contr$contrast == "Scenes - Words"), ]$t.ratio`, *p* = `r Stim.Effect.Contr[which(Stim.Effect.Contr$contrast == "Scenes - Words"), ]$p.value`). These main effects were qualified by a significant interaction of Valence x Stimulus (*F*(`r aov.table[c("Val:Stim"),]$NumDF`, `r aov.table[c("Val:Stim"),]$DenDF`) = `r aov.table[c("Val"),]$'F value'`, *p* = `r aov.table[c("Val:Stim"),]$'Pr(>F)'`), such that negative images were rated as more negative than both positive and ambiguous images in all three stimulus categories (all *p's* < .001), but there were also differences across stimulus categories within each valence condition. Specifically, negative words were rated more negatively than both faces (*t*(`r Interaction.Effect.Contr[which(Interaction.Effect.Contr$contrast == "Negative,Faces - Negative,Words"), ]$df`) =  `r Interaction.Effect.Contr[which(Interaction.Effect.Contr$contrast == "Negative,Faces - Negative,Words"), ]$t.ratio`, *p* = `r Interaction.Effect.Contr[which(Interaction.Effect.Contr$contrast == "Negative,Faces - Negative,Words"), ]$p.value`; Bonferroni corrected significance for these analyses p < `r .05/18`) and scenes (*t*(`r Interaction.Effect.Contr[which(Interaction.Effect.Contr$contrast == "Negative,Scenes - Negative,Words"), ]$df`) =  `r Interaction.Effect.Contr[which(Interaction.Effect.Contr$contrast == "Negative,Scenes - Negative,Words"), ]$t.ratio`, *p* = `r Interaction.Effect.Contr[which(Interaction.Effect.Contr$contrast == "Negative,Scenes - Negative,Words"), ]$p.value`), but faces and scenes did not differ after correcting for multiple comparisons (*t*(`r Interaction.Effect.Contr[which(Interaction.Effect.Contr$contrast == "Negative,Faces - Negative,Scenes"), ]$df`) =  `r Interaction.Effect.Contr[which(Interaction.Effect.Contr$contrast == "Negative,Faces - Negative,Scenes"), ]$t.ratio`, *p* = `r Interaction.Effect.Contr[which(Interaction.Effect.Contr$contrast == "Negative,Faces - Negative,Scenes"), ]$p.value`). Further, ambiguous faces were rated more negatively than both scenes (*t*(`r Interaction.Effect.Contr[which(Interaction.Effect.Contr$contrast == "Ambiguous,Faces - Ambiguous,Scenes"), ]$df`) =  `r Interaction.Effect.Contr[which(Interaction.Effect.Contr$contrast == "Ambiguous,Faces - Ambiguous,Scenes"), ]$t.ratio`, *p* = `r Interaction.Effect.Contr[which(Interaction.Effect.Contr$contrast == "Ambiguous,Faces - Ambiguous,Scenes"), ]$p.value`) and words (*t*(`r Interaction.Effect.Contr[which(Interaction.Effect.Contr$contrast == "Ambiguous,Faces - Ambiguous,Words"), ]$df`) =  `r Interaction.Effect.Contr[which(Interaction.Effect.Contr$contrast == "Ambiguous,Faces - Ambiguous,Words"), ]$t.ratio`, *p* = `r Interaction.Effect.Contr[which(Interaction.Effect.Contr$contrast == "Ambiguous,Faces - Ambiguous,Words"), ]$p.value`), but scenes and words did not differ after correcting for multiple comparisons (*t*(`r Interaction.Effect.Contr[which(Interaction.Effect.Contr$contrast == "Ambiguous,Scenes - Ambiguous,Words"), ]$df`) =  `r Interaction.Effect.Contr[which(Interaction.Effect.Contr$contrast == "Ambiguous,Scenes - Ambiguous,Words"), ]$t.ratio`, *p* = `r Interaction.Effect.Contr[which(Interaction.Effect.Contr$contrast == "Ambiguous,Scenes - Ambiguous,Words"), ]$p.value`). There were no significant differences in negativity across stimulus categories for positively valenced stimuli (all *p's* > .172). 
+``` {r, include = F}
+### REACTION TIME ###
+library(lmerTest)
+### make data long ###
+aov.RT.data <- gather(v2_data.summary, Condition, RT,
+                        ang_rt, hap_rt, sur_rt,
+                        neg_rt, pos_rt, amb_rt,
+                        new_rt, pow_rt, amw_rt)
+
+aov.RT.data$Val <- dplyr::recode(aov.RT.data$Condition,
+                                   "ang_rt" = "Negative",
+                                   "neg_rt" = "Negative",
+                                   "new_rt" = "Negative",
+                                   "hap_rt" = "Positive",
+                                   "pos_rt" = "Positive",
+                                   "pow_rt" = "Positive",
+                                   "sur_rt" = "Ambiguous",
+                                   "amb_rt" = "Ambiguous",
+                                   "amw_rt" = "Ambiguous")
+aov.RT.data$Stim <- dplyr::recode(aov.RT.data$Condition,
+                                   "ang_rt" = "Faces",
+                                   "neg_rt" = "Scenes",
+                                   "new_rt" = "Words",
+                                   "hap_rt" = "Faces",
+                                   "pos_rt" = "Scenes",
+                                   "pow_rt" = "Words",
+                                   "sur_rt" = "Faces",
+                                   "amb_rt" = "Scenes",
+                                   "amw_rt" = "Words")
+
+### run 3 x 3 ANOVA ###
+aov.RT.res <- lmer(RT ~ Val * Stim + (1 | Participant.Public.ID),
+                     aov.RT.data, REML = F)
+
+### summarise results ###
+summary(aov.RT.res)
+# install.packages("afex")
+### probe main effect: Val ###
+Val.Effect <- emmeans(aov.RT.res, pairwise ~ Val, adjust = "none")
+Stim.Effect <- emmeans(aov.RT.res, pairwise ~ Stim, adjust = "none")
+Interaction.Effect <- emmeans(aov.RT.res, pairwise ~ Val:Stim, adjust = "none")
+
+Val.Effect.Means <- as.data.frame(Val.Effect$emmeans)
+Stim.Effect.Means <- as.data.frame(Stim.Effect$emmeans)
+Interaction.Effect.Means <- as.data.frame(Interaction.Effect$emmeans)
+
+Val.Effect.Contr <- as.data.frame(Val.Effect$contrasts)
+Stim.Effect.Contr <- as.data.frame(Stim.Effect$contrasts)
+Interaction.Effect.Contr <- as.data.frame(Interaction.Effect$contrasts)
+
+summary(Interaction.Effect)
+aov.table <- anova(aov.RT.res)
+aov.table2 <- car::Anova(aov.RT.res, type = "III")
+```
+
+
+
 ``` {r, include = F}
 ### assess normality ###
 shapiro.test(full$sur_rate) ## non-normal
@@ -213,14 +292,40 @@ shapiro.test(full$amw_rate) # normal
 shapiro.test(full$age)
 
 ### quick correlations ###
-cor.test(full$sur_rate, full$amw_rate, use = "complete.obs", method = "spearman")
+# cor.test(full$sur_rate, full$amw_rate, use = "complete.obs", method = "spearman")
 cor.test(full$amb_rate, full$amw_rate, use = "complete.obs")
-cor.test(full$sur_rate, full$amb_rate, use = "complete.obs", method = "spearman")
+# cor.test(full$sur_rate, full$amb_rate, use = "complete.obs", method = "spearman")
 
 ### correlations controlling for age and sex ###
-pcor.test(full$sur_rate, full$amw_rate, c(full$age, full$mal0fem1))
+pcor.test(full$sur_rate, full$amw_rate, c(full$age, full$mal0fem1), method = "spearman")
 pcor.test(full$amb_rate, full$amw_rate, c(full$age, full$mal0fem1))
-pcor.test(full$sur_rate, full$amb_rate, c(full$age, full$mal0fem1))
+pcor.test(full$sur_rate, full$amb_rate, c(full$age, full$mal0fem1), method = "spearman")
+
+### plot correlations ###
+### get residuals ###
+sur_resid<-resid(lm(sur_rate~age + mal0fem1,full))
+amw_resid<-resid(lm(amw_rate~age + mal0fem1,full))
+amb_resid<-resid(lm(amb_rate~age + mal0fem1, full))
+
+a <- ggplot(full, aes(x=sur_resid, y=amw_resid)) +
+geom_point() +
+labs(x="Surprise Ratings", y = "Word Ratings")+
+geom_smooth(method=lm) +
+theme_classic()
+
+b <- ggplot(full, aes(x=sur_resid, y=amb_resid)) +
+geom_point() +
+labs(x="Surprise Ratings", y = "Scene Ratings")+
+geom_smooth(method=lm) +
+theme_classic()
+
+c <- ggplot(full, aes(x=amb_resid, y=amw_resid)) +
+geom_point() +
+labs(x="Scene Ratings", y = "Word Ratings")+
+geom_smooth(method=lm) +
+theme_classic()
+library(ggpubr)
+ggarrange(a, b, c)
 
 ```
 Next, we tested for relationships among valence bias for faces, scenes, and words within participants while controlling for age and gender. Replicating previous work [@neta_neural_2013], there was a positive relationship between categorizations of ambiguous stimuli for the faces and scenes...  

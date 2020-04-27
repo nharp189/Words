@@ -7,7 +7,7 @@ setwd(path)
 source("data_cleaning_nh.R")
 
 library(openxlsx)
-
+(Interaction.Effect$contrasts)
 # ### make item-level data ###
 # ### each word is a row and each subject is a column ###
 # split.data <- split(data, data$subjID)
@@ -29,13 +29,14 @@ neg.words <- subset(words.summary, words.summary$neg.avg >= .75)
 
 ### plot the words between .25 and .75 neg.avg ###
 ggplot(aes(x = wordlist, y = RT, color = Val), data = subset(words.summary, (words.summary$neg.avg <= .75 & words.summary$neg.avg >= .25))) +
-  geom_point(stat = "identity")
+  geom_point(stat = "identity") +
+  geom_hline(yintercept = 875)
 
-### plot the words between .25 and .75 neg.avg ###
+### plot the words less than .25 avg ###
 ggplot(aes(x = wordlist, y = RT, color = Val), data = subset(words.summary, (words.summary$neg.avg <= .25))) +
   geom_point(stat = "identity")
 
-### plot the words between .25 and .75 neg.avg ###
+### plot the words between greater than .75 neg.avg ###
 ggplot(aes(x = wordlist, y = RT, color = Val), data = subset(words.summary, (words.summary$neg.avg >= .75))) +
   geom_point(stat = "identity")
 

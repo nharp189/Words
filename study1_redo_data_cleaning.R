@@ -76,7 +76,8 @@ suppressPackageStartupMessages(library(htmlwidgets))
              "4233.jpg", "6410.jpg", "7430.jpg",
              "7620.jpg", "8010.jpg", "8501.jpg")
 }
-
+temp <- c(face1, face2)
+temp <- as.data.frame(temp)
 ###################################################
 
 #### read in the demographics data ###
@@ -403,7 +404,7 @@ v2_data <- merge(v2_data, v2_data.rm, by = "Participant.Public.ID")
 v2_data <- v2_data[(v2_data$trials > 120),]
 
 ### make "positive" 0 and "negative" 1 ###
-v2_data$rate <- recode(v2_data$Response,
+v2_data$rate <- dplyr::recode(v2_data$Response,
                        "positive" = 0,
                        "negative" = 1)
 
@@ -530,6 +531,12 @@ temp$age <- as.numeric(temp$age)
 
 ### drop unnecessary columns ###
 temp <- temp[, c(1, 3, 40:202)]
+Resp.matrix <- temp
+Resp.matrix <- Resp.matrix[, c(4:163)]
+Resp.matrix <- as.data.frame(t(Resp.matrix))
+Resp.matrix$stimMeans <- rowMeans(Resp.matrix, na.rm = T)
+Resp.matrix$stimSDs <- apply(Resp.matrix[,1:6],1,sd)
+
 RT.matrix <- RT.matrix[, c(1, 3, 40:200)]
 ### write out response matrix ###
 # write.csv(temp, "~/Desktop/subj_response_matrix.csv", row.names = F)
