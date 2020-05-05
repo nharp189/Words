@@ -154,6 +154,10 @@ Preregistration is available at the Open Science Framework website (osf.io/LINK)
 ## Results
 ``` {r, include = F}
 library(lmerTest)
+
+### set contrasts ###
+options(contrasts = c("contr.sum","contr.poly"))
+
 ### make data long ###
 aov.bias.data <- gather(v2_data.summary, Condition, PerNeg,
                         ang_rate, hap_rate, sur_rate,
@@ -184,12 +188,26 @@ aov.bias.data$Stim <- dplyr::recode(aov.bias.data$Condition,
 aov.bias.data$PerNeg <- aov.bias.data$PerNeg * 100
 
 ### run 3 x 3 ANOVA ###
-aov.bias.res <- lmer(PerNeg ~ Val * Stim + (1 | Participant.Public.ID),
+aov.bias.res <- lmer(PerNeg ~ Val * Stim + (1 | Participant.Public.ID) +
+                       (1 | Participant.Public.ID:Val) + (1 | Participant.Public.ID:Stim),
                      aov.bias.data, REML = F)
+aov(PerNeg ~ Val * Stim + (1 | Participant.Public.ID) +
+                       (1 | Participant.Public.ID:Val) + (1 | Participant.Public.ID:Stim),
+                     aov.bias.data,)
 
+t.test(aov.bias.data$PerNeg[which(aov.bias.data$Val) == "Negative"])
+summary(pairwise.t.test(aov.bias.data$PerNeg, aov.bias.data$Condition))
 ### summarise results ###
 summary(aov.bias.res)
-# install.packages("afex")
+summary(aov(PerNeg ~ Val * Stim + Error(Participant.Public.ID/(Val * Stim)), data=aov.bias.data))
+
+anova(aov.bias.res, type = "III")
+
+write.csv(v2_data.summary, "~/Desktop/Experiment1Data.csv")
+lsmeans(aov.bias.res, pairwise ~ Val, adjust = "none")
+emmeans(aov.bias.res, pairwise ~ Stim, adjust = "none")
+lsmeans(aov.bias.res, pairwise ~ Val:Stim, adjust = "none")
+
 ### probe main effect: Val ###
 Val.Effect <- emmeans(aov.bias.res, pairwise ~ Val, adjust = "none")
 Stim.Effect <- emmeans(aov.bias.res, pairwise ~ Stim, adjust = "none")
