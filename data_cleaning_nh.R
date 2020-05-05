@@ -144,6 +144,13 @@ words.summary <- merge(words.summary, final, by = "wordlist")
 # write.csv(words.summary, "~/Documents/Nick-Grad/Neta_Lab/Words/words.summary.csv")
 write.csv(words.summary,paste(path,"words.summary",'.csv',sep = ''))
 
+### pick words b/w 30% and 70% negative and above 875ms ###
+temp <- subset(words.summary, words.summary$RT > 875 & (words.summary$neg.avg <= .70 & words.summary$neg.avg >= .30))
+
+
+write.csv(temp, "words.summary.above875ms.csv")
+
+
 # list <- count(data2$`Participant Public ID`)
 # count(list$freq < (627/2))
 

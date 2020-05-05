@@ -60,6 +60,9 @@ write.csv(amb.words, "amb.words.csv")
 final.words <- read.xlsx("From_Maital/words_2019-08-31_MN.xlsx", sheet = 2)
 count(final.words, Val)
 
+temp <- subset(words.summary, words.summary$wordlist %in% subset(final.words, (final.words$Val == "POS" | final.words$Val == "NEG"))$wordlist)
+write.csv(temp, "words.summary_Clear.csv")
+
 ### t.test for length ###
 t.test((subset(final.words, Val == "AMB")$Length), (subset(final.words, Val == "POS")$Length))
 t.test((subset(final.words, Val == "AMB")$Length), (subset(final.words, Val == "NEG")$Length))
