@@ -3,6 +3,7 @@ nhpath <- "~/Documents/Nick-Grad/Neta_Lab/words/data/study1_redo_data/"
 cbpath <- "~/Documents/Github/words/data/study1_redo_data/"
 setwd(nhpath)
 
+{
 ### load packages ###
 suppressPackageStartupMessages(library(tidyverse))
 suppressPackageStartupMessages(library(plyr))
@@ -18,6 +19,7 @@ suppressPackageStartupMessages(library(htmlwidgets))
    # to download/install specific packages
    # https://sourceforge.net/projects/mcmc-jags/
    # http://macappstore.org/gsl/
+}
 
 ### set stim lists ###
 {
@@ -76,19 +78,19 @@ suppressPackageStartupMessages(library(htmlwidgets))
              "4233.jpg", "6410.jpg", "7430.jpg",
              "7620.jpg", "8010.jpg", "8501.jpg")
 }
-temp <- c(face1, face2)
-temp <- as.data.frame(temp)
+
 ###################################################
 
+{
 #### read in the demographics data ###
 v2_demo <- read.csv("data_exp_10365-v2_questionnaire-rok5.csv")
 v4_demo <- read.csv("data_exp_10365-v4_questionnaire-rok5.csv")
 v5_demo <- read.csv("data_exp_10365-v5_questionnaire-rok5.csv")
 
 ### pull relevant columns, then combine ###
-v2_demo <- v2_demo[, c("Participant.Public.ID", "sex", "age","race")]
-v4_demo <- v4_demo[, c("Participant.Public.ID", "sex", "age","race")]
-v5_demo <- v5_demo[, c("Participant.Public.ID", "sex", "age","race")]
+v2_demo <- v2_demo[, c("Participant.Public.ID", "sex", "age","race", "Participant.Completion.Code")]
+v4_demo <- v4_demo[, c("Participant.Public.ID", "sex", "age","race", "Participant.Completion.Code")]
+v5_demo <- v5_demo[, c("Participant.Public.ID", "sex", "age","race", "Participant.Completion.Code")]
 v2_demo <- rbind(v2_demo,v4_demo,v5_demo)
 remove(v4_demo,v5_demo)
 
@@ -279,10 +281,12 @@ rm(v2_dhn3, v2_uyls, v2_7sqx,
    v5_7f4u, v5_b86o, v5_udom,
    v5_x6ib, v5_shzk, 
    v5_dko9, v5_data)
+}
 
 v2_data <- v2_data[!(v2_data$Event.Index == "END OF FILE"), ]
 
 ### set up the stim list based on order assignment ###
+{
 v2_data_ord1 <- subset(v2_data, counterbalance.m678 == "order1" | 
                          counterbalance.bi4u == "order1" |
                          counterbalance.dozd == "order1" |
@@ -375,18 +379,13 @@ drop <- c("order1", "order2","order3", "order4", "order5", "order6", "order7",
 ### these contain NA's in stim pres ###
 v2_data <- v2_data[ , !(names(v2_data) %in% drop)]
 v2_data <- v2_data[!is.na(v2_data$stim.pres), ]
+}
 
 ### add stim type factor label ###
 v2_data$stimtype <- ifelse(v2_data$stim.pres %in% c(face1, face2), "FACE",
                                   ifelse(v2_data$stim.pres %in% c(words1, words2), "WORD",
                                          ifelse(v2_data$stim.pres %in% c(iaps1, iaps2), "IAPS", "")))
-
-### drop trials w/ responses in less than 200ms ###
-v2_data$Reaction.Time <- as.numeric(v2_data$Reaction.Time)
-v2_data$RT.Outl <- ifelse((v2_data$Reaction.Time <= 250 & v2_data$Screen.Name == "stim"), 1, 0)
-outliers <- subset(v2_data, RT.Outl == 1)
-v2_data <- subset(v2_data, RT.Outl == 0)
-table(outliers$Participant.Public.ID)
+plyr::count(v2_data$Participant.Public.ID)
 
 ### keep first response only ###
 v2_data$flag <- ifelse(v2_data$Attempt >= 2, 1, 0)
@@ -394,14 +393,24 @@ v2_data$flag <- ifelse(v2_data$Attempt >= 2, 1, 0)
 v2_data <- subset(v2_data, flag == 0)
 
 ### display number of trials for each participant ###
-table(v2_data$Participant.Public.ID)
+res <- plyr::count(v2_data$Participant.Public.ID)
+
+### drop trials w/ responses in less than 200ms ###
+v2_data$Reaction.Time <- as.numeric(v2_data$Reaction.Time)
+mean(v2_data$Reaction.Time) + (3*sd(v2_data$Reaction.Time))
+
+v2_data$RT.Outl <- ifelse(((v2_data$Reaction.Time <= 250 | v2_data$Reaction.Time >= 1445.037) & v2_data$Screen.Name == "stim"), 1, 0)
+outliers <- subset(v2_data, RT.Outl == 1)
+v2_data <- subset(v2_data, RT.Outl == 0)
+table(outliers$Participant.Public.ID)
+
 
 ### remove subject if fewer than 75% of trials have a response ###
 ### v2_data.rm = starting a list of removed sjs to replace w/ correct age category ###
 v2_data.rm <- as.data.frame(table(v2_data$Participant.Public.ID))
 names(v2_data.rm) <- c("Participant.Public.ID", "trials")
 v2_data <- merge(v2_data, v2_data.rm, by = "Participant.Public.ID")
-v2_data <- v2_data[(v2_data$trials > 120),]
+# v2_data <- v2_data[(v2_data$trials > 119),]
 
 ### make "positive" 0 and "negative" 1 ###
 v2_data$rate <- dplyr::recode(v2_data$Response,
@@ -450,7 +459,9 @@ v2_data.summary <- (ddply(v2_data, "Participant.Public.ID", summarise,
                           amw_rate = mean(rate[which(stimtype == "WORD" & clearval == "ambiguous")], na.rm = TRUE),
                           pow_rate = mean(rate[which(stimtype == "WORD" & clearval == "positive")], na.rm = TRUE),
                           new_rate = mean(rate[which(stimtype == "WORD" & clearval == "negative")], na.rm = TRUE),
-                          all_rate = mean(rate[which(clearval == "ambiguous")], na.rm = TRUE),
+                          all_amb_rate = mean(rate[which(clearval == "ambiguous")], na.rm = TRUE),
+                          all_pos_rate = mean(rate[which(clearval == "positive")], na.rm = TRUE),
+                          all_neg_rate = mean(rate[which(clearval == "negative")], na.rm = TRUE),
                           sur_rt = mean(Reaction.Time[which(stimtype == "FACE" & clearval == "ambiguous")], na.rm = TRUE),
                           hap_rt = mean(Reaction.Time[which(stimtype == "FACE" & clearval == "positive")], na.rm = TRUE),
                           ang_rt = mean(Reaction.Time[which(stimtype == "FACE" & clearval == "negative")], na.rm = TRUE),
@@ -461,11 +472,11 @@ v2_data.summary <- (ddply(v2_data, "Participant.Public.ID", summarise,
                           pow_rt = mean(Reaction.Time[which(stimtype == "WORD" & clearval == "positive")], na.rm = TRUE),
                           new_rt = mean(Reaction.Time[which(stimtype == "WORD" & clearval == "negative")], na.rm = TRUE),
                           sur_neg_rt = mean(Reaction.Time[which(stimtype == "FACE" & clearval == "ambiguous" & rate ==1)], na.rm = TRUE),
-                          sur_pos_rt = mean(Reaction.Time[which(stimtype == "FACE" & clearval == "ambiguous" & rate ==1)], na.rm = TRUE),
-                          amb_neg_rt = mean(Reaction.Time[which(stimtype == "FACE" & clearval == "ambiguous" & rate ==1)], na.rm = TRUE),
-                          amb_pos_rt = mean(Reaction.Time[which(stimtype == "FACE" & clearval == "ambiguous" & rate ==1)], na.rm = TRUE),
-                          amw_neg_rt = mean(Reaction.Time[which(stimtype == "FACE" & clearval == "ambiguous" & rate ==1)], na.rm = TRUE),
-                          amw_pos_rt = mean(Reaction.Time[which(stimtype == "FACE" & clearval == "ambiguous" & rate ==1)], na.rm = TRUE)))
+                          sur_pos_rt = mean(Reaction.Time[which(stimtype == "FACE" & clearval == "ambiguous" & rate ==0)], na.rm = TRUE),
+                          amb_neg_rt = mean(Reaction.Time[which(stimtype == "IAPS" & clearval == "ambiguous" & rate ==1)], na.rm = TRUE),
+                          amb_pos_rt = mean(Reaction.Time[which(stimtype == "IAPS" & clearval == "ambiguous" & rate ==0)], na.rm = TRUE),
+                          amw_neg_rt = mean(Reaction.Time[which(stimtype == "WORD" & clearval == "ambiguous" & rate ==1)], na.rm = TRUE),
+                          amw_pos_rt = mean(Reaction.Time[which(stimtype == "WORD" & clearval == "ambiguous" & rate ==0)], na.rm = TRUE)))
 
 ### double check that data wrangling worked and the values are correct ###
 test <- dplyr::select(temp, Participant.Public.ID, stim_ambiguous_FACE_01F_SP_O.jpg:stim_ambiguous_FACE_AM35SUS.JPG)
@@ -503,47 +514,70 @@ test$Participant.Public.ID <- as.character(test$Participant.Public.ID)
 # v2_data.blocksummary$badblocks <- ifelse((v2_data.blocksummary$clearval == "negative" & v2_data.blocksummary$mean <= .6),1,
 #                                          ifelse((v2_data.blocksummary$clearval == "positive" & v2_data.blocksummary$mean >= .4),1,0))
 
-### count the bad responders ###
-{v2_data.summary$bad <- ifelse(v2_data.summary$hap_rate > .4, 1,
-                        ifelse(v2_data.summary$ang_rate < .6, 1,
-                               ifelse(v2_data.summary$pos_rate > .4, 1,
-                                      ifelse(v2_data.summary$neg_rate < .6, 1,
-                                             ifelse(v2_data.summary$pow_rate > .4, 1,
-                                                    ifelse(v2_data.summary$new_rate < .6, 1,0))))))
-sum(v2_data.summary$bad)}
-
-### add bad responders to list of removed sjs, get demographics ###
-v2_data.rm <- v2_data.rm[(v2_data.rm$trials >119),]
-v2_data.rm$rm_rate <- v2_data.summary$bad
-v2_data.rm <- v2_data.rm[which(v2_data.rm$trials < 120 | v2_data.rm$rm_rate == 1),]
-v2_data.rm <- merge(v2_data.rm, v2_demo, by = "Participant.Public.ID")
+## count the bad responders ###
+v2_data.summary$face_bad <- ifelse(v2_data.summary$hap_rate > .4 | v2_data.summary$ang_rate < .6, 1, 0)
+v2_data.summary$iaps_bad <- ifelse(v2_data.summary$pos_rate > .4 | v2_data.summary$neg_rate < .6, 1, 0)
+v2_data.summary$word_bad <- ifelse(v2_data.summary$pow_rate > .4 | v2_data.summary$new_rate < .6, 1, 0)
+  
+v2_data.summary$bad <- rowSums(v2_data.summary[, c("face_bad", "iaps_bad", "word_bad")], na.rm = T)
 
 
+remove <- subset(v2_data.summary, v2_data.summary$bad >= 2)
+table(v2_data.summary$bad)
 ### remove subject if bad responser ###
-v2_data.summary <- v2_data.summary[(v2_data.summary$bad != 1),]
+v2_data.summary <- v2_data.summary[(v2_data.summary$bad < 2),]
+
+
+### now treat bad data as "missing" ###
+v2_data.summary_badface <- subset(v2_data.summary, v2_data.summary$face_bad == 1)
+v2_data.summary_badiaps <- subset(v2_data.summary, v2_data.summary$iaps_bad == 1)
+v2_data.summary_badword <- subset(v2_data.summary, v2_data.summary$word_bad == 1)
+
+v2_data.summary_badface[, c("sur_rate", "hap_rate", "ang_rate",
+                            "all_amb_rate", "all_pos_rate", "all_neg_rate",
+                            "sur_rt", "hap_rt", "ang_rt", "sur_neg_rt", "sur_pos_rt")] <- NA
+
+v2_data.summary_badiaps[, c("amb_rate", "pos_rate", "neg_rate",
+                            "all_amb_rate", "all_pos_rate", "all_neg_rate",
+                            "amb_rt", "pos_rt", "neg_rt", "amb_neg_rt", "amb_pos_rt")] <- NA
+
+v2_data.summary_badword[, c("amw_rate", "pow_rate", "new_rate",
+                            "all_amb_rate", "all_pos_rate", "all_neg_rate",
+                            "amw_rt", "pow_rt", "new_rt", "amw_neg_rt", "amw_pos_rt")] <- NA
+
+replace <- rbind(v2_data.summary_badface, v2_data.summary_badiaps, v2_data.summary_badword)
+
+v2_data.summary <- subset(v2_data.summary, !(v2_data.summary$Participant.Public.ID %in% replace$Participant.Public.ID))
+v2_data.summary <- rbind(v2_data.summary, replace)
 
 ### drop bad subjs from response matrix ###
 temp <- temp %>% subset(Participant.Public.ID %in% v2_data.summary$Participant.Public.ID)
 RT.matrix <- RT.matrix %>% subset(Participant.Public.ID %in% v2_data.summary$Participant.Public.ID)
-### add demographic variables ###
-temp <- merge(temp, v2_demo, by = "Participant.Public.ID")
-temp$age <- as.numeric(temp$age)
-
-### drop unnecessary columns ###
-temp <- temp[, c(1, 3, 40:202)]
-Resp.matrix <- temp
-Resp.matrix <- Resp.matrix[, c(4:163)]
-Resp.matrix <- as.data.frame(t(Resp.matrix))
-Resp.matrix$stimMeans <- rowMeans(Resp.matrix, na.rm = T)
-Resp.matrix$stimSDs <- apply(Resp.matrix[,1:6],1,sd)
-
-RT.matrix <- RT.matrix[, c(1, 3, 40:200)]
-### write out response matrix ###
-# write.csv(temp, "~/Desktop/subj_response_matrix.csv", row.names = F)
+# ### add demographic variables ###
+# temp <- merge(temp, v2_demo, by = "Participant.Public.ID")
+# temp$age <- as.numeric(temp$age)
+# 
+# ### drop unnecessary columns ###
+# temp <- temp[, c(1, 3, 40:202)]
+# Resp.matrix <- temp
+# Resp.matrix <- Resp.matrix[, c(4:163)]
+# Resp.matrix <- as.data.frame(t(Resp.matrix))
+# Resp.matrix$stimMeans <- rowMeans(Resp.matrix, na.rm = T)
+# Resp.matrix$stimSDs <- apply(Resp.matrix[,1:6],1,sd)
+# 
+# RT.matrix <- RT.matrix[, c(1, 3, 40:200)]
+# ### write out response matrix ###
+# # write.csv(temp, "~/Desktop/subj_response_matrix.csv", row.names = F)
 
 ###################################################
 full <- merge(v2_data.summary, v2_demo, by = "Participant.Public.ID")
+
+write.csv(full, "words_study1_data.csv", row.names = F)
+write.csv(temp, "Resp_Matrix.csv", row.names = F)
+write.csv(RT.matrix, "RT_Matrix.csv", row.names = F)
 full$age <- as.numeric(full$age)
+plyr::count(full$sex)
+max(full$age)
 
 ### MOVE EVERYTHING BELOW TO A NEW SCRIPT... 
 ### DATA CLEANING SCRIPT SHOULD BE SOURCEABLE

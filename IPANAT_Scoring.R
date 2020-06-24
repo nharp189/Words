@@ -5,6 +5,7 @@ setwd("~/Documents/Nick-Grad/Neta_Lab/words/")
 library(readbulk)
 library(lme4)
 library(lavaan)
+library(plyr)
 
 ### read in ipanat data ###
 data <- read_bulk("data/ipanat/", fun = read_csv, 
@@ -48,6 +49,7 @@ data$NEG <- rowMeans(data[, c("helpless-quantised",
 
 ### drop subjects that were not kept in analysis ###
 ### SOURCE 1:539 study1_redo_data_cleaning.R ###
+full <- read.csv("data/study1_redo_data/words_study1_data.csv")
 data <- subset(data, data$Participant.Public.ID %in% full$Participant.Public.ID)
 
 ### now average positive and negative affect ###
@@ -58,16 +60,18 @@ data <- ddply(data, "Participant.Public.ID", summarise,
 
 full.new <- merge(full, data[, c("Participant.Public.ID",
                      "POS", "NEG")], by = "Participant.Public.ID")
-
+write.csv(full.new, "data/study1_redo_data/words_study1_data_2020.06.22.csv", row.names = F)
 summary(lm(POS ~ sur_rate + amb_rate + amw_rate, full.new))
 summary(lm(NEG ~ sur_rate + amb_rate + amw_rate, full.new))
 summary(lm(IPANAT.comb ~ sur_rate + amb_rate + amw_rate, full.new))
 
 full.new$IPANAT.comb <- full.new$NEG - full.new$POS
 
-cor.test(full.new$IPANAT.comb, full.new$sur_rate, method = "spearman")
 
-plot(full.new$IPANAT.comb, full.new$amw_rate)
+
+cor.test(full.new$IPANAT.comb, full.new$all_amb_rate, method = "spearman")
+
+plot(full.new$IPANAT.comb, full.new$all_amb_rate)
 shapiro.test(full.new$IPANAT.comb)
 
 cor(full.new[, c("sur_rate", "amb_rate", "amw_rate", "IPANAT.comb")])

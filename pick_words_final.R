@@ -13,6 +13,8 @@ lex <- read.csv("I166930.csv")
 ### import valence and arousal data from BRM paper ###
 rate <- read.csv("BRM-emot-submit.csv")
 
+
+
 amb <- read.csv("59amb.csv")
 
 ### merge by word... ###
@@ -41,7 +43,7 @@ final <- rbind(neg, pos, amb.data)
 firstblock <- rbind(firstblockpos, firstblockneg)
 task2 <- final[!(final$Word %in% firstblock$Word),]
 
-
+tra <- subset(final, final$Word == "insane")
 ### make words uppercase, but can get rid of these lines later ###
 ## messes up other stuff... ###
 task2 <- mutate_all(task2, .funs=toupper)

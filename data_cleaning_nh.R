@@ -1,5 +1,5 @@
 ### set wd ###
-cbpath <- '~/Documents/GitHub/Words/'
+#cbpath <- '~/Documents/GitHub/Words/'
 nhpath <- '~/Documents/Nick-Grad/Neta_Lab/Words/'
 path = nhpath
 setwd(path)
@@ -12,22 +12,22 @@ suppressPackageStartupMessages(library(ggplot2))
 
 ### import task data ###
 ## Main task, A = positive, L = negative
-data1 <- read_csv('data/pilot_data_20190719/data_exp_8700-v20_task-l2xg.csv')
+data1 <- read_csv('data/pilot/data_exp_8700-v20_task-l2xg.csv')
 ## Main task, A = negative, L = positive
-data2 <- read_csv('data/pilot_data_20190719/data_exp_8700-v20_task-bx4b.csv')
+data2 <- read_csv('data/pilot/data_exp_8700-v20_task-bx4b.csv')
 ## Screener task, A = positive, L = negative
-data3 <- read_csv('data/pilot_data_20190719/data_exp_8700-v20_task-jdgj.csv')
+data3 <- read_csv('data/pilot/data_exp_8700-v20_task-jdgj.csv')
 ## Screener task, A = negative, L = positive
-data4 <- read_csv('data/pilot_data_20190719/data_exp_8700-v20_task-3raa.csv')
+data4 <- read_csv('data/pilot/data_exp_8700-v20_task-3raa.csv')
 
 ### pick the cool colomns ###
-data1 <- data1[, c("Participant Public ID", "Trial Number", "Reaction Time", "Response", "Correct", "Incorrect", "randomise_trials", "display", 
+data1 <- data1[, c("Participant Public ID", "Participant Private ID", "Trial Number", "Reaction Time", "Response", "Correct", "Incorrect", "randomise_trials", "display", 
                    "ANSWER", "# exwords", "# wordlist", "Metadata")]
-data2 <- data2[, c("Participant Public ID", "Trial Number", "Reaction Time", "Response", "Correct", "Incorrect", "randomise_trials", "display", 
+data2 <- data2[, c("Participant Public ID", "Participant Private ID", "Trial Number", "Reaction Time", "Response", "Correct", "Incorrect", "randomise_trials", "display", 
                    "ANSWER", "# exwords", "# wordlist", "Metadata")]
-data3 <- data3[, c("Participant Public ID", "Trial Number", "Reaction Time", "Response", "Correct", "Incorrect", "randomise_trials", "display", 
+data3 <- data3[, c("Participant Public ID", "Participant Private ID", "Trial Number", "Reaction Time", "Response", "Correct", "Incorrect", "randomise_trials", "display", 
                    "ANSWER", "# exwords", "# wordlist", "Metadata")]
-data4 <- data4[, c("Participant Public ID", "Trial Number", "Reaction Time", "Response", "Correct", "Incorrect", "randomise_trials", "display", 
+data4 <- data4[, c("Participant Public ID", "Participant Private ID", "Trial Number", "Reaction Time", "Response", "Correct", "Incorrect", "randomise_trials", "display", 
                    "ANSWER", "# exwords", "# wordlist", "Metadata")]
 
 ### remove the words "positive" and "negative" from the main blocks ###
@@ -40,7 +40,7 @@ data1<-data1[(data1$`# wordlist` != "NEGATIVE"),]
 data <- rbind(data3, data4)
 
 ### rename (need to get rid of `#`'s)
-names(data) <- c("subjID", "Trial Number", "Reaction Time", "Response", "Correct", "Incorrect", "randomise_trials", "display", 
+names(data) <- c("subjID", "Participant Private ID", "Trial Number", "Reaction Time", "Response", "Correct", "Incorrect", "randomise_trials", "display", 
                  "ANSWER", "exwords", "wordlist", "Metadata")
 
 ### positive/negative were screeners and actual words of interest ###
@@ -57,10 +57,10 @@ data <- select(data,-c("column_label"))
 ### merge counter-balanced testing blocks ###
 ### this renaming could be made more elegant... ###
 ### rename (need to get rid of `#`'s)
-names(data1) <- c("subjID", "Trial Number", "Reaction Time", "Response", "Correct", "Incorrect", "randomise_trials", "display", 
+names(data1) <- c("subjID", "Participant Private ID", "Trial Number", "Reaction Time", "Response", "Correct", "Incorrect", "randomise_trials", "display", 
                  "ANSWER", "exwords", "wordlist", "Metadata")
 ### rename (need to get rid of `#`'s)
-names(data2) <- c("subjID", "Trial Number", "Reaction Time", "Response", "Correct", "Incorrect", "randomise_trials", "display", 
+names(data2) <- c("subjID", "Participant Private ID", "Trial Number", "Reaction Time", "Response", "Correct", "Incorrect", "randomise_trials", "display", 
                  "ANSWER", "exwords", "wordlist", "Metadata")
 data <- rbind(data, data1, data2)
 
@@ -102,10 +102,12 @@ data <- bind_rows(split.data, .id = "column_label")
 ### use to swtich b/w different RT cutoffs ###
 ###                                        ###
 data <- subset(data, (`Reaction Time` >= 250 & `Reaction Time` <= 2932))
+write.csv(list(unique(data$`Participant Private ID`)), "pilot_subjects.csv")
 
 ### remove bad subjects (i.e., A1DCKRRPA4AWVD) ###
+### this subject has only 472/629 responses ###
 data <- subset(data, !subjID == "A1DCKRRPA4AWVD")
-
+# plyr::count(data$subjID)
 ### grab mean and standard deviation of postiive/negative judgments ###
 words.summary <- (ddply(data, "wordlist", plyr::summarise, 
                         neg.avg = mean(rating, na.rm = FALSE),
@@ -114,7 +116,7 @@ words.summary <- (ddply(data, "wordlist", plyr::summarise,
                         RT.sd = sd(`Reaction Time`, na.rm = FALSE),
                         avg.cor = mean(Correct, na.rm = FALSE),
                         avg.inc = mean(Incorrect, na.rm = FALSE)))
-
+unique(data$subjID)
 ### pair labels with words ###
 {### import elexicon generate list (this list used min / max for lexical characteristics
 ### from ~30 proposed ambiguous words) ###
@@ -141,6 +143,7 @@ rm(lex, rate, amb, full.data, amb.data, new.data, neg, pos)
 final <- mutate_all(final, .funs=toupper)
 words.summary <- merge(words.summary, final, by = "wordlist")
 }
+
 # write.csv(words.summary, "~/Documents/Nick-Grad/Neta_Lab/Words/words.summary.csv")
 write.csv(words.summary,paste(path,"words.summary",'.csv',sep = ''))
 
@@ -160,11 +163,12 @@ write.csv(temp, "words.summary.above875ms.csv")
 #                           '.csv',sep = ''))
 
 
-
+unique(data$subjID)
 ############################ Demographics ###########################
 ## Demographic Questionnaire and Screener Questions
-demog <- read_csv('data/pilot_data_20190719/data_exp_8700-v20_questionnaire-rok5.csv')
-
+demog <- read_csv('data/pilot/data_exp_8700-v20_questionnaire-rok5.csv')
+plyr::count(unique(demog$`Participant Public ID`) %in% unique(data$subjID))
+demog <- subset(demog, !is.na(demog$`Participant Public ID`))
 ### pick the cool colomns ###
 demog <- demog[, c("Participant Public ID", "Question Key","Response")]
 
@@ -191,11 +195,14 @@ rm(demog_age,demog_race,demog_sex)
 demog<-demog[!is.na(demog$`Participant Public ID`),]
 
 ### subset demog for only the participants who completed the whole thing
-demog <- demog[demog$`Participant Public ID` %in% final.participant, ]
+demog <- demog[demog$`Participant Public ID` %in% data$subjID, ]
 
 ### calculations for mean age, race, and sex distributions
 mean(demog$age)
-
+mean(demog$age)
+max(demog$age)
+plyr::count(demog$race)
+plyr::count(demog$sex)
 sum(str_count(demog$race, "White - not of Hispanic Origin"))/length(final.participant) *100
 sum(str_count(demog$race, "American Indian or Alaskan Native"))/length(final.participant) *100
 sum(str_count(demog$race, "Asian"))/length(final.participant) *100
