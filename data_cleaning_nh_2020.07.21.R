@@ -116,6 +116,26 @@ data.over3sd <- subset(data, `Reaction Time` >
                          (mean(data$`Reaction Time`) + 3 *sd(data$`Reaction Time`)))
 
 
+# Alternative RT options below 
+# 
+#
+
+# library(trimr)
+# 
+# names(data)[names(data) == "subjID"] <- "participant"
+# names(data)[names(data) == "Reaction Time"] <- "rt"
+# data$accuracy <- 1
+# data$condition <- 1
+# data.persubj.trim <- sdTrim(data, minRT = 250, sd = 2.5, perCondition = F,
+#        perParticipant = TRUE, returnType = "raw")
+# data <- data.persubj.trim
+# names(data)[names(data) == "participant"] <- "subjID"
+# names(data)[names(data) == "rt"] <- "Reaction Time"
+
+
+
+
+
 write.csv(list(unique(data$`Participant Private ID`)), "pilot_subjects.csv")
 table <- plyr::count(data$subjID)
 table$freq

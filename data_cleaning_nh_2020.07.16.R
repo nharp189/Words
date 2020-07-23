@@ -40,7 +40,17 @@ data1<-data1[(data1$`# wordlist` != "NEGATIVE"),]
 
 ### merge counter-balanced screening blocks ###
 data <- rbind(data3, data4)
-
+library(readxl)
+library(tidyverse)
+participants <- read_xlsx("~/Desktop/participants (1).xlsx")
+participants <- participants %>% subset(Status == "Complete")
+lista <- unique(data$`Participant Public ID`)
+unique(lista)
+unique(participants$PublicID)
+unique(data$`Participant Private ID`)
+unique(data$`Participant Public ID`)
+setdiff(participants$PublicID, lista)
+setdiff(lista, participants$PublicID)
 ### rename (need to get rid of `#`'s)
 names(data) <- c("subjID", "Participant Private ID", "Trial Number", "Reaction Time", "Response", "Correct", "Incorrect", "randomise_trials", "display", 
                  "ANSWER", "exwords", "wordlist", "Metadata")
@@ -100,26 +110,14 @@ split.data <- lapply(split.data, function(data) {
 })
 ### marry the data again ###
 data <- bind_rows(split.data, .id = "column_label")
-mean(data$`Reaction Time`) + 2.5 *sd(data$`Reaction Time`)
-plyr::count(data$`Reaction Time` > 2926)
-
-ggplot(data, aes(x = subjID, y = `Reaction Time`)) +
-  geom_point() +
-  ylim(c(0, 5000))
 
 ### use to swtich b/w different RT cutoffs ###
 ###                                        ###
-data.3 <- subset(data, (`Reaction Time` >= 250 & `Reaction Time` <= 
+data <- subset(data, (`Reaction Time` >= 250 & `Reaction Time` <= 
                         (mean(data$`Reaction Time`) + 3 *sd(data$`Reaction Time`))))
-data.under250 <- subset(data, `Reaction Time` < 250)
-data.over3sd <- subset(data, `Reaction Time` > 
-                         (mean(data$`Reaction Time`) + 3 *sd(data$`Reaction Time`)))
-
-
 write.csv(list(unique(data$`Participant Private ID`)), "pilot_subjects.csv")
-table <- plyr::count(data$subjID)
-table$freq
-order(table$freq / 629)
+
+
 ### remove bad subjects (i.e., A1DCKRRPA4AWVD) ###
 ### this subject has only 472/629 responses ###
 data <- subset(data, !subjID == "A1DCKRRPA4AWVD")

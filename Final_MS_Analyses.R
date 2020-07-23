@@ -3,13 +3,14 @@ path = nhpath
 setwd(path)
 
 ### Pilot Study ###
-library(emmeans)
+{library(emmeans)
 library(papaja)
 library(readr)
+library(tidyverse)
 library(utils)
 library(lme4)
 library(lmerTest)
-library(lsr)
+library(lsr)}
 
 ############################ Demographics ###########################
 ## Demographic Questionnaire and Screener Questions
@@ -124,7 +125,6 @@ ggplot(words.summary, aes(x = arbitrary, y = RT, color = Val,
         legend.title = element_text(size = 25),
         legend.position = "none")
 
-
 ### select words ###
 pos <- subset(words.summary, words.summary$neg.avg <= 25)
 pos <- subset(pos, !(pos$wordlist == "POSITIVE"))
@@ -142,7 +142,7 @@ neg <- subset(neg, neg$count %in% c(1:16))
 
 amb <- subset(words.summary, ((words.summary$neg.avg > 25 & words.summary$neg.avg < 75) &
                                 words.summary$RT >= 875))
-
+#setdiff(amb$wordlist, amb.2.5sd$wordlist)
 amb <- subset(amb, !(amb$wordlist %in% c("ABUNDANT", "INHERIT", "FACELESS", "HEADSTONE",
               "COURTROOM", "COSMIC", "RECEIVE", "RECESSION")))
 amb$count <- 1:nrow(amb)
@@ -197,7 +197,7 @@ sd(subset(final.words, final.words$wordlist %in% pos$wordlist | final.words$word
 ############################ Methods ###########################
 ## Demographic Questionnaire and Screener Questions
 #run study1_redo_data_cleaning.R to line 384 and then make v2_data.summary skipping some lines.. 
-full <- read_csv("data/study1_redo_data/words_study1_data.csv")
+full <- read_csv("data/study1_redo_data/words_study1_data_persubj2Trim.csv")
 full$age <- as.numeric(full$age)
 
 ### count sex ###
@@ -377,7 +377,7 @@ emmeans(lmer.RT.model, pairwise ~ Val, adjust = "none")
 emmeans(lmer.RT.model, pairwise ~ Stim, adjust = "none")
 
 ### estimated marginal means for Interaction ###
-emmeans(aov.RT.model, pairwise ~ Val:Stim, adjust = "none")
+emmeans(lmer.RT.model, pairwise ~ Val:Stim, adjust = "none")
 
 ### Comparing Valence Bias Across Stimulus Categories ###
 shapiro.test(full$sur_rate) # non-normal

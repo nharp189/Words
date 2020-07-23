@@ -399,10 +399,25 @@ res <- plyr::count(v2_data$Participant.Public.ID)
 v2_data$Reaction.Time <- as.numeric(v2_data$Reaction.Time)
 mean(v2_data$Reaction.Time) + (3*sd(v2_data$Reaction.Time))
 
-v2_data$RT.Outl <- ifelse(((v2_data$Reaction.Time <= 250 | v2_data$Reaction.Time >= 1445.037) & v2_data$Screen.Name == "stim"), 1, 0)
-outliers <- subset(v2_data, RT.Outl == 1)
-v2_data <- subset(v2_data, RT.Outl == 0)
-table(outliers$Participant.Public.ID)
+data <- v2_data
+names(data)[names(data) == "Participant.Public.ID"] <- "participant"
+names(data)[names(data) == "Reaction.Time"] <- "rt"
+data$accuracy <- 1
+data$condition <- 1
+library(trimr)
+data.trimperSubj <- trimr::sdTrim(data, minRT = 250, sd = 2, perCondition = F,
+                            perParticipant = TRUE, returnType = "raw")
+
+v2_data <- data.trimperSubj
+names(v2_data)[names(v2_data) == "participant"] <- "Participant.Public.ID"
+names(v2_data)[names(v2_data) == "rt"] <- "Reaction.Time"
+
+# v2_data$RT.Outl3 <- ifelse(((v2_data$Reaction.Time <= 250 | v2_data$Reaction.Time >= 1445.037) & v2_data$Screen.Name == "stim"), 1, 0)
+# v2_data$RT.Outl2.5 <- ifelse(((v2_data$Reaction.Time <= 250 | v2_data$Reaction.Time >= 1321.998) & v2_data$Screen.Name == "stim"), 1, 0)
+# v2_data$RT_Outl <- v2_data$RT.Outl2.5
+# outliers <- subset(v2_data, v2_data$RT_Outl == 1)
+# v2_data.3 <- subset(v2_data, v2_data$RT_Outl == 0)
+# table(outliers$Participant.Public.ID)
 
 
 ### remove subject if fewer than 75% of trials have a response ###
@@ -448,7 +463,7 @@ RT.matrix <- v2_data %>%
 
 ### also of note is IAPS9432 and IAPS9561 are being rated
 ### as ambiguous rather than negative... strange
-
+v2_data$Reaction.Time <- as.numeric((v2_data$Reaction.Time))
 v2_data.summary <- (ddply(v2_data, "Participant.Public.ID", summarise, 
                           sur_rate = mean(rate[which(stimtype == "FACE" & clearval == "ambiguous")], na.rm = TRUE),
                           hap_rate = mean(rate[which(stimtype == "FACE" & clearval == "positive")], na.rm = TRUE),
@@ -572,9 +587,9 @@ RT.matrix <- RT.matrix %>% subset(Participant.Public.ID %in% v2_data.summary$Par
 ###################################################
 full <- merge(v2_data.summary, v2_demo, by = "Participant.Public.ID")
 
-write.csv(full, "words_study1_data.csv", row.names = F)
-write.csv(temp, "Resp_Matrix.csv", row.names = F)
-write.csv(RT.matrix, "RT_Matrix.csv", row.names = F)
+write.csv(full, "words_study1_data_persubj2Trim.csv", row.names = F)
+write.csv(temp, "Resp_Matrix_persubj2Trim.csv", row.names = F)
+write.csv(RT.matrix, "RT_Matrix_persubj2Trim.csv", row.names = F)
 full$age <- as.numeric(full$age)
 plyr::count(full$sex)
 max(full$age)
