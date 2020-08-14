@@ -100,21 +100,28 @@ split.data <- lapply(split.data, function(data) {
 })
 ### marry the data again ###
 data <- bind_rows(split.data, .id = "column_label")
-mean(data$`Reaction Time`) + 2.5 *sd(data$`Reaction Time`)
+mean(data$`Reaction Time`) + 4.5 *sd(data$`Reaction Time`)
 plyr::count(data$`Reaction Time` > 2926)
 
 ggplot(data, aes(x = subjID, y = `Reaction Time`)) +
+  geom_hline(yintercept = 2926) +
+  geom_hline(yintercept = 2567) +
   geom_point() +
-  ylim(c(0, 5000))
+  ylim(c(0, 5000)) +
+  theme(axis.text.y = element_text(size = 20),
+        axis.title.y = element_text(size = 20))
 
 ### use to swtich b/w different RT cutoffs ###
 ###                                        ###
-data.3 <- subset(data, (`Reaction Time` >= 250 & `Reaction Time` <= 
+
+### count trials per subject ###
+tab1 <- plyr::count(data$subjID)
+
+data <- subset(data, (`Reaction Time` >= 250 & `Reaction Time` <= 
                         (mean(data$`Reaction Time`) + 3 *sd(data$`Reaction Time`))))
 data.under250 <- subset(data, `Reaction Time` < 250)
 data.over3sd <- subset(data, `Reaction Time` > 
                          (mean(data$`Reaction Time`) + 3 *sd(data$`Reaction Time`)))
-
 
 # Alternative RT options below 
 # 
@@ -132,8 +139,14 @@ data.over3sd <- subset(data, `Reaction Time` >
 # names(data)[names(data) == "participant"] <- "subjID"
 # names(data)[names(data) == "rt"] <- "Reaction Time"
 
-
-
+tab2 <- plyr::count(data2.5$subjID)
+tab3 <- plyr::count(data3$subjID)
+tab <- merge(tab1, tab2, by = "x")
+tab <- merge(tab, tab3, by = "x")
+tab$lostTrials <- tab$freq.x - tab$freq.y
+tab <- tab %>% subset(!(x == "A1DCKRRPA4AWVD"))
+mean(tab$lostTrials)
+sd(tab$lostTrials)
 
 
 write.csv(list(unique(data$`Participant Private ID`)), "pilot_subjects.csv")

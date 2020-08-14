@@ -5,6 +5,8 @@ setwd(path)
 ### Pilot Study ###
 {library(emmeans)
 library(papaja)
+library(car)
+library(ppcor)
 library(readr)
 library(tidyverse)
 library(utils)
@@ -197,7 +199,12 @@ sd(subset(final.words, final.words$wordlist %in% pos$wordlist | final.words$word
 ############################ Methods ###########################
 ## Demographic Questionnaire and Screener Questions
 #run study1_redo_data_cleaning.R to line 384 and then make v2_data.summary skipping some lines.. 
-full <- read_csv("data/study1_redo_data/words_study1_data_persubj2Trim.csv")
+full <- read_csv("data/study1_redo_data/words_study1_data_2020.08.10.csv")
+# temp <- combined %>% subset(Participant.Public.ID %in% full$Participant.Public.ID)
+# plyr::count(temp$perRetainedof160)
+# temp2 <- temp %>% subset(perRetainedof160 >= .95)
+sd(temp$perRetainedof160)
+
 full$age <- as.numeric(full$age)
 
 ### count sex ###
@@ -215,8 +222,8 @@ plyr::count(full$race)
 ### Manipulation Check ###
 ### Response Matrix ###
 ### drop unnecessary columns ###
-temp <- read.csv("data/study1_redo_data/Resp_Matrix.csv")
-temp <- temp[, c(1, 3, 41:200)]
+temp <- read.csv("data/study1_redo_data/Resp_Matrix_2020.08.10.csv")
+temp <- temp[, c(1, 3, 46:205)]
 Resp.matrix <- temp
 Resp.matrix <- Resp.matrix[, c(3:162)]
 Resp.matrix <- as.data.frame(t(Resp.matrix))
@@ -225,12 +232,12 @@ Resp.matrix$stimMeans <- rowMeans(Resp.matrix, na.rm = T)
 Resp.matrix <- transform(Resp.matrix, SD=apply(Resp.matrix,1, sd, na.rm = TRUE))
 
 ### RT matrix ###
-RT_Matrix <- read.csv("data/study1_redo_data/RT_Matrix.csv")
-RT_Matrix <- RT_Matrix[, c(1, 3, 41:200)]
+RT_Matrix <- read.csv("data/study1_redo_data/RT_Matrix_2020.08.10.csv")
+RT_Matrix <- RT_Matrix[, c(1, 3, 46:205)]
 RT_Matrix <- RT_Matrix[, c(3:162)]
 RT_Matrix <- as.data.frame(t(RT_Matrix))
 RT_Matrix$stimMeans <- rowMeans(RT_Matrix, na.rm = T)
-RT_Matrix$stimSDs <- apply(RT_Matrix[,1:229],1,sd)
+# RT_Matrix$stimSDs <- apply(RT_Matrix[,1:229],1,sd)
 RT_Matrix <- transform(RT_Matrix, SD=apply(RT_Matrix,1, sd, na.rm = TRUE))
 
 ### Make matrices for each category ###
@@ -358,10 +365,7 @@ aov.RT.data$Stim <- dplyr::recode(aov.RT.data$Condition,
                                   "amb_rt" = "Scenes",
                                   "amw_rt" = "Words")
 
-# summary(aov.RT.model <- aov(RT ~ Val * Stim + Error(Participant.Public.ID/(Val * Stim)), 
-#                          data=aov.RT.data))
-
-lmer.RT.model <- lmer(RT ~ Val * Stim + (1 | `Participant.Public.ID`) +
+lmer.RT.model <- lmer(RT ~  Val * Stim + (1 | `Participant.Public.ID`) +
                         (1 | `Participant.Public.ID`:Val) + (1 | `Participant.Public.ID`:Stim),
                       aov.RT.data,
                       REML = F)
@@ -369,7 +373,7 @@ lmer.RT.model <- lmer(RT ~ Val * Stim + (1 | `Participant.Public.ID`) +
 ### model summary ###
 anova(lmer.RT.model)
 summary(lmer.RT.model)
- 
+
 ### estimated marginal means for Valence ###
 emmeans(lmer.RT.model, pairwise ~ Val, adjust = "none")
 
@@ -385,7 +389,7 @@ shapiro.test(full$amb_rate) # normal
 shapiro.test(full$amw_rate) # normal 
 
 ### recode sex ###
-full$mal0fem1 <- recode(full$sex,
+full$mal0fem1 <- dplyr::recode(full$sex,
                         "Female" = 1,
                         "Male" = 0)
 # ### correlations controlling for age and sex ###1

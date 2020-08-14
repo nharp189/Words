@@ -54,7 +54,7 @@ split.data <- lapply(split.data, function(data) {
   data <- data[match(unique(data$wordlist), data$wordlist),]  
 })
 data <- bind_rows(split.data, .id = "column_label")
-data <- select(data,-c("column_label"))
+data <- dplyr::select(data,-c("column_label"))
 
 ### merge counter-balanced testing blocks ###
 ### this renaming could be made more elegant... ###
@@ -100,20 +100,27 @@ split.data <- lapply(split.data, function(data) {
 })
 ### marry the data again ###
 data <- bind_rows(split.data, .id = "column_label")
-mean(data$`Reaction Time`) + 2.5 *sd(data$`Reaction Time`)
+mean(data$`Reaction Time`) + 3 *sd(data$`Reaction Time`)
 plyr::count(data$`Reaction Time` > 2926)
+plyr::count(data$`Reaction Time` < 250)
 
-ggplot(data, aes(x = subjID, y = `Reaction Time`)) +
+ggsave("RT.png", ggplot(data, aes(x = subjID, y = `Reaction Time`)) +
   geom_point() +
-  ylim(c(0, 5000))
+  ylim(c(0, 15000)) +
+  geom_hline(yintercept = 2926) +
+  geom_hline(yintercept = 2567) +
+  theme(axis.text.y = element_text(size = 20),
+        axis.title.y = element_text(size = 20)),
+  width = 7.5, height = 10)
 
 ### use to swtich b/w different RT cutoffs ###
 ###                                        ###
-data.3 <- subset(data, (`Reaction Time` >= 250 & `Reaction Time` <= 
-                        (mean(data$`Reaction Time`) + 3 *sd(data$`Reaction Time`))))
 data.under250 <- subset(data, `Reaction Time` < 250)
 data.over3sd <- subset(data, `Reaction Time` > 
                          (mean(data$`Reaction Time`) + 3 *sd(data$`Reaction Time`)))
+
+data <- subset(data, (`Reaction Time` >= 250 & `Reaction Time` <= 
+                        (mean(data$`Reaction Time`) + 3 *sd(data$`Reaction Time`))))
 
 
 write.csv(list(unique(data$`Participant Private ID`)), "pilot_subjects.csv")
@@ -123,6 +130,14 @@ order(table$freq / 629)
 ### remove bad subjects (i.e., A1DCKRRPA4AWVD) ###
 ### this subject has only 472/629 responses ###
 data <- subset(data, !subjID == "A1DCKRRPA4AWVD")
+table <- plyr::count(data$subjID)
+table$freq
+order(table$freq / 629)
+### count mean and sd trials lost per subject ###
+table$lostTrials <- 629 - table$freq
+mean(table$lostTrials)
+sd(table$lostTrials)
+
 # plyr::count(data$subjID)
 ### grab mean and standard deviation of postiive/negative judgments ###
 words.summary <- (ddply(data, "wordlist", plyr::summarise, 
@@ -162,119 +177,119 @@ words.summary <- merge(words.summary, final, by = "wordlist")
 
 # write.csv(words.summary, "~/Documents/Nick-Grad/Neta_Lab/Words/words.summary.csv")
 write.csv(words.summary,paste(path,"words.summary",'.csv',sep = ''))
-
-### pick words b/w 30% and 70% negative and above 875ms ###
-temp <- subset(words.summary, words.summary$RT > 875 & (words.summary$neg.avg <= .70 & words.summary$neg.avg >= .30))
-
-
-write.csv(temp, "words.summary.above875ms.csv")
-
-
-# list <- count(data2$`Participant Public ID`)
-# count(list$freq < (627/2))
-
-# Write that dataset out to a csv, if ye want. Filename includes date and time.
-# write.csv(words.summary,paste(path,"words.summary",
-#                           format(Sys.time(),'_%Y-%m-%d_%H-%M-%S'),
-#                           '.csv',sep = ''))
-
-
-unique(data$subjID)
-############################ Demographics ###########################
-## Demographic Questionnaire and Screener Questions
-demog <- read_csv('data/pilot/data_exp_8700-v20_questionnaire-rok5.csv')
-plyr::count(unique(demog$`Participant Public ID`) %in% unique(data$subjID))
-demog <- subset(demog, !is.na(demog$`Participant Public ID`))
-### pick the cool colomns ###
-demog <- demog[, c("Participant Public ID", "Question Key","Response")]
-
-### separate into 3 data frames
-demog_age<-demog[(demog$`Question Key` == "age"),]
-demog_race<-demog[(demog$`Question Key`== "race"),]
-demog_sex<-demog[(demog$`Question Key`== "sex"),]
-
-### remove Question Type columns
-demog_age <- demog_age[, c("Participant Public ID", "Response")]
-demog_race <- demog_race[, c("Participant Public ID", "Response")]
-demog_sex <- demog_sex[, c("Participant Public ID", "Response")]
-
-### combine dfs back together
-demog <- merge(demog_age,demog_race,by="Participant Public ID")
-demog <- merge(demog,demog_sex,by="Participant Public ID")
-
-### rename race and age, make age numeric
-names(demog) <- c("Participant Public ID", "age", "race","sex")
-demog$age <- as.numeric(demog$age)
-
-### clean workspace ###
-rm(demog_age,demog_race,demog_sex)
-demog<-demog[!is.na(demog$`Participant Public ID`),]
-
-### subset demog for only the participants who completed the whole thing
-demog <- demog[demog$`Participant Public ID` %in% data$subjID, ]
-
-### calculations for mean age, race, and sex distributions
-mean(demog$age)
-mean(demog$age)
-max(demog$age)
-plyr::count(demog$race)
-plyr::count(demog$sex)
-sum(str_count(demog$race, "White - not of Hispanic Origin"))/length(final.participant) *100
-sum(str_count(demog$race, "American Indian or Alaskan Native"))/length(final.participant) *100
-sum(str_count(demog$race, "Asian"))/length(final.participant) *100
-sum(str_count(demog$race, "Black - not of Hispanic Origin"))/length(final.participant) *100
-sum(str_count(demog$race, "Hispanic or Latino"))/length(final.participant) *100
-sum(str_count(demog$race, "Native Hawaiian or Other Pacific Islander"))/length(final.participant) *100
-sum(str_count(demog$race, "Other"))/length(final.participant) *100
-
-sum(str_count(demog$sex, "Female"))/length(final.participant) *100
-sum(str_count(demog$sex, "Male"))/length(final.participant) *100
-sum(str_count(demog$sex, "Other"))/length(final.participant) *100
-
-### displays race in a table
-prop.table(table(demog$race))
-tbl <- table(demog$race)
-cbind(tbl,prop.table(tbl))
-
-# ### create an interactive scatterplot
-# p <- ggplot(words.summary, aes(x = wordlist, y = neg.avg,
-#                                              text = paste(
-#                                                "Word: ", wordlist, 
-#                                                "\n", "Valence Mean: ", (neg.avg*100), 
-#                                                "\n", "Valence SD: ", (neg.sd*100),
-#                                                sep = ""), fill = Val)) + 
-#   scale_fill_manual(values = c("blue","red","green")) +
-#   labs(x = "Stimulus Valence", 
-#        y = "% Negative Rating Across Participants",
-#        title = "Average Valence Ratings Across Participants",
-#        fill = "Valence") +
-#   geom_jitter() 
-# p <- ggplotly(p, tooltip = "text")
-# print(p)
 # 
-# ### save interactive scatterplot as an html file
-# wordpath <- "~/Documents/Github/words/"
-# setwd(wordpath)
-# htmlwidgets::saveWidget(as_widget(p), "scatterplot_pilot_val.html")
+# ### pick words b/w 30% and 70% negative and above 875ms ###
+# temp <- subset(words.summary, words.summary$RT > 875 & (words.summary$neg.avg <= .70 & words.summary$neg.avg >= .30))
 # 
-# ### create an interactive scatterplot
-# p <- ggplot(words.summary, aes(x = wordlist, y = RT,
-#                                text = paste(
-#                                  "Word: ", wordlist, 
-#                                  "\n", "RT: ", (RT), 
-#                                  "\n", "RT SD: ", (RT.sd),
-#                                  sep = ""), fill = Val)) + 
-#   scale_fill_manual(values = c("blue","red","green")) +
-#   labs(x = "Stimulus Valence", 
-#        y = "Reaction Time (ms)",
-#        fill = "Valence") +
-#   geom_jitter() +
-#   geom_hline(yintercept=875, linetype="dashed", color = "#2C528C", size=0.5) 
-# p <- ggplotly(p, tooltip = "text")
-# print(p)
 # 
-# ### save interactive scatterplot as an html file
-# wordpath <- "~/Documents/Github/words/"
-# setwd(wordpath)
-# htmlwidgets::saveWidget(as_widget(p), "scatterplot_pilot_rt.html")
-
+# write.csv(temp, "words.summary.above875ms.csv")
+# 
+# 
+# # list <- count(data2$`Participant Public ID`)
+# # count(list$freq < (627/2))
+# 
+# # Write that dataset out to a csv, if ye want. Filename includes date and time.
+# # write.csv(words.summary,paste(path,"words.summary",
+# #                           format(Sys.time(),'_%Y-%m-%d_%H-%M-%S'),
+# #                           '.csv',sep = ''))
+# 
+# 
+# unique(data$subjID)
+# ############################ Demographics ###########################
+# ## Demographic Questionnaire and Screener Questions
+# demog <- read_csv('data/pilot/data_exp_8700-v20_questionnaire-rok5.csv')
+# plyr::count(unique(demog$`Participant Public ID`) %in% unique(data$subjID))
+# demog <- subset(demog, !is.na(demog$`Participant Public ID`))
+# ### pick the cool colomns ###
+# demog <- demog[, c("Participant Public ID", "Question Key","Response")]
+# 
+# ### separate into 3 data frames
+# demog_age<-demog[(demog$`Question Key` == "age"),]
+# demog_race<-demog[(demog$`Question Key`== "race"),]
+# demog_sex<-demog[(demog$`Question Key`== "sex"),]
+# 
+# ### remove Question Type columns
+# demog_age <- demog_age[, c("Participant Public ID", "Response")]
+# demog_race <- demog_race[, c("Participant Public ID", "Response")]
+# demog_sex <- demog_sex[, c("Participant Public ID", "Response")]
+# 
+# ### combine dfs back together
+# demog <- merge(demog_age,demog_race,by="Participant Public ID")
+# demog <- merge(demog,demog_sex,by="Participant Public ID")
+# 
+# ### rename race and age, make age numeric
+# names(demog) <- c("Participant Public ID", "age", "race","sex")
+# demog$age <- as.numeric(demog$age)
+# 
+# ### clean workspace ###
+# rm(demog_age,demog_race,demog_sex)
+# demog<-demog[!is.na(demog$`Participant Public ID`),]
+# 
+# ### subset demog for only the participants who completed the whole thing
+# demog <- demog[demog$`Participant Public ID` %in% data$subjID, ]
+# 
+# ### calculations for mean age, race, and sex distributions
+# mean(demog$age)
+# mean(demog$age)
+# max(demog$age)
+# plyr::count(demog$race)
+# plyr::count(demog$sex)
+# sum(str_count(demog$race, "White - not of Hispanic Origin"))/length(final.participant) *100
+# sum(str_count(demog$race, "American Indian or Alaskan Native"))/length(final.participant) *100
+# sum(str_count(demog$race, "Asian"))/length(final.participant) *100
+# sum(str_count(demog$race, "Black - not of Hispanic Origin"))/length(final.participant) *100
+# sum(str_count(demog$race, "Hispanic or Latino"))/length(final.participant) *100
+# sum(str_count(demog$race, "Native Hawaiian or Other Pacific Islander"))/length(final.participant) *100
+# sum(str_count(demog$race, "Other"))/length(final.participant) *100
+# 
+# sum(str_count(demog$sex, "Female"))/length(final.participant) *100
+# sum(str_count(demog$sex, "Male"))/length(final.participant) *100
+# sum(str_count(demog$sex, "Other"))/length(final.participant) *100
+# 
+# ### displays race in a table
+# prop.table(table(demog$race))
+# tbl <- table(demog$race)
+# cbind(tbl,prop.table(tbl))
+# 
+# # ### create an interactive scatterplot
+# # p <- ggplot(words.summary, aes(x = wordlist, y = neg.avg,
+# #                                              text = paste(
+# #                                                "Word: ", wordlist, 
+# #                                                "\n", "Valence Mean: ", (neg.avg*100), 
+# #                                                "\n", "Valence SD: ", (neg.sd*100),
+# #                                                sep = ""), fill = Val)) + 
+# #   scale_fill_manual(values = c("blue","red","green")) +
+# #   labs(x = "Stimulus Valence", 
+# #        y = "% Negative Rating Across Participants",
+# #        title = "Average Valence Ratings Across Participants",
+# #        fill = "Valence") +
+# #   geom_jitter() 
+# # p <- ggplotly(p, tooltip = "text")
+# # print(p)
+# # 
+# # ### save interactive scatterplot as an html file
+# # wordpath <- "~/Documents/Github/words/"
+# # setwd(wordpath)
+# # htmlwidgets::saveWidget(as_widget(p), "scatterplot_pilot_val.html")
+# # 
+# # ### create an interactive scatterplot
+# # p <- ggplot(words.summary, aes(x = wordlist, y = RT,
+# #                                text = paste(
+# #                                  "Word: ", wordlist, 
+# #                                  "\n", "RT: ", (RT), 
+# #                                  "\n", "RT SD: ", (RT.sd),
+# #                                  sep = ""), fill = Val)) + 
+# #   scale_fill_manual(values = c("blue","red","green")) +
+# #   labs(x = "Stimulus Valence", 
+# #        y = "Reaction Time (ms)",
+# #        fill = "Valence") +
+# #   geom_jitter() +
+# #   geom_hline(yintercept=875, linetype="dashed", color = "#2C528C", size=0.5) 
+# # p <- ggplotly(p, tooltip = "text")
+# # print(p)
+# # 
+# # ### save interactive scatterplot as an html file
+# # wordpath <- "~/Documents/Github/words/"
+# # setwd(wordpath)
+# # htmlwidgets::saveWidget(as_widget(p), "scatterplot_pilot_rt.html")
+# 

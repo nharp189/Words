@@ -7,6 +7,7 @@ setwd(nhpath)
 ### load packages ###
 suppressPackageStartupMessages(library(tidyverse))
 suppressPackageStartupMessages(library(plyr))
+suppressPackageStartupMessages(library(trimr))
 suppressPackageStartupMessages(library(MASS))
 suppressPackageStartupMessages(library(ppcor))
 suppressPackageStartupMessages(library(dplyr))
@@ -395,20 +396,56 @@ v2_data <- subset(v2_data, flag == 0)
 ### display number of trials for each participant ###
 res <- plyr::count(v2_data$Participant.Public.ID)
 
-### drop trials w/ responses in less than 200ms ###
-v2_data$Reaction.Time <- as.numeric(v2_data$Reaction.Time)
-mean(v2_data$Reaction.Time) + (3*sd(v2_data$Reaction.Time))
-
+### drop trials w/ responses in less than 250ms ###
+### or that are > 3 SDs from participant mean ###
 data <- v2_data
 names(data)[names(data) == "Participant.Public.ID"] <- "participant"
 names(data)[names(data) == "Reaction.Time"] <- "rt"
+data$rt <- as.numeric(data$rt)
+### make accuracy and condition labels ###
 data$accuracy <- 1
 data$condition <- 1
-library(trimr)
-data.trimperSubj <- trimr::sdTrim(data, minRT = 250, sd = 2, perCondition = F,
+
+before.cutting <- plyr::count(data$participant)
+sum(before.cutting$freq)
+data.trimperSubj <- trimr::sdTrim(data, minRT = 250, sd = 3, perCondition = F,
                             perParticipant = TRUE, returnType = "raw")
+after.cutting <- plyr::count(data.trimperSubj$participant)
+sum(after.cutting$freq)
+### merge cutting tables ###
+combined <- merge(before.cutting, after.cutting, by = "x")
+combined$lostTrials <- combined$freq.x - combined$freq.y
+combined$perRetained <- combined$freq.y / combined$freq.x
+combined$perRetainedof160 <- combined$freq.y / 160
+data.250 <- data %>% subset(rt < 250)
+
+### count original # of trials w/o bad participants ###
+data.temp <- data %>% subset(!(participant %in% c("A4HRHP82CDV7L",
+                                                  "A35CL66BEUSJ5Z",
+                                                  "abp8y4lf",
+                                                  "ip9tcshd",
+                                                  "wg2791rw",
+                                                  "zuxlxln0")))
+
+temp <- combined %>% subset(!(x %in% c("A4HRHP82CDV7L",
+                                                  "A35CL66BEUSJ5Z",
+                                                  "abp8y4lf",
+                                                  "ip9tcshd",
+                                                  "wg2791rw",
+                                                  "zuxlxln0")))
+
+sum(temp$lostTrials)
+
+### count trials per subject ###
+# tab1 <- plyr::count(data$participant)
+# tab2 <- plyr::count(data.trimperSubj$participant)
+# tab <- merge(tab1, tab2, by = "x")
+# tab$lostTrials <- tab$freq.x - tab$freq.y
+# mean(tab$lostTrials)
+# sd(tab$lostTrials)
 
 v2_data <- data.trimperSubj
+
 names(v2_data)[names(v2_data) == "participant"] <- "Participant.Public.ID"
 names(v2_data)[names(v2_data) == "rt"] <- "Reaction.Time"
 
@@ -422,15 +459,32 @@ names(v2_data)[names(v2_data) == "rt"] <- "Reaction.Time"
 
 ### remove subject if fewer than 75% of trials have a response ###
 ### v2_data.rm = starting a list of removed sjs to replace w/ correct age category ###
-v2_data.rm <- as.data.frame(table(v2_data$Participant.Public.ID))
-names(v2_data.rm) <- c("Participant.Public.ID", "trials")
-v2_data <- merge(v2_data, v2_data.rm, by = "Participant.Public.ID")
-# v2_data <- v2_data[(v2_data$trials > 119),]
+#v2_data.rm <- as.data.frame(table(v2_data$Participant.Public.ID))
+#names(v2_data.rm) <- c("Participant.Public.ID", "trials")
+names(combined)[1] <- "Participant.Public.ID"
+v2_data <- merge(v2_data, combined, by = "Participant.Public.ID")
+
+### drop anyone w/ less than 120 / 160 total trials (75%) ###
+v2_data <- v2_data[!((v2_data$perRetainedof160 < .75)),]
+
+percondition <- plyr::count(v2_data, vars = c("Participant.Public.ID", "stimtype"))
+percondition <-spread(percondition, stimtype, freq)
+
+### drop the bad subjects from the combined list and calculate lost trial average & sd
+combined <- combined %>% subset(Participant.Public.ID %in% v2_data$Participant.Public.ID)
+mean(combined$lostTrials)
+sd(combined$lostTrials)
+plyr::count(combined$perRetainedof160)
 
 ### make "positive" 0 and "negative" 1 ###
 v2_data$rate <- dplyr::recode(v2_data$Response,
                        "positive" = 0,
                        "negative" = 1)
+
+### count trials lost ###
+nrow(data %>% subset(participant %in% v2_data$Participant.Public.ID))
+nrow(data %>% subset(participant %in% v2_data$Participant.Public.ID))-nrow(v2_data)
+
 
 ### pull full response matrix ###
 temp <- v2_data %>% 
@@ -587,9 +641,9 @@ RT.matrix <- RT.matrix %>% subset(Participant.Public.ID %in% v2_data.summary$Par
 ###################################################
 full <- merge(v2_data.summary, v2_demo, by = "Participant.Public.ID")
 
-write.csv(full, "words_study1_data_persubj2Trim.csv", row.names = F)
-write.csv(temp, "Resp_Matrix_persubj2Trim.csv", row.names = F)
-write.csv(RT.matrix, "RT_Matrix_persubj2Trim.csv", row.names = F)
+write.csv(full, "words_study1_data_2020.08.10.csv", row.names = F)
+write.csv(temp, "Resp_Matrix_2020.08.10.csv", row.names = F)
+write.csv(RT.matrix, "RT_Matrix_2020.08.10.csv", row.names = F)
 full$age <- as.numeric(full$age)
 plyr::count(full$sex)
 max(full$age)
