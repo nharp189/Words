@@ -90,7 +90,7 @@ data <- data[ data$subjID %in% final.participant, ]
 ### create 1 = neg and 0 = pos score for each trial ###
 data$rating <- ifelse(data$Response == "negative", 1, 
                       ifelse(data$Response == "positive", 0, NA))
-
+unique(data$subjID)
 ### insane was doubled... oops, select only first instance ###
 ### first split data into dataframe for each subject ###
 split.data <- split(data, data$subjID)

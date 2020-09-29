@@ -1,0 +1,19 @@
+sur_rate = Ambiguous faces percent negative ratings
+hap_rate = Positive faces percent negative ratings
+ang_rate = Negative faces percent negative ratings
+
+amb_rate = Ambiguous scenes percent negative ratings
+pos_rate = Positive scenes percent negative ratings
+neg_rate = Negative scenes percent negative ratings
+
+amw_rate = Ambiguous words percent negative ratings
+pow_rate = Positive words percent negative ratings
+new_rate = Negative words percent negative ratings
+
+all_amb_rate = All ambiguous stimuli percent negative ratings
+all_pos_rate = All positive stimuli percent negative ratings
+all_neg_rate = All negative stimuli percent negative ratings
+
+These all repeat for reaction time... then the ambiguous stimuli are broken down into RT for positive vs. negative ratings. 
+
+Finally, there are some columns ending in "_bad" which flag participants with "bad" or inaccurate ratings in that stimulus category along with demographic variables. 
